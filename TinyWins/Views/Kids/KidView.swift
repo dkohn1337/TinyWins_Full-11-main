@@ -1855,8 +1855,8 @@ private struct AnimatedMeshBackground: View {
                             y: animate ? CGFloat.random(in: -30...30) : 0
                         )
                         .position(
-                            x: geo.size.width * [0.2, 0.8, 0.3, 0.7][i],
-                            y: geo.size.height * [0.2, 0.4, 0.7, 0.9][i]
+                            x: geo.size.width * [0.2, 0.8, 0.3, 0.7][i % 4],
+                            y: geo.size.height * [0.2, 0.4, 0.7, 0.9][i % 4]
                         )
                 }
             }

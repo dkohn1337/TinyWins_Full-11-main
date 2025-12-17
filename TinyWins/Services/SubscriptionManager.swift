@@ -340,15 +340,31 @@ final class SubscriptionManager: ObservableObject {
     }
 
     private func listenForTransactions() -> Task<Void, Error> {
-        // Use unowned instead of weak since SubscriptionManager is a singleton
-        // that should never be deallocated. If it somehow is, we want to crash
-        // rather than silently miss transactions (which would be a revenue bug).
-        return Task.detached { [unowned self] in
+        // Use weak self for safety. SubscriptionManager is a singleton that should
+        // never be deallocated, but using weak prevents crashes if it somehow is.
+        // We log critical errors if self becomes nil during transaction processing.
+        return Task.detached { [weak self] in
             #if DEBUG
             print("[SubscriptionManager] Transaction listener started")
             #endif
 
             for await result in Transaction.updates {
+                guard let self = self else {
+                    // This should never happen with a singleton, but handle gracefully
+                    #if DEBUG
+                    assertionFailure("[SubscriptionManager] CRITICAL: SubscriptionManager deallocated while listening for transactions")
+                    #endif
+                    CrashReporter.logNonFatal(
+                        NSError(
+                            domain: "SubscriptionManager",
+                            code: -999,
+                            userInfo: [NSLocalizedDescriptionKey: "SubscriptionManager deallocated during transaction listening"]
+                        ),
+                        context: "Transaction listener lost reference to SubscriptionManager"
+                    )
+                    return
+                }
+
                 switch result {
                 case .verified(let transaction):
                     #if DEBUG

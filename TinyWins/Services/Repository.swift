@@ -524,7 +524,7 @@ final class Repository: RepositoryProtocol, ObservableObject {
 
         // Create new debounced save task
         let workItem = DispatchWorkItem { [weak self] in
-            self?.performSave()
+            self?.performSaveOnQueue()
         }
         saveDebounceTask = workItem
 
@@ -532,23 +532,22 @@ final class Repository: RepositoryProtocol, ObservableObject {
         saveQueue.asyncAfter(deadline: .now() + saveDebounceInterval, execute: workItem)
     }
 
-    /// Perform the actual save operation (called after debounce)
-    private func performSave() {
+    /// Perform the actual save operation (called on saveQueue after debounce)
+    /// IMPORTANT: This method must only be called from saveQueue to avoid deadlocks
+    private func performSaveOnQueue() {
         guard hasPendingSave else { return }
         hasPendingSave = false
 
-        // Capture appData on the calling thread
+        // Capture appData - we're on saveQueue so this is safe
         let dataToSave = appData
 
-        // Perform save on the serial queue to prevent races
-        saveQueue.sync {
-            do {
-                try backend.saveAppData(dataToSave)
-            } catch {
-                #if DEBUG
-                print("[Repository] Save failed: \(error.localizedDescription)")
-                #endif
-            }
+        // Already on saveQueue, no need to dispatch again
+        do {
+            try backend.saveAppData(dataToSave)
+        } catch {
+            #if DEBUG
+            print("[Repository] Save failed: \(error.localizedDescription)")
+            #endif
         }
 
         // Notify sync manager for background cloud sync (on main thread)
@@ -561,7 +560,10 @@ final class Repository: RepositoryProtocol, ObservableObject {
     func saveImmediately() {
         saveDebounceTask?.cancel()
         hasPendingSave = true
-        performSave()
+        // Dispatch to saveQueue to ensure thread safety
+        saveQueue.async { [weak self] in
+            self?.performSaveOnQueue()
+        }
     }
 
     /// Update the entire app data and save.

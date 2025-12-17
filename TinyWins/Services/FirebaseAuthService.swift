@@ -60,8 +60,8 @@ final class FirebaseAuthService: NSObject, ObservableObject, AuthService {
 
     deinit {
         #if canImport(FirebaseCore)
-        if let handle = authStateHandle {
-            Auth.auth().removeStateDidChangeListener(handle as! AuthStateDidChangeListenerHandle)
+        if let handle = authStateHandle as? AuthStateDidChangeListenerHandle {
+            Auth.auth().removeStateDidChangeListener(handle)
         }
         #endif
     }
@@ -112,7 +112,7 @@ final class FirebaseAuthService: NSObject, ObservableObject, AuthService {
 
         do {
             // Generate nonce for security
-            let nonce = randomNonceString()
+            let nonce = try randomNonceString()
             currentNonce = nonce
 
             // Create Apple ID request
@@ -380,12 +380,16 @@ final class FirebaseAuthService: NSObject, ObservableObject, AuthService {
     // MARK: - Helpers
 
     /// Generate a random nonce string for Apple Sign-In security.
-    private func randomNonceString(length: Int = 32) -> String {
+    private func randomNonceString(length: Int = 32) throws -> String {
         precondition(length > 0)
         var randomBytes = [UInt8](repeating: 0, count: length)
         let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
         if errorCode != errSecSuccess {
-            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+            throw AuthError.signInFailed(underlying: NSError(
+                domain: "SecRandomCopyBytes",
+                code: Int(errorCode),
+                userInfo: [NSLocalizedDescriptionKey: "Unable to generate secure nonce for Apple Sign-In"]
+            ))
         }
 
         let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
@@ -428,11 +432,27 @@ private class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate, 
     }
 
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else {
-            fatalError("No window available for Apple Sign-In presentation")
+        // Try to get window from active window scene
+        if let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }),
+           let window = windowScene.windows.first(where: { $0.isKeyWindow }) ?? windowScene.windows.first {
+            return window
         }
-        return window
+
+        // Fallback: try any connected window scene
+        if let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first,
+           let window = windowScene.windows.first {
+            return window
+        }
+
+        // Last resort: create a new window (should never happen in practice)
+        #if DEBUG
+        assertionFailure("No window available for Apple Sign-In presentation - this should not happen in a running app")
+        #endif
+        return UIWindow()
     }
 }
 #endif
@@ -471,7 +491,7 @@ extension FirebaseAuthService {
             throw AuthError.noCurrentUser
         }
 
-        let nonce = randomNonceString()
+        let nonce = try randomNonceString()
         currentNonce = nonce
 
         let appleIDProvider = ASAuthorizationAppleIDProvider()
