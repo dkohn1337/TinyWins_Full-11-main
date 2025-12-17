@@ -1,0 +1,66 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Xcode User Data
+xcuserdata/
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Code Injection
+.inject.cache
+
+# Firebase Configuration - SECURITY SENSITIVE
+# The actual GoogleService-Info.plist contains API keys and must not be committed.
+# Use GoogleService-Info.plist.template as reference and create your own locally.
+TinyWins/GoogleService-Info.plist
+
+# Environment and secrets
+*.xcconfig
+!*.xcconfig.template
+Secrets/
+.env
+.env.*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Local planning docs
+UI_IMPROVEMENT_PLAN.md
+tinywins_screnshots_for_rebuild/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Xcode user state
+*.xcuserstate

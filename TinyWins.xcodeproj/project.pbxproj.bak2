@@ -1,0 +1,887 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0C2AEF6995DB9A8D8410B676 /* InsightsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F900588316C6F2DF6555E63F /* InsightsViewModel.swift */; };
+		106F49C9EBB1392092133C76 /* LogBehaviorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC75E814B5C552AAB57672C2 /* LogBehaviorViewModel.swift */; };
+		1D131FA55F6A676A1A57F870 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB9DB0536D8844ABD9A1F4FA /* AppCoordinator.swift */; };
+		22A8AF22E3A94F11173A2EF8 /* CelebrationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA88ED467E61BF298599E9AC /* CelebrationStore.swift */; };
+		32F1B69B31B23BF43F2908C2 /* ChildInsightsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD84B0F9397AB59CAF82B0E /* ChildInsightsViewModel.swift */; };
+		364E62AFB6816F5967316442 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C1322F714D4D2E2F6E1803 /* HistoryViewModel.swift */; };
+		47F2AF63EDA7DD3242FDB83C /* TodayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E7326FA2C008D7683E24B7 /* TodayViewModel.swift */; };
+		4928E550061D5AF2A1108F5F /* InsightsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F6112F01B03B24CF0C1142 /* InsightsStore.swift */; };
+		4AFAE19CF9BC3404F2AAC593 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1423C3464E58F5C4A1EE8C1 /* OnboardingViewModel.swift */; };
+		4FCD21B49695BCC4D266710C /* AgreementsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 909331CD3649214F81E17091 /* AgreementsStore.swift */; };
+		827BA6A650D43CE86EB47484 /* LogBehaviorUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6FB720C63B4C5591B63858 /* LogBehaviorUseCase.swift */; };
+		852D3F5788EC8E9C20E82127 /* ChildDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E259FAF1D23DCD23822778 /* ChildDetailViewModel.swift */; };
+		8695BEF88A8FCE675080D64E /* ProgressionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19FF5C7378AF930642CE67F /* ProgressionStore.swift */; };
+		9021C667E51054AA8201627B /* HistoryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44FD3A577B49D56101C9F68 /* HistoryModels.swift */; };
+		915D7D37E625297D29925827 /* BehaviorsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFC1E1F3E258D8D8151F394 /* BehaviorsStore.swift */; };
+		A1000001001 /* TinyWinsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001001 /* TinyWinsApp.swift */; };
+		A1000002001 /* AgreementVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002001 /* AgreementVersion.swift */; };
+		A1000002002 /* AllowanceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002002 /* AllowanceSettings.swift */; };
+		A1000002003 /* AppData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002003 /* AppData.swift */; };
+		A1000002004 /* BehaviorEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002004 /* BehaviorEvent.swift */; };
+		A1000002005 /* BehaviorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002005 /* BehaviorType.swift */; };
+		A1000002006 /* Child.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002006 /* Child.swift */; };
+		A1000002007 /* ColorTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002007 /* ColorTag.swift */; };
+		A1000002008 /* Family.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002008 /* Family.swift */; };
+		A1000002009 /* PremiumFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002009 /* PremiumFeature.swift */; };
+		A1000002010 /* PremiumTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002010 /* PremiumTheme.swift */; };
+		A1000002011 /* ProgressionSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002011 /* ProgressionSystem.swift */; };
+		A1000002012 /* Reward.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002012 /* Reward.swift */; };
+		A1000002013 /* RewardHistoryEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002013 /* RewardHistoryEvent.swift */; };
+		A1000002014 /* RewardTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002014 /* RewardTemplate.swift */; };
+		A1000003001 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003001 /* AnalyticsService.swift */; };
+		A1000003002 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003002 /* AuthService.swift */; };
+		A1000003003 /* BackendModeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003003 /* BackendModeDetector.swift */; };
+		A1000003004 /* CelebrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003004 /* CelebrationManager.swift */; };
+		A1000003005 /* CloudBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003005 /* CloudBackupService.swift */; };
+		A1000003006 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003006 /* DataStore.swift */; };
+		A1000003007 /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003007 /* FeatureFlags.swift */; };
+		A1000003008 /* MediaManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003008 /* MediaManager.swift */; };
+		A1000003009 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003009 /* Repository.swift */; };
+		A1000003010 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003010 /* SubscriptionManager.swift */; };
+		A1000003011 /* SyncBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003011 /* SyncBackend.swift */; };
+		A1000003012 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003012 /* NotificationService.swift */; };
+		A1000004001 /* FamilyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004001 /* FamilyViewModel.swift */; };
+		A1000005001 /* AllowanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005001 /* AllowanceView.swift */; };
+		A1000005002 /* CelebrationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005002 /* CelebrationOverlay.swift */; };
+		A1000005003 /* ChildAvatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005003 /* ChildAvatar.swift */; };
+		A1000005004 /* DailyCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005004 /* DailyCheckInView.swift */; };
+		A1000005005 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005005 /* DesignSystem.swift */; };
+		A1000005006 /* EditMomentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005006 /* EditMomentView.swift */; };
+		A1000005007 /* FamilyAgreementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005007 /* FamilyAgreementView.swift */; };
+		A1000005008 /* FeedbackPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005008 /* FeedbackPromptView.swift */; };
+		A1000005009 /* LogBehaviorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005009 /* LogBehaviorSheet.swift */; };
+		A1000005010 /* MediaPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005010 /* MediaPickerView.swift */; };
+		A1000005011 /* ParentGreetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005011 /* ParentGreetingView.swift */; };
+		A1000005012 /* PlusPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005012 /* PlusPaywallView.swift */; };
+		A1000005013 /* PlusUpsellCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005013 /* PlusUpsellCard.swift */; };
+		A1000006001 /* AdvancedAnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006001 /* AdvancedAnalyticsView.swift */; };
+		A1000006002 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006002 /* HistoryView.swift */; };
+		A1000006003 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006003 /* InsightsView.swift */; };
+		A1000006004 /* FamilyInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006004 /* FamilyInsightsView.swift */; };
+		A1000006005 /* ChildInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006005 /* ChildInsightsView.swift */; };
+		A1000007001 /* AddEditChildView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000007001 /* AddEditChildView.swift */; };
+		A1000007002 /* ChildDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000007002 /* ChildDetailView.swift */; };
+		A1000007003 /* KidView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000007003 /* KidView.swift */; };
+		A1000007004 /* KidsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000007004 /* KidsView.swift */; };
+		A1000008001 /* AddRewardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008001 /* AddRewardView.swift */; };
+		A1000008002 /* RewardTemplatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008002 /* RewardTemplatePickerView.swift */; };
+		A1000008003 /* RewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008003 /* RewardsView.swift */; };
+		A1000009001 /* BackupSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009001 /* BackupSettingsView.swift */; };
+		A1000009002 /* BehaviorManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009002 /* BehaviorManagementView.swift */; };
+		A1000009003 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009003 /* FeedbackView.swift */; };
+		A1000009004 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009004 /* SettingsView.swift */; };
+		A1000009005 /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009005 /* AppearanceSettingsView.swift */; };
+		A1000009006 /* NotificationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009006 /* NotificationsSettingsView.swift */; };
+		A1000010001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000010001 /* ContentView.swift */; };
+		A1000010002 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000010002 /* TodayView.swift */; };
+		A1000011001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000011001 /* Assets.xcassets */; };
+		A351765C702BA14190E58AFC /* RewardsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109C5174BEEDA7DD6DC594A7 /* RewardsStore.swift */; };
+		AAA97EC92327BF87C9CF01DF /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 250282A33E7A8D5504191FCD /* SettingsViewModel.swift */; };
+		C509F780E6520F08B3C75F4C /* KidsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD2A5181117BDE7209DB5DC /* KidsViewModel.swift */; };
+		C6C84E04210DCB072EA67730 /* KidViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF3509A7368EEF080E81E16 /* KidViewModel.swift */; };
+		C9E79BAEE89C2732FED58439 /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35AFAD930B2DA8E10D78A76 /* DependencyContainer.swift */; };
+		CCBBDE03F35803F5EEFDB2FC /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAEBCB5604CD9D245330B9A /* ContentViewModel.swift */; };
+		D333851376D4D0EA00F3A3ED /* ChildrenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DF888CA64C4F51CE8331730 /* ChildrenStore.swift */; };
+		D5449F67813778058B7DBD26 /* UserPreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E11D1608E74382A722A2D69 /* UserPreferencesStore.swift */; };
+		E08076733E126807762F9731 /* RewardsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C758D92AE6EC9B37ACF8813E /* RewardsViewModel.swift */; };
+		FAA6378758D01B94AE7CEC69 /* RedeemRewardUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A06FCC00EA9AF8A8B0A1D77 /* RedeemRewardUseCase.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0FF3509A7368EEF080E81E16 /* KidViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KidViewModel.swift; path = Features/Kids/KidViewModel.swift; sourceTree = "<group>"; };
+		109C5174BEEDA7DD6DC594A7 /* RewardsStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Domain/Stores/RewardsStore.swift; sourceTree = "<group>"; };
+		250282A33E7A8D5504191FCD /* SettingsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsViewModel.swift; path = Features/Settings/SettingsViewModel.swift; sourceTree = "<group>"; };
+		27E7326FA2C008D7683E24B7 /* TodayViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TodayViewModel.swift; path = Features/Today/TodayViewModel.swift; sourceTree = "<group>"; };
+		3FD2A5181117BDE7209DB5DC /* KidsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KidsViewModel.swift; path = Features/Kids/KidsViewModel.swift; sourceTree = "<group>"; };
+		6A06FCC00EA9AF8A8B0A1D77 /* RedeemRewardUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RedeemRewardUseCase.swift; path = Domain/UseCases/RedeemRewardUseCase.swift; sourceTree = "<group>"; };
+		6E6FB720C63B4C5591B63858 /* LogBehaviorUseCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LogBehaviorUseCase.swift; path = Domain/UseCases/LogBehaviorUseCase.swift; sourceTree = "<group>"; };
+		6EAEBCB5604CD9D245330B9A /* ContentViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
+		7E11D1608E74382A722A2D69 /* UserPreferencesStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserPreferencesStore.swift; sourceTree = "<group>"; };
+		8DF888CA64C4F51CE8331730 /* ChildrenStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Domain/Stores/ChildrenStore.swift; sourceTree = "<group>"; };
+		909331CD3649214F81E17091 /* AgreementsStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Domain/Stores/AgreementsStore.swift; sourceTree = "<group>"; };
+		90F6112F01B03B24CF0C1142 /* InsightsStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Domain/Stores/InsightsStore.swift; sourceTree = "<group>"; };
+		A2000000001 /* TinyWins.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TinyWins.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000001001 /* TinyWinsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TinyWinsApp.swift; sourceTree = "<group>"; };
+		A2000002001 /* AgreementVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgreementVersion.swift; sourceTree = "<group>"; };
+		A2000002002 /* AllowanceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllowanceSettings.swift; sourceTree = "<group>"; };
+		A2000002003 /* AppData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppData.swift; sourceTree = "<group>"; };
+		A2000002004 /* BehaviorEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BehaviorEvent.swift; sourceTree = "<group>"; };
+		A2000002005 /* BehaviorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BehaviorType.swift; sourceTree = "<group>"; };
+		A2000002006 /* Child.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Child.swift; sourceTree = "<group>"; };
+		A2000002007 /* ColorTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTag.swift; sourceTree = "<group>"; };
+		A2000002008 /* Family.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Family.swift; sourceTree = "<group>"; };
+		A2000002009 /* PremiumFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumFeature.swift; sourceTree = "<group>"; };
+		A2000002010 /* PremiumTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumTheme.swift; sourceTree = "<group>"; };
+		A2000002011 /* ProgressionSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionSystem.swift; sourceTree = "<group>"; };
+		A2000002012 /* Reward.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reward.swift; sourceTree = "<group>"; };
+		A2000002013 /* RewardHistoryEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardHistoryEvent.swift; sourceTree = "<group>"; };
+		A2000002014 /* RewardTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardTemplate.swift; sourceTree = "<group>"; };
+		A2000003001 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+		A2000003002 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		A2000003003 /* BackendModeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendModeDetector.swift; sourceTree = "<group>"; };
+		A2000003004 /* CelebrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationManager.swift; sourceTree = "<group>"; };
+		A2000003005 /* CloudBackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudBackupService.swift; sourceTree = "<group>"; };
+		A2000003006 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
+		A2000003007 /* FeatureFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlags.swift; sourceTree = "<group>"; };
+		A2000003008 /* MediaManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaManager.swift; sourceTree = "<group>"; };
+		A2000003009 /* Repository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
+		A2000003010 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		A2000003011 /* SyncBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncBackend.swift; sourceTree = "<group>"; };
+		A2000003012 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		A2000004001 /* FamilyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyViewModel.swift; sourceTree = "<group>"; };
+		A2000005001 /* AllowanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllowanceView.swift; sourceTree = "<group>"; };
+		A2000005002 /* CelebrationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationOverlay.swift; sourceTree = "<group>"; };
+		A2000005003 /* ChildAvatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildAvatar.swift; sourceTree = "<group>"; };
+		A2000005004 /* DailyCheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyCheckInView.swift; sourceTree = "<group>"; };
+		A2000005005 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		A2000005006 /* EditMomentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditMomentView.swift; sourceTree = "<group>"; };
+		A2000005007 /* FamilyAgreementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyAgreementView.swift; sourceTree = "<group>"; };
+		A2000005008 /* FeedbackPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackPromptView.swift; sourceTree = "<group>"; };
+		A2000005009 /* LogBehaviorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogBehaviorSheet.swift; sourceTree = "<group>"; };
+		A2000005010 /* MediaPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerView.swift; sourceTree = "<group>"; };
+		A2000005011 /* ParentGreetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentGreetingView.swift; sourceTree = "<group>"; };
+		A2000005012 /* PlusPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusPaywallView.swift; sourceTree = "<group>"; };
+		A2000005013 /* PlusUpsellCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusUpsellCard.swift; sourceTree = "<group>"; };
+		A2000006001 /* AdvancedAnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedAnalyticsView.swift; sourceTree = "<group>"; };
+		A2000006002 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		A2000006003 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		A2000006004 /* FamilyInsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyInsightsView.swift; sourceTree = "<group>"; };
+		A2000006005 /* ChildInsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildInsightsView.swift; sourceTree = "<group>"; };
+		A2000007001 /* AddEditChildView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditChildView.swift; sourceTree = "<group>"; };
+		A2000007002 /* ChildDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildDetailView.swift; sourceTree = "<group>"; };
+		A2000007003 /* KidView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidView.swift; sourceTree = "<group>"; };
+		A2000007004 /* KidsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidsView.swift; sourceTree = "<group>"; };
+		A2000008001 /* AddRewardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRewardView.swift; sourceTree = "<group>"; };
+		A2000008002 /* RewardTemplatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardTemplatePickerView.swift; sourceTree = "<group>"; };
+		A2000008003 /* RewardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardsView.swift; sourceTree = "<group>"; };
+		A2000009001 /* BackupSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSettingsView.swift; sourceTree = "<group>"; };
+		A2000009002 /* BehaviorManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BehaviorManagementView.swift; sourceTree = "<group>"; };
+		A2000009003 /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
+		A2000009004 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A2000009005 /* AppearanceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsView.swift; sourceTree = "<group>"; };
+		A2000009006 /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
+		A2000010001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A2000010002 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		A2000011001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A2000011002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B35AFAD930B2DA8E10D78A76 /* DependencyContainer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DependencyContainer.swift; sourceTree = "<group>"; };
+		B5E259FAF1D23DCD23822778 /* ChildDetailViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChildDetailViewModel.swift; path = Features/Kids/ChildDetailViewModel.swift; sourceTree = "<group>"; };
+		BC75E814B5C552AAB57672C2 /* LogBehaviorViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LogBehaviorViewModel.swift; path = Features/LogBehavior/LogBehaviorViewModel.swift; sourceTree = "<group>"; };
+		C758D92AE6EC9B37ACF8813E /* RewardsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RewardsViewModel.swift; path = Features/Rewards/RewardsViewModel.swift; sourceTree = "<group>"; };
+		CA88ED467E61BF298599E9AC /* CelebrationStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Domain/Stores/CelebrationStore.swift; sourceTree = "<group>"; };
+		D19FF5C7378AF930642CE67F /* ProgressionStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Domain/Stores/ProgressionStore.swift; sourceTree = "<group>"; };
+		D2C1322F714D4D2E2F6E1803 /* HistoryViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HistoryViewModel.swift; path = Features/Insights/HistoryViewModel.swift; sourceTree = "<group>"; };
+		D44FD3A577B49D56101C9F68 /* HistoryModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Features/Insights/HistoryModels.swift; sourceTree = "<group>"; };
+		F1423C3464E58F5C4A1EE8C1 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingViewModel.swift; path = Features/Onboarding/OnboardingViewModel.swift; sourceTree = "<group>"; };
+		F900588316C6F2DF6555E63F /* InsightsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InsightsViewModel.swift; path = Features/Insights/InsightsViewModel.swift; sourceTree = "<group>"; };
+		FAD84B0F9397AB59CAF82B0E /* ChildInsightsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChildInsightsViewModel.swift; path = Features/Insights/ChildInsightsViewModel.swift; sourceTree = "<group>"; };
+		FB9DB0536D8844ABD9A1F4FA /* AppCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		FFFC1E1F3E258D8D8151F394 /* BehaviorsStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Domain/Stores/BehaviorsStore.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A3000001001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		00CE696C5ACE9BA646CF8FEE /* Preferences */ = {
+			isa = PBXGroup;
+			children = (
+				7E11D1608E74382A722A2D69 /* UserPreferencesStore.swift */,
+			);
+			name = Preferences;
+			path = Preferences;
+			sourceTree = "<group>";
+		};
+		0DB178638268B99E371F932C /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				5E7EE7BA2BE34CDF51963A66 /* Today */,
+				787B52EFFEF644A9ED22545C /* Kids */,
+				EB71C6CA0DE768DA084D321D /* Rewards */,
+				2DEDCD47C30121205D4C5F94 /* Insights */,
+				C354DE22061620D512606023 /* Settings */,
+				D1A029CA9FE7186F70E6224B /* Onboarding */,
+				CCD6A196A9211CD694B68077 /* LogBehavior */,
+				6EAEBCB5604CD9D245330B9A /* ContentViewModel.swift */,
+			);
+			name = Features;
+			sourceTree = "<group>";
+		};
+		29C8D24447DE6826E75F7112 /* Preferences */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Preferences;
+			path = Preferences;
+			sourceTree = "<group>";
+		};
+		2DEDCD47C30121205D4C5F94 /* Insights */ = {
+			isa = PBXGroup;
+			children = (
+				F900588316C6F2DF6555E63F /* InsightsViewModel.swift */,
+				FAD84B0F9397AB59CAF82B0E /* ChildInsightsViewModel.swift */,
+				D2C1322F714D4D2E2F6E1803 /* HistoryViewModel.swift */,
+				D44FD3A577B49D56101C9F68 /* HistoryModels.swift */,
+			);
+			name = Insights;
+			sourceTree = "<group>";
+		};
+		361C2028F0B319DDD1E7D3A8 /* UseCases */ = {
+			isa = PBXGroup;
+			children = (
+				6E6FB720C63B4C5591B63858 /* LogBehaviorUseCase.swift */,
+				6A06FCC00EA9AF8A8B0A1D77 /* RedeemRewardUseCase.swift */,
+			);
+			name = UseCases;
+			sourceTree = "<group>";
+		};
+		5E7EE7BA2BE34CDF51963A66 /* Today */ = {
+			isa = PBXGroup;
+			children = (
+				27E7326FA2C008D7683E24B7 /* TodayViewModel.swift */,
+			);
+			name = Today;
+			sourceTree = "<group>";
+		};
+		787B52EFFEF644A9ED22545C /* Kids */ = {
+			isa = PBXGroup;
+			children = (
+				3FD2A5181117BDE7209DB5DC /* KidsViewModel.swift */,
+				B5E259FAF1D23DCD23822778 /* ChildDetailViewModel.swift */,
+				0FF3509A7368EEF080E81E16 /* KidViewModel.swift */,
+			);
+			name = Kids;
+			sourceTree = "<group>";
+		};
+		863B29ED8196281E61ECE040 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				8DF888CA64C4F51CE8331730 /* ChildrenStore.swift */,
+				FFFC1E1F3E258D8D8151F394 /* BehaviorsStore.swift */,
+				109C5174BEEDA7DD6DC594A7 /* RewardsStore.swift */,
+				90F6112F01B03B24CF0C1142 /* InsightsStore.swift */,
+				D19FF5C7378AF930642CE67F /* ProgressionStore.swift */,
+				909331CD3649214F81E17091 /* AgreementsStore.swift */,
+				CA88ED467E61BF298599E9AC /* CelebrationStore.swift */,
+			);
+			name = Stores;
+			sourceTree = "<group>";
+		};
+		919139E39E0368D0BB1C1523 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				863B29ED8196281E61ECE040 /* Stores */,
+				361C2028F0B319DDD1E7D3A8 /* UseCases */,
+			);
+			name = Domain;
+			sourceTree = "<group>";
+		};
+		A4000000001 = {
+			isa = PBXGroup;
+			children = (
+				A4000001001 /* TinyWins */,
+				A4000099001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A4000001001 /* TinyWins */ = {
+			isa = PBXGroup;
+			children = (
+				A4000001002 /* App */,
+				A4000001003 /* Models */,
+				A4000001004 /* Services */,
+				A4000001005 /* ViewModels */,
+				A4000001006 /* Views */,
+				A2000011001 /* Assets.xcassets */,
+				A2000011002 /* Info.plist */,
+				A43AC7165C65D45255CD0353 /* Data */,
+				919139E39E0368D0BB1C1523 /* Domain */,
+				0DB178638268B99E371F932C /* Features */,
+				DA178C881C9CD9DC324A064C /* Data */,
+			);
+			path = TinyWins;
+			sourceTree = "<group>";
+		};
+		A4000001002 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A2000001001 /* TinyWinsApp.swift */,
+				B35AFAD930B2DA8E10D78A76 /* DependencyContainer.swift */,
+				FB9DB0536D8844ABD9A1F4FA /* AppCoordinator.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A4000001003 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A2000002001 /* AgreementVersion.swift */,
+				A2000002002 /* AllowanceSettings.swift */,
+				A2000002003 /* AppData.swift */,
+				A2000002004 /* BehaviorEvent.swift */,
+				A2000002005 /* BehaviorType.swift */,
+				A2000002006 /* Child.swift */,
+				A2000002007 /* ColorTag.swift */,
+				A2000002008 /* Family.swift */,
+				A2000002009 /* PremiumFeature.swift */,
+				A2000002010 /* PremiumTheme.swift */,
+				A2000002011 /* ProgressionSystem.swift */,
+				A2000002012 /* Reward.swift */,
+				A2000002013 /* RewardHistoryEvent.swift */,
+				A2000002014 /* RewardTemplate.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A4000001004 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A2000003001 /* AnalyticsService.swift */,
+				A2000003002 /* AuthService.swift */,
+				A2000003003 /* BackendModeDetector.swift */,
+				A2000003004 /* CelebrationManager.swift */,
+				A2000003005 /* CloudBackupService.swift */,
+				A2000003006 /* DataStore.swift */,
+				A2000003007 /* FeatureFlags.swift */,
+				A2000003008 /* MediaManager.swift */,
+				A2000003012 /* NotificationService.swift */,
+				A2000003009 /* Repository.swift */,
+				A2000003010 /* SubscriptionManager.swift */,
+				A2000003011 /* SyncBackend.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A4000001005 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A2000004001 /* FamilyViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A4000001006 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A4000001007 /* Components */,
+				A4000001008 /* Insights */,
+				A4000001009 /* Kids */,
+				A4000001010 /* Rewards */,
+				A4000001011 /* Settings */,
+				A4000001012 /* Today */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A4000001007 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				A2000005001 /* AllowanceView.swift */,
+				A2000005002 /* CelebrationOverlay.swift */,
+				A2000005003 /* ChildAvatar.swift */,
+				A2000005004 /* DailyCheckInView.swift */,
+				A2000005005 /* DesignSystem.swift */,
+				A2000005006 /* EditMomentView.swift */,
+				A2000005007 /* FamilyAgreementView.swift */,
+				A2000005008 /* FeedbackPromptView.swift */,
+				A2000005009 /* LogBehaviorSheet.swift */,
+				A2000005010 /* MediaPickerView.swift */,
+				A2000005011 /* ParentGreetingView.swift */,
+				A2000005012 /* PlusPaywallView.swift */,
+				A2000005013 /* PlusUpsellCard.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		A4000001008 /* Insights */ = {
+			isa = PBXGroup;
+			children = (
+				A2000006001 /* AdvancedAnalyticsView.swift */,
+				A2000006005 /* ChildInsightsView.swift */,
+				A2000006004 /* FamilyInsightsView.swift */,
+				A2000006002 /* HistoryView.swift */,
+				A2000006003 /* InsightsView.swift */,
+			);
+			path = Insights;
+			sourceTree = "<group>";
+		};
+		A4000001009 /* Kids */ = {
+			isa = PBXGroup;
+			children = (
+				A2000007001 /* AddEditChildView.swift */,
+				A2000007002 /* ChildDetailView.swift */,
+				A2000007003 /* KidView.swift */,
+				A2000007004 /* KidsView.swift */,
+			);
+			path = Kids;
+			sourceTree = "<group>";
+		};
+		A4000001010 /* Rewards */ = {
+			isa = PBXGroup;
+			children = (
+				A2000008001 /* AddRewardView.swift */,
+				A2000008002 /* RewardTemplatePickerView.swift */,
+				A2000008003 /* RewardsView.swift */,
+			);
+			path = Rewards;
+			sourceTree = "<group>";
+		};
+		A4000001011 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A2000009005 /* AppearanceSettingsView.swift */,
+				A2000009001 /* BackupSettingsView.swift */,
+				A2000009002 /* BehaviorManagementView.swift */,
+				A2000009003 /* FeedbackView.swift */,
+				A2000009006 /* NotificationsSettingsView.swift */,
+				A2000009004 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		A4000001012 /* Today */ = {
+			isa = PBXGroup;
+			children = (
+				A2000010001 /* ContentView.swift */,
+				A2000010002 /* TodayView.swift */,
+			);
+			path = Today;
+			sourceTree = "<group>";
+		};
+		A4000099001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A2000000001 /* TinyWins.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A43AC7165C65D45255CD0353 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				00CE696C5ACE9BA646CF8FEE /* Preferences */,
+			);
+			name = Data;
+			path = Data;
+			sourceTree = "<group>";
+		};
+		C354DE22061620D512606023 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				250282A33E7A8D5504191FCD /* SettingsViewModel.swift */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
+		CCD6A196A9211CD694B68077 /* LogBehavior */ = {
+			isa = PBXGroup;
+			children = (
+				BC75E814B5C552AAB57672C2 /* LogBehaviorViewModel.swift */,
+			);
+			name = LogBehavior;
+			sourceTree = "<group>";
+		};
+		D1A029CA9FE7186F70E6224B /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				F1423C3464E58F5C4A1EE8C1 /* OnboardingViewModel.swift */,
+			);
+			name = Onboarding;
+			sourceTree = "<group>";
+		};
+		DA178C881C9CD9DC324A064C /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				29C8D24447DE6826E75F7112 /* Preferences */,
+			);
+			name = Data;
+			path = Data;
+			sourceTree = "<group>";
+		};
+		EB71C6CA0DE768DA084D321D /* Rewards */ = {
+			isa = PBXGroup;
+			children = (
+				C758D92AE6EC9B37ACF8813E /* RewardsViewModel.swift */,
+			);
+			name = Rewards;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A5000001001 /* TinyWins */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6000002001 /* Build configuration list for PBXNativeTarget "TinyWins" */;
+			buildPhases = (
+				A5000002001 /* Sources */,
+				A3000001001 /* Frameworks */,
+				A5000003001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TinyWins;
+			productName = TinyWins;
+			productReference = A2000000001 /* TinyWins.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A7000001001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A5000001001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A6000001001 /* Build configuration list for PBXProject "TinyWins" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A4000000001;
+			productRefGroup = A4000099001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A5000001001 /* TinyWins */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A5000003001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000011001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A5000002001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000001001 /* TinyWinsApp.swift in Sources */,
+				A1000002001 /* AgreementVersion.swift in Sources */,
+				A1000002002 /* AllowanceSettings.swift in Sources */,
+				A1000002003 /* AppData.swift in Sources */,
+				A1000002004 /* BehaviorEvent.swift in Sources */,
+				A1000002005 /* BehaviorType.swift in Sources */,
+				A1000002006 /* Child.swift in Sources */,
+				A1000002007 /* ColorTag.swift in Sources */,
+				A1000002008 /* Family.swift in Sources */,
+				A1000002009 /* PremiumFeature.swift in Sources */,
+				A1000002010 /* PremiumTheme.swift in Sources */,
+				A1000002011 /* ProgressionSystem.swift in Sources */,
+				A1000002012 /* Reward.swift in Sources */,
+				A1000002013 /* RewardHistoryEvent.swift in Sources */,
+				A1000002014 /* RewardTemplate.swift in Sources */,
+				A1000003001 /* AnalyticsService.swift in Sources */,
+				A1000003002 /* AuthService.swift in Sources */,
+				A1000003003 /* BackendModeDetector.swift in Sources */,
+				A1000003004 /* CelebrationManager.swift in Sources */,
+				A1000003005 /* CloudBackupService.swift in Sources */,
+				A1000003006 /* DataStore.swift in Sources */,
+				A1000003007 /* FeatureFlags.swift in Sources */,
+				A1000003008 /* MediaManager.swift in Sources */,
+				A1000003012 /* NotificationService.swift in Sources */,
+				A1000003009 /* Repository.swift in Sources */,
+				A1000003010 /* SubscriptionManager.swift in Sources */,
+				A1000003011 /* SyncBackend.swift in Sources */,
+				A1000004001 /* FamilyViewModel.swift in Sources */,
+				A1000005001 /* AllowanceView.swift in Sources */,
+				A1000005002 /* CelebrationOverlay.swift in Sources */,
+				A1000005003 /* ChildAvatar.swift in Sources */,
+				A1000005004 /* DailyCheckInView.swift in Sources */,
+				A1000005005 /* DesignSystem.swift in Sources */,
+				A1000005006 /* EditMomentView.swift in Sources */,
+				A1000005007 /* FamilyAgreementView.swift in Sources */,
+				A1000005008 /* FeedbackPromptView.swift in Sources */,
+				A1000005009 /* LogBehaviorSheet.swift in Sources */,
+				A1000005010 /* MediaPickerView.swift in Sources */,
+				A1000005011 /* ParentGreetingView.swift in Sources */,
+				A1000005012 /* PlusPaywallView.swift in Sources */,
+				A1000005013 /* PlusUpsellCard.swift in Sources */,
+				A1000006001 /* AdvancedAnalyticsView.swift in Sources */,
+				A1000006002 /* HistoryView.swift in Sources */,
+				A1000006003 /* InsightsView.swift in Sources */,
+				A1000006004 /* FamilyInsightsView.swift in Sources */,
+				A1000006005 /* ChildInsightsView.swift in Sources */,
+				A1000007001 /* AddEditChildView.swift in Sources */,
+				A1000007002 /* ChildDetailView.swift in Sources */,
+				A1000007003 /* KidView.swift in Sources */,
+				A1000007004 /* KidsView.swift in Sources */,
+				A1000008001 /* AddRewardView.swift in Sources */,
+				A1000008002 /* RewardTemplatePickerView.swift in Sources */,
+				A1000008003 /* RewardsView.swift in Sources */,
+				A1000009001 /* BackupSettingsView.swift in Sources */,
+				A1000009002 /* BehaviorManagementView.swift in Sources */,
+				A1000009003 /* FeedbackView.swift in Sources */,
+				A1000009004 /* SettingsView.swift in Sources */,
+				A1000009005 /* AppearanceSettingsView.swift in Sources */,
+				A1000009006 /* NotificationsSettingsView.swift in Sources */,
+				A1000010001 /* ContentView.swift in Sources */,
+				A1000010002 /* TodayView.swift in Sources */,
+				C9E79BAEE89C2732FED58439 /* DependencyContainer.swift in Sources */,
+				1D131FA55F6A676A1A57F870 /* AppCoordinator.swift in Sources */,
+				D5449F67813778058B7DBD26 /* UserPreferencesStore.swift in Sources */,
+				D333851376D4D0EA00F3A3ED /* ChildrenStore.swift in Sources */,
+				915D7D37E625297D29925827 /* BehaviorsStore.swift in Sources */,
+				A351765C702BA14190E58AFC /* RewardsStore.swift in Sources */,
+				4928E550061D5AF2A1108F5F /* InsightsStore.swift in Sources */,
+				8695BEF88A8FCE675080D64E /* ProgressionStore.swift in Sources */,
+				4FCD21B49695BCC4D266710C /* AgreementsStore.swift in Sources */,
+				22A8AF22E3A94F11173A2EF8 /* CelebrationStore.swift in Sources */,
+				47F2AF63EDA7DD3242FDB83C /* TodayViewModel.swift in Sources */,
+				C509F780E6520F08B3C75F4C /* KidsViewModel.swift in Sources */,
+				852D3F5788EC8E9C20E82127 /* ChildDetailViewModel.swift in Sources */,
+				C6C84E04210DCB072EA67730 /* KidViewModel.swift in Sources */,
+				E08076733E126807762F9731 /* RewardsViewModel.swift in Sources */,
+				0C2AEF6995DB9A8D8410B676 /* InsightsViewModel.swift in Sources */,
+				32F1B69B31B23BF43F2908C2 /* ChildInsightsViewModel.swift in Sources */,
+				364E62AFB6816F5967316442 /* HistoryViewModel.swift in Sources */,
+				AAA97EC92327BF87C9CF01DF /* SettingsViewModel.swift in Sources */,
+				4AFAE19CF9BC3404F2AAC593 /* OnboardingViewModel.swift in Sources */,
+				106F49C9EBB1392092133C76 /* LogBehaviorViewModel.swift in Sources */,
+				827BA6A650D43CE86EB47484 /* LogBehaviorUseCase.swift in Sources */,
+				FAA6378758D01B94AE7CEC69 /* RedeemRewardUseCase.swift in Sources */,
+				9021C667E51054AA8201627B /* HistoryModels.swift in Sources */,
+				CCBBDE03F35803F5EEFDB2FC /* ContentViewModel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A8000001001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A8000001002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A8000002001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TinyWins/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Tiny Wins";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tinywins.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A8000002002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TinyWins/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Tiny Wins";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tinywins.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A6000001001 /* Build configuration list for PBXProject "TinyWins" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A8000001001 /* Debug */,
+				A8000001002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6000002001 /* Build configuration list for PBXNativeTarget "TinyWins" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A8000002001 /* Debug */,
+				A8000002002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A7000001001 /* Project object */;
+}
