@@ -4,6 +4,7 @@ import SwiftUI
 
 /// Animated stat display with counting number effect.
 struct AnimatedStatBox: View {
+    @Environment(\.theme) private var theme
     let value: Int
     let label: String
     let icon: String
@@ -50,13 +51,13 @@ struct AnimatedStatBox: View {
 
             Text(label)
                 .font(.system(size: 12))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemGray6))
+                .fill(theme.surface2)
         )
         .onAppear {
             if animate {
@@ -104,6 +105,8 @@ struct StatPill: View {
 
 /// Card for displaying a highlighted insight with tip.
 struct InsightHighlightCard: View {
+    @Environment(\.theme) private var theme
+
     let icon: String
     let iconGradient: [Color]
     let title: String
@@ -139,14 +142,14 @@ struct InsightHighlightCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.system(size: 13))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     Text(subtitle)
                         .font(.system(size: 17, weight: .semibold))
 
                     Text(detail)
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -160,7 +163,7 @@ struct InsightHighlightCard: View {
 
                 Text(tip)
                     .font(.system(size: 13))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(12)
@@ -172,7 +175,7 @@ struct InsightHighlightCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
     }
@@ -182,6 +185,8 @@ struct InsightHighlightCard: View {
 
 /// Card for displaying an "aha moment" insight with entrance animation, expand/collapse, and share.
 struct AhaInsightCard: View {
+    @Environment(\.theme) private var theme
+
     let icon: String
     let gradient: [Color]
     let title: String
@@ -246,7 +251,7 @@ struct AhaInsightCard: View {
 
                     Text(message)
                         .font(.system(size: 13))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(isExpanded ? nil : 3)
 
@@ -271,7 +276,7 @@ struct AhaInsightCard: View {
                     if isExpanded, let expandedContent = expandedContent {
                         Text(expandedContent)
                             .font(.system(size: 12))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                             .padding(.top, 8)
                             .transition(.opacity.combined(with: .move(edge: .top)))
                     }
@@ -288,7 +293,7 @@ struct AhaInsightCard: View {
                     }) {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 14))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .buttonStyle(.plain)
 
@@ -302,7 +307,7 @@ struct AhaInsightCard: View {
                         }) {
                             Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .buttonStyle(.plain)
                     }
@@ -312,7 +317,7 @@ struct AhaInsightCard: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Color(.systemGray6))
+                .fill(theme.surface2)
         )
         // Entrance animation
         .opacity(hasAppeared ? 1 : 0)
@@ -358,6 +363,8 @@ private struct InsightShareSheet: UIViewControllerRepresentable {
 
 /// Feature list item for Plus upsell.
 struct PlusFeatureItem: View {
+    @Environment(\.theme) private var theme
+
     let icon: String
     let title: String
 
@@ -376,7 +383,7 @@ struct PlusFeatureItem: View {
 
             Text(title)
                 .font(.system(size: 13))
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
 
             Spacer()
 
@@ -387,7 +394,7 @@ struct PlusFeatureItem: View {
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(.systemGray6))
+                .fill(theme.surface2)
         )
     }
 }
@@ -396,6 +403,7 @@ struct PlusFeatureItem: View {
 
 /// Blurred/locked preview card for Free users showing premium content they're missing.
 struct LockedInsightPreviewCard: View {
+    @Environment(\.theme) private var theme
     let title: String
     let previewText: String
     let icon: String
@@ -434,7 +442,7 @@ struct LockedInsightPreviewCard: View {
 
                         Image(systemName: "lock.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Text("Plus Feature")
@@ -450,17 +458,17 @@ struct LockedInsightPreviewCard: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 8) {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(.systemGray4))
+                            .fill(theme.borderStrong)
                             .frame(width: 80, height: 14)
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(.systemGray5))
+                            .fill(theme.borderSoft)
                             .frame(width: 60, height: 14)
                     }
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color(.systemGray5))
+                        .fill(theme.borderSoft)
                         .frame(height: 12)
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color(.systemGray5))
+                        .fill(theme.borderSoft)
                         .frame(width: 200, height: 12)
                 }
                 .padding(12)
@@ -469,13 +477,13 @@ struct LockedInsightPreviewCard: View {
                 // Preview text overlay
                 Text(previewText)
                     .font(.system(size: 13))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 70)
-            .background(Color(.systemGray6).opacity(0.5))
+            .background(theme.surface2.opacity(0.5))
             .cornerRadius(10)
 
             // Unlock button
@@ -502,7 +510,7 @@ struct LockedInsightPreviewCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
@@ -523,6 +531,8 @@ struct LockedInsightPreviewCard: View {
 
 /// Selectable period chip for time range selection.
 struct PeriodChip: View {
+    @Environment(\.theme) private var theme
+
     let period: InsightPeriod
     let isSelected: Bool
     let isLocked: Bool
@@ -543,9 +553,9 @@ struct PeriodChip: View {
             .background(
                 isSelected ?
                     LinearGradient(colors: [.purple, .pink], startPoint: .leading, endPoint: .trailing) :
-                    LinearGradient(colors: [Color(.systemGray5)], startPoint: .leading, endPoint: .trailing)
+                    LinearGradient(colors: [theme.borderSoft], startPoint: .leading, endPoint: .trailing)
             )
-            .foregroundColor(isSelected ? .white : (isLocked ? .secondary : .primary))
+            .foregroundColor(isSelected ? .white : (isLocked ? theme.textSecondary : theme.textPrimary))
             .cornerRadius(20)
             .shadow(color: isSelected ? .purple.opacity(0.3) : .clear, radius: 6, y: 3)
         }
@@ -555,6 +565,8 @@ struct PeriodChip: View {
 // MARK: - Legacy Supporting Views (kept for compatibility)
 
 struct EnhancedInsightStatBox: View {
+    @Environment(\.theme) private var theme
+
     let value: Int
     let label: String
     let icon: String
@@ -600,13 +612,13 @@ struct EnhancedInsightStatBox: View {
 
             Text(label)
                 .font(.system(size: 12))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Color(.systemGray6))
+                .fill(theme.surface2)
         )
         .onAppear {
             if animate {
@@ -626,6 +638,8 @@ struct EnhancedInsightStatBox: View {
 }
 
 struct EnhancedInsightRow: View {
+    @Environment(\.theme) private var theme
+
     let icon: String
     let iconColor: Color
     let title: String
@@ -649,19 +663,20 @@ struct EnhancedInsightRow: View {
 
                 Text(description)
                     .font(.system(size: 13))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemGray6))
+                .fill(theme.surface2)
         )
     }
 }
 
 struct PlusFeatureRow: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let text: String
 
@@ -680,7 +695,7 @@ struct PlusFeatureRow: View {
 
             Text(text)
                 .font(.system(size: 14))
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
 
             Spacer()
 
@@ -696,6 +711,7 @@ struct PlusFeatureRow: View {
 /// Blurred preview card showing what Free users are missing with Plus insights.
 /// Shows a tantalizing glimpse of premium analytics to encourage upgrades.
 struct PremiumInsightTeaserCard: View {
+    @Environment(\.theme) private var theme
     let onUnlock: () -> Void
 
     @State private var shimmerOffset: CGFloat = -200
@@ -750,7 +766,7 @@ struct PremiumInsightTeaserCard: View {
 
                     Text("Deeper patterns you're missing")
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -771,10 +787,10 @@ struct PremiumInsightTeaserCard: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color(.systemGray4))
+                            .fill(theme.borderStrong)
                             .frame(width: 120, height: 12)
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color(.systemGray5))
+                            .fill(theme.borderSoft)
                             .frame(width: 80, height: 10)
                     }
 
@@ -794,10 +810,10 @@ struct PremiumInsightTeaserCard: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color(.systemGray4))
+                            .fill(theme.borderStrong)
                             .frame(width: 100, height: 12)
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color(.systemGray5))
+                            .fill(theme.borderSoft)
                             .frame(width: 140, height: 10)
                     }
 
@@ -817,10 +833,10 @@ struct PremiumInsightTeaserCard: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color(.systemGray4))
+                            .fill(theme.borderStrong)
                             .frame(width: 90, height: 12)
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color(.systemGray5))
+                            .fill(theme.borderSoft)
                             .frame(width: 110, height: 10)
                     }
 
@@ -828,7 +844,7 @@ struct PremiumInsightTeaserCard: View {
                 }
             }
             .padding(12)
-            .background(Color(.systemGray6).opacity(0.5))
+            .background(theme.surface2.opacity(0.5))
             .cornerRadius(12)
             .blur(radius: 2)
             .overlay(
@@ -836,10 +852,10 @@ struct PremiumInsightTeaserCard: View {
                 VStack(spacing: 4) {
                     Image(systemName: "eye.slash.fill")
                         .font(.system(size: 20))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Text("Unlock to see your patterns")
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             )
 
@@ -892,7 +908,7 @@ struct PremiumInsightTeaserCard: View {
         .padding(18)
         .background(
             RoundedRectangle(cornerRadius: 18)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 18)
@@ -911,6 +927,7 @@ struct PremiumInsightTeaserCard: View {
 
 /// Small feature highlight used in the teaser card.
 private struct FeatureHighlight: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let text: String
 
@@ -921,7 +938,7 @@ private struct FeatureHighlight: View {
                 .foregroundColor(.purple)
             Text(text)
                 .font(.system(size: 10, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
     }
 }
@@ -931,8 +948,8 @@ private struct FeatureHighlight: View {
 /// Contextual suggestion banner for users who have been active 4+ weeks,
 /// encouraging them to try the 30-day view (Plus feature).
 struct Try30DayViewSuggestion: View {
+    @Environment(\.theme) private var theme
     let onTryNow: () -> Void
-
     @State private var isExpanded = false
 
     var body: some View {
@@ -970,7 +987,7 @@ struct Try30DayViewSuggestion: View {
                         HStack(spacing: 6) {
                             Text("Ready for the bigger picture?")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(theme.textPrimary)
 
                             Text("NEW")
                                 .font(.system(size: 8, weight: .bold))
@@ -985,14 +1002,14 @@ struct Try30DayViewSuggestion: View {
 
                         Text("You've been using TinyWins for 4+ weeks")
                             .font(.system(size: 12))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Spacer()
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
             .buttonStyle(.plain)
@@ -1008,7 +1025,7 @@ struct Try30DayViewSuggestion: View {
                                 .foregroundColor(.blue)
                             Text("Monthly\ntrends")
                                 .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
@@ -1019,7 +1036,7 @@ struct Try30DayViewSuggestion: View {
                                 .foregroundColor(.green)
                             Text("Pattern\nhistory")
                                 .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
@@ -1030,7 +1047,7 @@ struct Try30DayViewSuggestion: View {
                                 .foregroundColor(.purple)
                             Text("Deeper\ninsights")
                                 .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
@@ -1062,7 +1079,7 @@ struct Try30DayViewSuggestion: View {
 
                     Text("Included with Plus")
                         .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }

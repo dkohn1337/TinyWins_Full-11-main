@@ -4,6 +4,7 @@ import SwiftUI
 /// Shows "This week with [Child]", "Biggest Win", "Area to Work On" cards
 /// Plus-gated Advanced section at the bottom (links to PremiumAnalyticsDashboard)
 struct ChildInsightsView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var rewardsStore: RewardsStore
@@ -66,7 +67,7 @@ struct ChildInsightsView: View {
             .padding()
             .tabBarBottomPadding()
         }
-        .background(Color(.systemGroupedBackground))
+        .background(theme.bg1)
         .sheet(isPresented: $showingPaywall) {
             PlusPaywallView(context: .advancedInsights)
         }
@@ -115,14 +116,14 @@ struct ChildInsightsView: View {
             // Encouragement message
             Text(weekSummaryMessage)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(AppStyles.cardCornerRadius)
     }
-    
+
     private var weekSummaryMessage: String {
         let positive = positiveEvents.count
         let negative = challengeEvents.count
@@ -182,28 +183,28 @@ struct ChildInsightsView: View {
                         Text(behavior.name)
                             .font(.subheadline)
                             .fontWeight(.semibold)
-                        
+
                         Text("\(topCount) times this week")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
-                    
+
                     Spacer()
                 }
-                
+
                 Text("This is \(child.name)'s top strength this week. Keep praising it out loud, not just with stars!")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             } else if positiveEvents.isEmpty {
                 HStack(spacing: 12) {
                     Image(systemName: "sparkles")
                         .font(.title2)
-                        .foregroundColor(.secondary)
-                    
+                        .foregroundColor(theme.textSecondary)
+
                     Text("Log some positive moments to see \(child.name)'s biggest win this week.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             } else {
                 HStack(spacing: 12) {
@@ -217,16 +218,16 @@ struct ChildInsightsView: View {
                             .fontWeight(.medium)
                         Text("Keep logging to see patterns emerge!")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(AppStyles.cardCornerRadius)
     }
-    
+
     // MARK: - Area to Work On Card
     
     private var areaToWorkOnCard: some View {
@@ -278,25 +279,25 @@ struct ChildInsightsView: View {
                         Text(behavior.name)
                             .font(.subheadline)
                             .fontWeight(.semibold)
-                        
+
                         Text("\(topCount) times this week")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
-                    
+
                     Spacer()
                 }
-                
+
                 // Timing insight
                 if let (time, count) = topTime, count >= 2 {
                     Text("This tends to happen in the \(time.lowercased()). A small routine adjustment around that time might help.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 } else {
                     Text("Notice when this happens. Understanding the pattern is the first step to shifting it.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             } else if challengeEvents.isEmpty {
@@ -307,7 +308,7 @@ struct ChildInsightsView: View {
                     
                     Text("No challenges logged this week. Great job!")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             } else {
                 HStack(spacing: 12) {
@@ -321,17 +322,17 @@ struct ChildInsightsView: View {
                             .fontWeight(.medium)
                         Text("Keep logging. Patterns will emerge over time.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(AppStyles.cardCornerRadius)
     }
-    
+
     // MARK: - Goal Progress Card
     
     private var goalProgressCard: some View {
@@ -374,7 +375,7 @@ struct ChildInsightsView: View {
                         GeometryReader { geo in
                             ZStack(alignment: .leading) {
                                 RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color(.systemGray4))
+                                    .fill(theme.borderStrong)
 
                                 RoundedRectangle(cornerRadius: 4)
                                     .fill(child.colorTag.color)
@@ -390,13 +391,13 @@ struct ChildInsightsView: View {
                         } else {
                             Text("\(starsNeeded) more star\(starsNeeded == 1 ? "" : "s") to go")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                 }
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(AppStyles.cardCornerRadius)
         )
     }
@@ -411,6 +412,7 @@ struct ChildInsightsView: View {
                     .foregroundColor(.purple)
                 Text("Advanced Insights")
                     .font(.headline)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
@@ -426,7 +428,7 @@ struct ChildInsightsView: View {
 
             Text("Patterns and progress over time.")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             if isPlusSubscriber {
@@ -438,7 +440,7 @@ struct ChildInsightsView: View {
                         Spacer()
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .font(.subheadline)
                     .fontWeight(.semibold)
@@ -480,11 +482,11 @@ struct ChildInsightsView: View {
             // Value examples (calm, no laundry list)
             Text("Includes Growth Rings, Activity Patterns, and week-over-week trends.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.bg0)
         .cornerRadius(AppStyles.cardCornerRadius)
     }
 }
@@ -492,10 +494,11 @@ struct ChildInsightsView: View {
 // MARK: - Supporting Views
 
 private struct WeekStatBox: View {
+    @Environment(\.theme) private var theme
     let value: String
     let label: String
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: 2) {
             Text(value)
@@ -504,7 +507,7 @@ private struct WeekStatBox: View {
                 .foregroundColor(color)
             Text(label)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }

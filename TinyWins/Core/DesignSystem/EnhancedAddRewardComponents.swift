@@ -7,6 +7,7 @@ import SwiftUI
 
 /// Step 1: Category selection with visual cards
 struct RewardCategorySelector: View {
+    @Environment(\.theme) private var theme
     @Binding var selectedCategory: RewardCategory?
 
     struct RewardCategory: Identifiable, Equatable {
@@ -38,7 +39,7 @@ struct RewardCategorySelector: View {
 
                 Text("Choose a category to get started")
                     .font(.system(size: 16))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             // Category grid
@@ -66,6 +67,7 @@ struct RewardCategoryCard: View {
     let isSelected: Bool
     let onTap: () -> Void
 
+    @Environment(\.theme) private var theme
     @State private var isPressed = false
 
     var body: some View {
@@ -91,12 +93,12 @@ struct RewardCategoryCard: View {
                 // Name
                 Text(category.name)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
 
                 // Examples
                 Text(category.examples.joined(separator: ", "))
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
                     .frame(height: 32)
@@ -105,11 +107,11 @@ struct RewardCategoryCard: View {
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(isSelected ? category.color.opacity(0.15) : Color(.systemBackground))
+                    .fill(isSelected ? category.color.opacity(0.15) : theme.surface1)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .strokeBorder(
-                                isSelected ? category.color : Color(.systemGray5),
+                                isSelected ? category.color : theme.borderSoft,
                                 lineWidth: isSelected ? 3 : 1
                             )
                     )
@@ -130,6 +132,7 @@ struct RewardCategoryCard: View {
 
 /// Large visual emoji picker for reward icon
 struct RewardEmojiPicker: View {
+    @Environment(\.theme) private var theme
     @Binding var selectedEmoji: String
     let categoryColor: Color
     @State private var showFullPicker = false
@@ -183,13 +186,13 @@ struct RewardEmojiPicker: View {
 
             Text("Tap to change icon")
                 .font(.system(size: 14))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             // Quick emoji grid
             VStack(spacing: 12) {
                 Text("Popular choices")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 8), spacing: 12) {
                     ForEach(popularEmojis, id: \.self) { emoji in
@@ -223,6 +226,7 @@ struct RewardNameInput: View {
     let categoryColor: Color
     let placeholder: String
 
+    @Environment(\.theme) private var theme
     @FocusState private var isFocused: Bool
 
     var body: some View {
@@ -235,7 +239,7 @@ struct RewardNameInput: View {
                 .padding(20)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(.systemGray6))
+                        .fill(theme.surface2)
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
                                 .strokeBorder(isFocused ? categoryColor : Color.clear, lineWidth: 2)
@@ -246,7 +250,7 @@ struct RewardNameInput: View {
             if !name.isEmpty {
                 Text("\(name.count)/50 characters")
                     .font(.system(size: 12))
-                    .foregroundColor(name.count > 40 ? .orange : .secondary)
+                    .foregroundColor(name.count > 40 ? .orange : theme.textSecondary)
             }
         }
     }
@@ -257,6 +261,7 @@ struct RewardNameInput: View {
 /// Visual star count selector with goal size categories
 /// Uses GoalSizeSelector from GoalSizeHelper for consistent UI across the app
 struct RewardStarSelector: View {
+    @Environment(\.theme) private var theme
     @Binding var starCount: Int
     let childColor: Color
 
@@ -277,10 +282,10 @@ struct RewardStarSelector: View {
             HStack(spacing: 4) {
                 Image(systemName: "clock")
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                 Text("Typical: \(GoalSizeCategory.from(stars: starCount).timeframeHint)")
                     .font(.system(size: 13))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(.top, 4)
         }
@@ -296,11 +301,13 @@ struct RewardPreviewCard: View {
     let starCount: Int
     let categoryColor: Color
 
+    @Environment(\.theme) private var theme
+
     var body: some View {
         VStack(spacing: 16) {
             Text("Preview")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             HStack(spacing: 16) {
                 // Icon
@@ -323,7 +330,7 @@ struct RewardPreviewCard: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(name.isEmpty ? "Reward Name" : name)
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(name.isEmpty ? .secondary : .primary)
+                        .foregroundColor(name.isEmpty ? theme.textSecondary : theme.textPrimary)
                         .lineLimit(2)
 
                     HStack(spacing: 6) {
@@ -332,7 +339,7 @@ struct RewardPreviewCard: View {
                             .foregroundColor(.yellow)
                         Text("\(starCount) stars to earn")
                             .font(.system(size: 14))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -341,7 +348,7 @@ struct RewardPreviewCard: View {
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
                     .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
             )
         }
@@ -352,6 +359,7 @@ struct RewardPreviewCard: View {
 
 /// Optional deadline picker with visual calendar
 struct RewardDeadlineSelector: View {
+    @Environment(\.theme) private var theme
     @Binding var deadline: Date?
     @Binding var hasDeadline: Bool
     let childColor: Color
@@ -373,7 +381,7 @@ struct RewardDeadlineSelector: View {
 
                     Text("Optional: adds urgency and excitement")
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -416,7 +424,7 @@ struct RewardDeadlineSelector: View {
                         Spacer()
                         Text(daysRemaining(until: deadline))
                             .font(.system(size: 14))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .padding(14)
                     .background(
@@ -429,7 +437,7 @@ struct RewardDeadlineSelector: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemGray6).opacity(0.5))
+                .fill(theme.surface2.opacity(0.5))
         )
     }
 
@@ -455,6 +463,7 @@ struct RewardDeadlineSelector: View {
 
 /// Assembled add reward form with all steps
 struct EnhancedAddRewardForm: View {
+    @Environment(\.theme) private var theme
     let childName: String
     let childColor: Color
     @Binding var selectedCategory: RewardCategorySelector.RewardCategory?
@@ -520,7 +529,7 @@ struct EnhancedAddRewardForm: View {
                         .background(
                             isValid ?
                                 LinearGradient(colors: [childColor, childColor.opacity(0.8)], startPoint: .leading, endPoint: .trailing) :
-                                LinearGradient(colors: [Color(.systemGray4)], startPoint: .leading, endPoint: .trailing)
+                                LinearGradient(colors: [theme.borderStrong], startPoint: .leading, endPoint: .trailing)
                         )
                         .cornerRadius(16)
                         .shadow(color: isValid ? childColor.opacity(0.3) : .clear, radius: 12, y: 6)

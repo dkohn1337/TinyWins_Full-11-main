@@ -5,6 +5,7 @@ import SwiftUI
 
 /// Feature row for paywall with value indicator
 struct PremiumFeatureRowView: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let title: String
     let description: String
@@ -37,7 +38,7 @@ struct PremiumFeatureRowView: View {
                     .font(.system(size: 18, weight: .bold))
                 Text(description)
                     .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -47,20 +48,21 @@ struct PremiumFeatureRowView: View {
             if let value = value {
                 Text(value)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .strikethrough()
             }
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
     }
 }
 
 /// Selectable pricing plan card
 struct PricingPlanCardView: View {
+    @Environment(\.theme) private var theme
     let title: String
     let price: String
     let billingCycle: String
@@ -94,7 +96,7 @@ struct PricingPlanCardView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(title)
                             .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
 
                         if let savings = savings {
                             Text(savings)
@@ -108,10 +110,10 @@ struct PricingPlanCardView: View {
                     VStack(alignment: .trailing, spacing: 4) {
                         Text(price)
                             .font(.system(size: 32, weight: .black))
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
                         Text(billingCycle)
                             .font(.system(size: 14))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -128,13 +130,13 @@ struct PricingPlanCardView: View {
             .padding(24)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(isSelected ? Color.purple.opacity(0.1) : Color(.systemBackground))
+                    .fill(isSelected ? Color.purple.opacity(0.1) : theme.surface1)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .strokeBorder(
                                 isSelected ?
                                     LinearGradient(colors: [.purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                                    LinearGradient(colors: [Color(.systemGray4)], startPoint: .top, endPoint: .bottom),
+                                    LinearGradient(colors: [theme.borderStrong], startPoint: .top, endPoint: .bottom),
                                 lineWidth: isSelected ? 3 : 1
                             )
                     )

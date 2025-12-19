@@ -5,7 +5,7 @@ import SwiftUI
 /// View for creating a new family or joining an existing one.
 /// Shown after successful sign-in when user doesn't have a family yet.
 struct FamilySetupView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let currentUser: AuthUser
@@ -32,7 +32,7 @@ struct FamilySetupView: View {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 32)
             }
-            .background(theme.backgroundColor.ignoresSafeArea())
+            .background(theme.bg0.ignoresSafeArea())
             .navigationTitle("Family Setup")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -51,11 +51,11 @@ struct FamilySetupView: View {
         VStack(spacing: 12) {
             Text("Welcome to Tiny Wins!")
                 .font(.system(.title2, design: .rounded, weight: .bold))
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("Let's set up your family so you can start celebrating small wins together.")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
     }
@@ -70,14 +70,14 @@ struct FamilySetupView: View {
             // Or Divider
             HStack {
                 Rectangle()
-                    .fill(theme.divider)
+                    .fill(theme.separator)
                     .frame(height: 1)
                 Text("or")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .padding(.horizontal, 12)
                 Rectangle()
-                    .fill(theme.divider)
+                    .fill(theme.separator)
                     .frame(height: 1)
             }
 
@@ -92,11 +92,11 @@ struct FamilySetupView: View {
             HStack {
                 Image(systemName: "house.fill")
                     .font(.title2)
-                    .foregroundColor(theme.accentColor)
+                    .foregroundColor(theme.accentPrimary)
 
                 Text("Create a New Family")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
             }
@@ -106,7 +106,7 @@ struct FamilySetupView: View {
                 Text("Family Name")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 TextField("e.g., The Smiths", text: $familyName)
                     .textFieldStyle(.roundedBorder)
@@ -118,7 +118,7 @@ struct FamilySetupView: View {
                 Text("Your Name")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 TextField("e.g., Dad, Mom, Papa", text: $parentName)
                     .textFieldStyle(.roundedBorder)
@@ -130,7 +130,7 @@ struct FamilySetupView: View {
                 Text("Your Avatar")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
@@ -144,13 +144,13 @@ struct FamilySetupView: View {
                                     .background(
                                         Circle()
                                             .fill(selectedEmoji == emoji ?
-                                                  theme.accentColor.opacity(0.2) :
-                                                  Color(.systemGray6))
+                                                  theme.accentPrimary.opacity(0.2) :
+                                                  theme.surface2)
                                     )
                                     .overlay(
                                         Circle()
                                             .stroke(selectedEmoji == emoji ?
-                                                    theme.accentColor : Color.clear, lineWidth: 2)
+                                                    theme.accentPrimary : Color.clear, lineWidth: 2)
                                     )
                             }
                         }
@@ -172,15 +172,15 @@ struct FamilySetupView: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(canCreate ? theme.accentColor : theme.accentDisabled)
-                .cornerRadius(theme.cornerRadius)
+                .background(canCreate ? theme.accentPrimary : theme.accentPrimary.opacity(0.5))
+                .cornerRadius(12)
             }
             .disabled(!canCreate || isCreating)
         }
         .padding(20)
-        .background(theme.cardBackground)
-        .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .background(theme.surface1)
+        .cornerRadius(12)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     private var joinFamilyCard: some View {
@@ -188,27 +188,27 @@ struct FamilySetupView: View {
             HStack(spacing: 16) {
                 Image(systemName: "person.badge.plus")
                     .font(.title2)
-                    .foregroundColor(theme.positiveColor)
+                    .foregroundColor(theme.success)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Join an Existing Family")
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("Enter an invite code from your partner")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(20)
-            .background(theme.cardBackground)
-            .cornerRadius(theme.cornerRadius)
-            .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+            .background(theme.surface1)
+            .cornerRadius(12)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         }
     }
 
@@ -253,5 +253,5 @@ struct FamilySetupView: View {
             print("Join family tapped")
         }
     )
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Milestone Celebration Overlay
 
 struct MilestoneCelebrationOverlay: View {
+    @Environment(\.theme) private var theme
     let milestone: CelebrationStore.MilestoneCelebration
     let onDismiss: () -> Void
 
@@ -25,7 +26,7 @@ struct MilestoneCelebrationOverlay: View {
                         Button(action: onDismiss) {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.title2)
-                                .foregroundColor(Color(.systemGray3))
+                                .foregroundColor(theme.textTertiary)
                         }
                     }
                     .padding(.bottom, -8)
@@ -55,7 +56,7 @@ struct MilestoneCelebrationOverlay: View {
 
                         Text("\(milestone.milestone) of \(milestone.target) stars")
                             .font(.title3)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         Text("toward \(milestone.rewardName)")
                             .font(.headline)
@@ -69,7 +70,7 @@ struct MilestoneCelebrationOverlay: View {
                         GeometryReader { geometry in
                             ZStack(alignment: .leading) {
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color(.systemGray5))
+                                    .fill(theme.borderSoft)
                                     .frame(height: 14)
 
                                 RoundedRectangle(cornerRadius: 8)
@@ -87,14 +88,14 @@ struct MilestoneCelebrationOverlay: View {
 
                         Text("\(Int((Double(milestone.milestone) / Double(milestone.target)) * 100))% complete")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     // Message - allow full wrapping
                     Text(milestone.message)
                         .font(.body)
                         .multilineTextAlignment(.center)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(nil)
 
@@ -117,7 +118,7 @@ struct MilestoneCelebrationOverlay: View {
                     .padding(.top, 4)
                 }
                 .padding(24)
-                .background(Color(.systemBackground))
+                .background(theme.surface1)
                 .cornerRadius(24)
                 .shadow(color: .black.opacity(0.25), radius: 20, y: 10)
             }
@@ -129,6 +130,7 @@ struct MilestoneCelebrationOverlay: View {
 // MARK: - Reward Earned Celebration Overlay (Goal Reached 100%)
 
 struct RewardEarnedCelebrationOverlay: View {
+    @Environment(\.theme) private var theme
     let celebration: CelebrationStore.RewardEarnedCelebration
     let onDismiss: () -> Void
 
@@ -151,7 +153,7 @@ struct RewardEarnedCelebrationOverlay: View {
                         Button(action: onDismiss) {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.title2)
-                                .foregroundColor(Color(.systemGray3))
+                                .foregroundColor(theme.textTertiary)
                         }
                     }
                     .padding(.bottom, -8)
@@ -187,7 +189,7 @@ struct RewardEarnedCelebrationOverlay: View {
 
                         Text("\(celebration.childName) earned")
                             .font(.body)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         HStack(spacing: 8) {
                             if let iconName = celebration.rewardIcon {
@@ -205,7 +207,7 @@ struct RewardEarnedCelebrationOverlay: View {
                     Text("Take a moment to tell \(celebration.childName) what they did well.")
                         .font(.body)
                         .multilineTextAlignment(.center)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(nil)
                         .padding(.horizontal, 8)
@@ -232,11 +234,11 @@ struct RewardEarnedCelebrationOverlay: View {
                     Button(action: onDismiss) {
                         Text("Later")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(24)
-                .background(Color(.systemBackground))
+                .background(theme.surface1)
                 .cornerRadius(24)
                 .shadow(color: .black.opacity(0.25), radius: 20, y: 10)
             }
@@ -248,6 +250,7 @@ struct RewardEarnedCelebrationOverlay: View {
 // MARK: - Bonus Insight Sheet
 
 struct BonusInsightSheet: View {
+    @Environment(\.theme) private var theme
     let insight: BonusInsight
     let onDismiss: () -> Void
 
@@ -273,7 +276,7 @@ struct BonusInsightSheet: View {
             // Message
             Text(insight.message)
                 .font(.body)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
 
@@ -285,7 +288,7 @@ struct BonusInsightSheet: View {
 
                     Text(suggestion)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding()
                 .background(Color.yellow.opacity(0.1))

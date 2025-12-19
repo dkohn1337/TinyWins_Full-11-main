@@ -10,12 +10,10 @@ struct PrimaryButton: View {
     var isLoading: Bool = false
     var isDisabled: Bool = false
     var hapticFeedback: Bool = true
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @State private var isPressed = false
 
     var body: some View {
-        let resolved = themeProvider.resolved
-
         Button(action: handleAction) {
             HStack(spacing: AppSpacing.xs) {
                 if isLoading {
@@ -31,17 +29,25 @@ struct PrimaryButton: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, AppSpacing.md)
             .background(
-                RoundedRectangle(cornerRadius: resolved.cornerRadius)
+                RoundedRectangle(cornerRadius: theme.cornerRadius)
                     .fill(
-                        LinearGradient(
-                            colors: isDisabled ? [Color.gray.opacity(0.5), Color.gray.opacity(0.4)] :
-                                    (isPressed ? resolved.buttonGradient.map { $0.opacity(0.8) } : resolved.buttonGradient),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
+                        isDisabled ?
+                            LinearGradient(
+                                colors: [theme.textDisabled.opacity(0.5), theme.textDisabled.opacity(0.4)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ) :
+                            (isPressed ?
+                                LinearGradient(
+                                    colors: theme.accentGradient.map { $0.opacity(0.8) },
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                ) :
+                                theme.buttonGradient
+                            )
                     )
                     .shadow(
-                        color: (resolved.buttonGradient.first ?? resolved.primaryColor).opacity(isPressed ? 0.2 : 0.35),
+                        color: (theme.accentGradient.first ?? theme.accentPrimary).opacity(isPressed ? 0.2 : 0.35),
                         radius: isPressed ? 4 : 10,
                         y: isPressed ? 2 : 5
                     )
@@ -78,24 +84,22 @@ struct SecondaryButton: View {
     let action: () -> Void
     var isDisabled: Bool = false
     var hapticFeedback: Bool = true
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @State private var isPressed = false
 
     var body: some View {
-        let resolved = themeProvider.resolved
-
         Button(action: handleAction) {
             Text(title)
                 .font(AppTypography.button)
-                .foregroundColor(isDisabled ? Color.gray : resolved.primaryColor)
+                .foregroundColor(isDisabled ? theme.textDisabled : theme.accentPrimary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, AppSpacing.sm)
                 .background(
-                    RoundedRectangle(cornerRadius: resolved.cornerRadius)
-                        .fill(isPressed ? resolved.primaryColor.opacity(0.1) : Color.clear)
+                    RoundedRectangle(cornerRadius: theme.cornerRadius)
+                        .fill(isPressed ? theme.accentPrimary.opacity(0.1) : Color.clear)
                         .overlay(
-                            RoundedRectangle(cornerRadius: resolved.cornerRadius)
-                                .stroke(isDisabled ? Color.gray : resolved.primaryColor, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: theme.cornerRadius)
+                                .stroke(isDisabled ? theme.textDisabled : theme.accentPrimary, lineWidth: 2)
                         )
                 )
         }
@@ -129,15 +133,13 @@ struct TertiaryButton: View {
     let title: String
     let action: () -> Void
     var isDisabled: Bool = false
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     var body: some View {
-        let resolved = themeProvider.resolved
-
         Button(action: action) {
             Text(title)
                 .font(AppTypography.buttonSmall)
-                .foregroundColor(isDisabled ? Color.gray : resolved.primaryColor)
+                .foregroundColor(isDisabled ? theme.textDisabled : theme.accentPrimary)
         }
         .disabled(isDisabled)
         .accessibilityLabel(title)
@@ -153,11 +155,10 @@ struct DestructiveButton: View {
     let title: String
     let action: () -> Void
     var isDisabled: Bool = false
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @State private var isPressed = false
 
     var body: some View {
-        let resolved = themeProvider.resolved
         let destructiveColor = Color(red: 0.95, green: 0.3, blue: 0.3)
 
         Button(action: action) {
@@ -167,8 +168,8 @@ struct DestructiveButton: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, AppSpacing.sm)
                 .background(
-                    RoundedRectangle(cornerRadius: resolved.cornerRadius)
-                        .fill(isDisabled ? Color.gray : (isPressed ? destructiveColor.opacity(0.8) : destructiveColor))
+                    RoundedRectangle(cornerRadius: theme.cornerRadius)
+                        .fill(isDisabled ? theme.textDisabled : (isPressed ? destructiveColor.opacity(0.8) : destructiveColor))
                 )
         }
         .disabled(isDisabled)
@@ -194,12 +195,11 @@ struct IconButton: View {
     let action: () -> Void
     var size: CGFloat = 44
     var tint: Color?
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @State private var isPressed = false
 
     var body: some View {
-        let resolved = themeProvider.resolved
-        let effectiveColor = tint ?? resolved.primaryColor
+        let effectiveColor = tint ?? theme.accentPrimary
 
         Button(action: action) {
             Image(systemName: systemName)
@@ -247,11 +247,9 @@ struct IconButton: View {
 struct FloatingActionButton: View {
     let systemName: String
     let action: () -> Void
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     var body: some View {
-        let resolved = themeProvider.resolved
-
         Button(action: {
             let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
@@ -263,15 +261,9 @@ struct FloatingActionButton: View {
                 .frame(width: 60, height: 60)
                 .background(
                     Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: resolved.buttonGradient,
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(theme.buttonGradient)
                         .shadow(
-                            color: (resolved.buttonGradient.first ?? resolved.primaryColor).opacity(0.4),
+                            color: (theme.accentGradient.first ?? theme.accentPrimary).opacity(0.4),
                             radius: 12,
                             y: 4
                         )
@@ -375,5 +367,6 @@ struct FloatingActionButton: View {
         }
         .padding(AppSpacing.screenPadding)
     }
-    .background(Color(.systemGroupedBackground))
+    .background(Theme().bg1)
+    .withTheme(Theme())
 }

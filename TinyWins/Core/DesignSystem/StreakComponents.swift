@@ -72,6 +72,7 @@ struct StreakFlameView: View {
 
 /// Complete streak display with count and messaging
 struct StreakBadgeView: View {
+    @Environment(\.theme) private var theme
     let streakCount: Int
     let showDangerWarning: Bool
 
@@ -96,7 +97,7 @@ struct StreakBadgeView: View {
 
                 Text(message)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 if showDangerWarning {
                     HStack(spacing: 4) {

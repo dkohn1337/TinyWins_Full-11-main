@@ -132,10 +132,11 @@ struct AppIconView: View {
 // MARK: - Card Container
 
 struct CardContainer<Content: View>: View {
+    @Environment(\.theme) private var theme
     let content: Content
-    var backgroundColor: Color = Color(.systemBackground)
-    
-    init(backgroundColor: Color = Color(.systemBackground), @ViewBuilder content: () -> Content) {
+    var backgroundColor: Color?
+
+    init(backgroundColor: Color? = nil, @ViewBuilder content: () -> Content) {
         self.backgroundColor = backgroundColor
         self.content = content()
     }
@@ -143,7 +144,7 @@ struct CardContainer<Content: View>: View {
     var body: some View {
         content
             .padding()
-            .background(backgroundColor)
+            .background(backgroundColor ?? theme.surface1)
             .cornerRadius(AppStyles.cardCornerRadius)
             .shadow(color: AppStyles.cardShadow, radius: AppStyles.cardShadowRadius, y: 2)
     }
@@ -160,12 +161,12 @@ enum ToastCategory {
 
     /// Get theme-aware color for this toast category
     @MainActor
-    func color(from theme: ThemeProvider) -> Color {
+    func color(from theme: Theme) -> Color {
         switch self {
-        case .routine: return theme.routineColor
-        case .positive: return theme.positiveColor
-        case .challenge: return theme.challengeColor
-        case .neutral: return Color(.systemGray)
+        case .routine: return theme.routine
+        case .positive: return theme.success
+        case .challenge: return theme.warning
+        case .neutral: return theme.textSecondary
         }
     }
 
@@ -298,11 +299,12 @@ extension View {
 // MARK: - Stars Display
 
 struct StarsDisplay: View {
+    @Environment(\.theme) private var theme
     let count: Int
     let total: Int
     var size: CGFloat = 16
     var showLabel: Bool = true
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: "star.fill")
@@ -312,12 +314,12 @@ struct StarsDisplay: View {
             if showLabel {
                 Text("\(count) of \(total) stars")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             } else {
                 Text("\(count)/\(total)")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         }
     }
@@ -453,10 +455,11 @@ extension Text {
 // MARK: - Signature Canvas View
 
 struct SignatureCanvasView: View {
+    @Environment(\.theme) private var theme
     @Binding var signatureImage: UIImage?
     @State private var paths: [Path] = []
     @State private var currentPath = Path()
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Canvas { context, size in
@@ -468,7 +471,7 @@ struct SignatureCanvasView: View {
                 context.stroke(currentPath, with: .color(.primary), lineWidth: 3)
             }
             .frame(height: 150)
-            .background(Color(.systemGray6))
+            .background(theme.surface2)
             .cornerRadius(12)
             .gesture(
                 DragGesture(minimumDistance: 0)
@@ -487,21 +490,21 @@ struct SignatureCanvasView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(.systemGray4), lineWidth: 1)
+                    .stroke(theme.borderStrong, lineWidth: 1)
             )
             
             HStack {
                 Button(action: clearSignature) {
                     Label("Clear", systemImage: "arrow.counterclockwise")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
-                
+
                 Spacer()
-                
+
                 Text("Sign with your finger")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(.top, 8)
         }

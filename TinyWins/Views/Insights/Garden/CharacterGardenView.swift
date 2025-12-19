@@ -12,7 +12,7 @@ import SwiftUI
 /// - Celebrates growth with warm, encouraging copy
 /// - Perfect for time-pressed parents wanting quick insights
 struct CharacterGardenView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     @Bindable var viewModel: CharacterGardenViewModel
@@ -89,13 +89,13 @@ struct CharacterGardenView: View {
                 Text(heroMessage.headline)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
                     .multilineTextAlignment(.center)
 
                 // Subheadline
                 Text(heroMessage.subheadline)
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
 
                 // Trait color accent if specific trait
@@ -124,7 +124,7 @@ struct CharacterGardenView: View {
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .overlay(
                     RoundedRectangle(cornerRadius: theme.cornerRadius)
                         .fill(
@@ -157,7 +157,7 @@ struct CharacterGardenView: View {
                     Text(range.displayName)
                         .font(.subheadline)
                         .fontWeight(selectedTimeRange == range ? .semibold : .regular)
-                        .foregroundColor(selectedTimeRange == range ? .white : theme.secondaryText)
+                        .foregroundColor(selectedTimeRange == range ? .white : theme.textSecondary)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
                         .background(
@@ -176,7 +176,7 @@ struct CharacterGardenView: View {
         .padding(4)
         .background(
             Capsule()
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .shadow(color: Color.black.opacity(0.08), radius: 6, y: 2)
         )
     }
@@ -192,13 +192,13 @@ struct CharacterGardenView: View {
 
                 Text("Character Garden")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
                 Text("Tap to explore")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             // 2x3 grid of plants
@@ -231,7 +231,7 @@ struct CharacterGardenView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .shadow(color: Color.black.opacity(0.05), radius: 8, y: 4)
         )
     }
@@ -263,7 +263,7 @@ struct CharacterGardenView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(plant.trait.displayName)
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text(plant.stageDescription)
                         .font(.subheadline)
@@ -280,7 +280,7 @@ struct CharacterGardenView: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 24))
-                        .foregroundColor(theme.secondaryText.opacity(0.5))
+                        .foregroundColor(theme.textDisabled.opacity(0.5))
                 }
                 .buttonStyle(.plain)
             }
@@ -288,7 +288,7 @@ struct CharacterGardenView: View {
             // Trait description
             Text(plant.trait.description)
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             Divider()
 
@@ -302,7 +302,7 @@ struct CharacterGardenView: View {
 
                     Text("Moments")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 // Points
@@ -319,7 +319,7 @@ struct CharacterGardenView: View {
 
                     Text("Points earned")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -351,7 +351,7 @@ struct CharacterGardenView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .overlay(
                     RoundedRectangle(cornerRadius: theme.cornerRadius)
                         .fill(
@@ -378,7 +378,7 @@ struct CharacterGardenView: View {
                 : "Keep nurturing this beautiful trait!"
             )
             .font(.caption)
-            .foregroundColor(theme.secondaryText)
+            .foregroundColor(theme.textSecondary)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -451,7 +451,7 @@ struct CharacterGardenView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .shadow(color: Color.black.opacity(0.05), radius: 6, y: 3)
         )
     }
@@ -465,14 +465,14 @@ struct CharacterGardenView: View {
 
                 Text(value)
                     .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
 
             Text(label)
                 .font(.caption2)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity)
@@ -485,11 +485,11 @@ struct CharacterGardenView: View {
             Text("Every moment nurtures growth")
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("Log positive moments to watch the garden flourish")
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(.vertical, 16)
@@ -515,7 +515,7 @@ struct CharacterGardenView: View {
     private var gardenBackground: some View {
         ZStack {
             // Base color
-            theme.backgroundColor
+            theme.bg0
 
             // Subtle garden gradient
             LinearGradient(
@@ -546,7 +546,7 @@ struct CharacterGardenView: View {
     NavigationStack {
         CharacterGardenView(viewModel: viewModel)
     }
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Character Garden - Empty State") {
@@ -560,5 +560,5 @@ struct CharacterGardenView: View {
     NavigationStack {
         CharacterGardenView(viewModel: viewModel)
     }
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

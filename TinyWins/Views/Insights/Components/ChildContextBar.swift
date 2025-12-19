@@ -11,7 +11,7 @@ import SwiftUI
 /// - Shows child avatar and name clearly
 /// - Accessible: full VoiceOver support
 struct ChildContextBar: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var navigation: InsightsNavigationState
     @EnvironmentObject private var childrenStore: ChildrenStore
 
@@ -29,20 +29,20 @@ struct ChildContextBar: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(selectedChildName)
                             .font(.headline)
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         Text("Tap to switch", tableName: "Insights")
                             .font(.caption2)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Image(systemName: "chevron.down")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
-                .background(theme.cardBackground)
+                .background(theme.surface1)
                 .cornerRadius(12)
             }
             .buttonStyle(.plain)
@@ -57,11 +57,11 @@ struct ChildContextBar: View {
         }
         .padding(.horizontal, AppSpacing.screenPadding)
         .padding(.vertical, 10)
-        .background(theme.backgroundColor)
+        .background(theme.bg0)
         .overlay(
             // Bottom separator line
             Rectangle()
-                .fill(Color(.systemGray5))
+                .fill(theme.borderSoft)
                 .frame(height: 1),
             alignment: .bottom
         )
@@ -94,11 +94,11 @@ struct ChildContextBar: View {
         } else {
             // No child selected - show placeholder
             Circle()
-                .fill(theme.borderSubtle)
+                .fill(theme.borderSoft)
                 .frame(width: 40, height: 40)
                 .overlay(
                     Image(systemName: "person.fill")
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 )
         }
     }
@@ -134,11 +134,11 @@ struct ChildContextBar: View {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color(.systemGray6))
+                    .fill(theme.surface2)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color(.systemGray4), lineWidth: 1)
+                    .stroke(theme.borderStrong, lineWidth: 1)
             )
         }
         .accessibilityLabel(Text("Time range: \(navigation.timeRange.displayKey)", tableName: "Insights"))
@@ -178,5 +178,5 @@ struct ChildContextBar: View {
     }
     .environmentObject(navigation)
     .environmentObject(ChildrenStore(repository: repository))
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

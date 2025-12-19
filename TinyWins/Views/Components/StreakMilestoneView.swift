@@ -3,6 +3,7 @@ import SwiftUI
 /// Celebration view for reflection streak milestones
 struct StreakMilestoneView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
 
     let streak: Int
@@ -94,7 +95,7 @@ struct StreakMilestoneView: View {
                 // Message
                 Text(milestone.message)
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
                     .opacity(animationPhase >= 4 ? 1.0 : 0.0)
@@ -154,7 +155,7 @@ struct StreakMilestoneView: View {
 
             Text("Get personalized insights, full history, and month-in-review summaries.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
 
             // Upgrade CTA button

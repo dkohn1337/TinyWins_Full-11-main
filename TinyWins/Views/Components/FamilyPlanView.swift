@@ -8,6 +8,7 @@ struct FamilyPlanView: View {
     @EnvironmentObject private var rewardsStore: RewardsStore
     @EnvironmentObject private var agreementsStore: AgreementsStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     let child: Child
 
@@ -115,7 +116,7 @@ struct FamilyPlanView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Our Plan for")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Text(currentChild.name)
                         .font(.title3.bold())
                 }
@@ -129,11 +130,11 @@ struct FamilyPlanView: View {
             // Subtitle
             Text("What we're working on together as a team")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(AppStyles.cardCornerRadius)
         .shadow(color: AppStyles.cardShadow, radius: AppStyles.cardShadowRadius, y: 2)
     }
@@ -187,7 +188,7 @@ struct FamilyPlanView: View {
 
             Text("These are the behaviors we're noticing and celebrating together")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             // Positive behaviors
             let positiveBehaviors = behaviorsStore.behaviorTypes.filter { $0.category == .positive }
@@ -202,7 +203,7 @@ struct FamilyPlanView: View {
 
                         Text(behavior.name)
                             .font(.subheadline)
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
 
                         Spacer()
                     }
@@ -229,7 +230,7 @@ struct FamilyPlanView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(AppStyles.cardCornerRadius)
         .shadow(color: AppStyles.cardShadow, radius: AppStyles.cardShadowRadius, y: 2)
     }
@@ -247,7 +248,7 @@ struct FamilyPlanView: View {
             if activeRewards.isEmpty {
                 Text("No goals set up yet. Add one to get started!")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             } else {
                 VStack(spacing: 12) {
                     ForEach(activeRewards) { reward in
@@ -257,7 +258,7 @@ struct FamilyPlanView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(AppStyles.cardCornerRadius)
         .shadow(color: AppStyles.cardShadow, radius: AppStyles.cardShadowRadius, y: 2)
     }
@@ -294,7 +295,7 @@ struct FamilyPlanView: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color(.systemGray5))
+                        .fill(theme.borderSoft)
                         .frame(height: 8)
 
                     RoundedRectangle(cornerRadius: 4)
@@ -307,7 +308,7 @@ struct FamilyPlanView: View {
             HStack {
                 Text("\(reward.pointsEarnedInWindow(from: behaviorsStore.behaviorEvents, isPrimaryReward: activeRewards.first?.id == reward.id)) of \(reward.targetPoints) stars")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 Spacer()
 
@@ -325,7 +326,7 @@ struct FamilyPlanView: View {
             }
         }
         .padding()
-        .background(needsPlanUpdate ? Color.orange.opacity(0.05) : Color(.systemGray6))
+        .background(needsPlanUpdate ? Color.orange.opacity(0.05) : theme.surface2)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -345,7 +346,7 @@ struct FamilyPlanView: View {
 
             Text("Ways we support \(currentChild.name) on this journey")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             VStack(alignment: .leading, spacing: 12) {
                 supportPoint(icon: "checkmark.circle", text: "Notice and celebrate small wins every day")
@@ -355,7 +356,7 @@ struct FamilyPlanView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(AppStyles.cardCornerRadius)
         .shadow(color: AppStyles.cardShadow, radius: AppStyles.cardShadowRadius, y: 2)
     }
@@ -369,7 +370,7 @@ struct FamilyPlanView: View {
 
             Text(text)
                 .font(.subheadline)
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer()
@@ -396,7 +397,7 @@ struct FamilyPlanView: View {
                             .foregroundColor(.green)
                         Text(relativeTimeText)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }
@@ -404,7 +405,7 @@ struct FamilyPlanView: View {
             // Simple status message
             Text(teamTalkMessage)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             // Expandable content (replaces popup)
             if showingTeamTalkExpanded || coverageStatus != .signedCurrent {
@@ -417,7 +418,7 @@ struct FamilyPlanView: View {
         }
         .padding()
         .background(
-            Color(.systemBackground)
+            theme.surface1
                 .overlay(
                     highlightCheckIn ?
                     Color.yellow.opacity(0.15) : Color.clear
@@ -464,7 +465,7 @@ struct FamilyPlanView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Talk about:")
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             VStack(alignment: .leading, spacing: 10) {
                 teamTalkPoint(emoji: "⭐", text: "What's going well")
@@ -483,7 +484,7 @@ struct FamilyPlanView: View {
                 .font(.body)
             Text(text)
                 .font(.subheadline)
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
         }
     }
 
@@ -545,16 +546,16 @@ struct FamilyPlanView: View {
         VStack(spacing: 8) {
             Text("Remember")
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             Text("This is a guide, not a test. Some days will be easier than others, and that's okay.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
-        .background(Color(.systemGray6).opacity(0.5))
+        .background(theme.surface2.opacity(0.5))
         .cornerRadius(12)
     }
 

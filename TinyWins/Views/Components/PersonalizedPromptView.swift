@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Personalized reflection prompts based on today's events (Plus feature)
 struct PersonalizedPromptView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var childrenStore: ChildrenStore
 
@@ -38,13 +39,13 @@ struct PersonalizedPromptView: View {
 
             Text(prompt.text)
                 .font(.subheadline)
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             if let context = prompt.context {
                 Text(context)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding()

@@ -4,7 +4,7 @@ import SwiftUI
 
 /// View for joining an existing family using an invite code.
 struct JoinFamilyView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let currentUser: AuthUser
@@ -40,7 +40,7 @@ struct JoinFamilyView: View {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 32)
             }
-            .background(theme.backgroundColor.ignoresSafeArea())
+            .background(theme.bg0.ignoresSafeArea())
             .navigationTitle("Join Family")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -70,15 +70,15 @@ struct JoinFamilyView: View {
         VStack(spacing: 16) {
             Image(systemName: "ticket.fill")
                 .font(.system(size: 48))
-                .foregroundColor(theme.accentColor)
+                .foregroundColor(theme.accentPrimary)
 
             Text("Enter Invite Code")
                 .font(.system(.title2, design: .rounded, weight: .bold))
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("Ask your partner for the 6-character invite code from their Tiny Wins app")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
     }
@@ -122,18 +122,18 @@ struct JoinFamilyView: View {
 
         return Text(character)
             .font(.system(size: 28, weight: .bold, design: .monospaced))
-            .foregroundColor(theme.primaryText)
+            .foregroundColor(theme.textPrimary)
             .frame(width: 48, height: 56)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(theme.cardBackground)
-                    .shadow(color: theme.cardShadow, radius: 4, y: 2)
+                    .fill(theme.surface1)
+                    .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 4, y: 2)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(
                         index == inviteCode.count && isCodeFocused ?
-                        theme.accentColor : theme.borderSubtle,
+                        theme.accentPrimary : theme.borderSoft,
                         lineWidth: index == inviteCode.count && isCodeFocused ? 2 : 1
                     )
             )
@@ -148,7 +148,7 @@ struct JoinFamilyView: View {
                 Text("Your Name")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 TextField("e.g., Mom, Dad, Papa", text: $parentName)
                     .textFieldStyle(.roundedBorder)
@@ -160,7 +160,7 @@ struct JoinFamilyView: View {
                 Text("Your Avatar")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
@@ -174,13 +174,13 @@ struct JoinFamilyView: View {
                                     .background(
                                         Circle()
                                             .fill(selectedEmoji == emoji ?
-                                                  theme.accentColor.opacity(0.2) :
-                                                  Color(.systemGray6))
+                                                  theme.accentPrimary.opacity(0.2) :
+                                                  theme.surface2)
                                     )
                                     .overlay(
                                         Circle()
                                             .stroke(selectedEmoji == emoji ?
-                                                    theme.accentColor : Color.clear, lineWidth: 2)
+                                                    theme.accentPrimary : Color.clear, lineWidth: 2)
                                     )
                             }
                         }
@@ -189,9 +189,9 @@ struct JoinFamilyView: View {
             }
         }
         .padding(20)
-        .background(theme.cardBackground)
-        .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .background(theme.surface1)
+        .cornerRadius(12)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     // MARK: - Join Button
@@ -210,8 +210,8 @@ struct JoinFamilyView: View {
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 54)
-            .background(canJoin ? theme.accentColor : theme.accentDisabled)
-            .cornerRadius(theme.cornerRadius)
+            .background(canJoin ? theme.accentPrimary : theme.accentPrimary.opacity(0.5))
+            .cornerRadius(12)
         }
         .disabled(!canJoin || isJoining)
     }
@@ -223,7 +223,7 @@ struct JoinFamilyView: View {
             Text("How to get an invite code")
                 .font(.caption)
                 .fontWeight(.semibold)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             VStack(alignment: .leading, spacing: 8) {
                 helpStep(number: 1, text: "Your partner opens Tiny Wins")
@@ -232,7 +232,7 @@ struct JoinFamilyView: View {
             }
         }
         .padding(16)
-        .background(Color(.systemGray6))
+        .background(theme.surface2)
         .cornerRadius(12)
     }
 
@@ -243,11 +243,11 @@ struct JoinFamilyView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .frame(width: 20, height: 20)
-                .background(Circle().fill(theme.accentColor))
+                .background(Circle().fill(theme.accentPrimary))
 
             Text(text)
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             Spacer()
         }
@@ -287,5 +287,5 @@ struct JoinFamilyView: View {
             print("Joining with code: \(code), parent: \(parent.displayName)")
         }
     )
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

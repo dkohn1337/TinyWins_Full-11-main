@@ -6,7 +6,7 @@ import SwiftUI
 /// Shows side-by-side stats and celebrates shared observations.
 /// Design philosophy: Celebration, not competition. "Together we noticed X wins!"
 struct PartnerDashboardView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
 
@@ -47,17 +47,17 @@ struct PartnerDashboardView: View {
             }
             .padding()
         }
-        .background(theme.backgroundColor.ignoresSafeArea())
+        .background(theme.bg0.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 VStack(spacing: 0) {
                     Text("Better Together")
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
                     Text(repository.appData.family.name)
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
         }
@@ -94,7 +94,7 @@ struct PartnerDashboardView: View {
             VStack(spacing: 8) {
                 Text("Together you noticed")
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 HStack(spacing: 4) {
                     Text("\(totalWinsThisPeriod)")
@@ -109,19 +109,19 @@ struct PartnerDashboardView: View {
 
                     Text(totalWinsThisPeriod == 1 ? "win" : "wins")
                         .font(.title2.weight(.semibold))
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
                 }
 
                 Text(selectedPeriod.displayName.lowercased())
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             // Encouragement
             if totalWinsThisPeriod > 0 {
                 Text(encouragementMessage)
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
@@ -130,7 +130,7 @@ struct PartnerDashboardView: View {
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
         )
         .overlay(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
@@ -143,7 +143,7 @@ struct PartnerDashboardView: View {
                     lineWidth: 1
                 )
         )
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     private var encouragementMessage: String {
@@ -175,13 +175,13 @@ struct PartnerDashboardView: View {
                         Text(period.displayName)
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(selectedPeriod == period ? .white : theme.primaryText)
+                            .foregroundColor(selectedPeriod == period ? .white : theme.textPrimary)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
                             .background(
                                 Capsule()
                                     .fill(selectedPeriod == period ?
-                                          theme.accentColor : theme.chipBackground)
+                                          theme.accentPrimary : theme.accentMuted)
                             )
                     }
                 }
@@ -198,7 +198,7 @@ struct PartnerDashboardView: View {
             HStack {
                 Text("Activity Comparison")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
                 Spacer()
             }
 
@@ -227,7 +227,7 @@ struct PartnerDashboardView: View {
                 Text(isCurrentUser ? "You" : parent.shortName)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 // Activity indicator
                 HStack(spacing: 4) {
@@ -236,7 +236,7 @@ struct PartnerDashboardView: View {
                         .frame(width: 6, height: 6)
                     Text(parent.isRecentlyActive ? "Active" : "Away")
                         .font(.caption2)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
 
@@ -244,19 +244,19 @@ struct PartnerDashboardView: View {
 
             // Stats
             VStack(spacing: 8) {
-                statRow(label: "Wins Logged", value: "\(stats.totalEvents)", icon: "star.fill", color: theme.starColor)
-                statRow(label: "Positive", value: "\(stats.positiveEvents)", icon: "hand.thumbsup.fill", color: theme.positiveColor)
-                statRow(label: "Challenges", value: "\(stats.challengeEvents)", icon: "exclamationmark.triangle.fill", color: theme.challengeColor)
+                statRow(label: "Wins Logged", value: "\(stats.totalEvents)", icon: "star.fill", color: theme.star)
+                statRow(label: "Positive", value: "\(stats.positiveEvents)", icon: "hand.thumbsup.fill", color: theme.success)
+                statRow(label: "Challenges", value: "\(stats.challengeEvents)", icon: "exclamationmark.triangle.fill", color: theme.danger)
             }
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         .overlay(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .stroke(isCurrentUser ? theme.accentColor.opacity(0.3) : Color.clear, lineWidth: 2)
+                .stroke(isCurrentUser ? theme.accentPrimary.opacity(0.3) : Color.clear, lineWidth: 2)
         )
     }
 
@@ -268,14 +268,14 @@ struct PartnerDashboardView: View {
 
             Text(label)
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             Spacer()
 
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.semibold)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
         }
     }
 
@@ -289,7 +289,7 @@ struct PartnerDashboardView: View {
             HStack {
                 Text("Alignment")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
                 Spacer()
 
                 // Alignment Score
@@ -308,13 +308,13 @@ struct PartnerDashboardView: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         Capsule()
-                            .fill(theme.streakInactiveColor)
+                            .fill(theme.textDisabled)
                             .frame(height: 12)
 
                         Capsule()
                             .fill(
                                 LinearGradient(
-                                    colors: [theme.accentColor, .pink],
+                                    colors: [theme.accentPrimary, .pink],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
@@ -327,7 +327,7 @@ struct PartnerDashboardView: View {
                 // Alignment Message
                 Text(alignmentMessage(score: alignmentData.score))
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
 
                 // Shared Observations
@@ -338,17 +338,17 @@ struct PartnerDashboardView: View {
                         Text("Both parents noticed:")
                             .font(.caption)
                             .fontWeight(.medium)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
 
                         ForEach(alignmentData.sharedBehaviors.prefix(3), id: \.self) { behaviorName in
                             HStack(spacing: 8) {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(theme.positiveColor)
+                                    .foregroundColor(theme.success)
                                     .font(.caption)
 
                                 Text(behaviorName)
                                     .font(.subheadline)
-                                    .foregroundColor(theme.primaryText)
+                                    .foregroundColor(theme.textPrimary)
                             }
                         }
                     }
@@ -356,9 +356,9 @@ struct PartnerDashboardView: View {
                 }
             }
             .padding()
-            .background(theme.cardBackground)
+            .background(theme.surface1)
             .cornerRadius(theme.cornerRadius)
-            .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         }
     }
 
@@ -387,14 +387,14 @@ struct PartnerDashboardView: View {
             HStack {
                 Text("Recent Partner Activity")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
                 Spacer()
             }
 
             if recentEvents.isEmpty {
                 Text("No recent activity from your partner")
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 32)
             } else {
@@ -420,7 +420,7 @@ struct PartnerDashboardView: View {
             } else {
                 Image(systemName: "person.circle.fill")
                     .font(.title3)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textDisabled)
             }
 
             // Event Details
@@ -428,19 +428,19 @@ struct PartnerDashboardView: View {
                 Text(behaviorType?.name ?? "Unknown")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 HStack(spacing: 4) {
                     Text(child?.name ?? "")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
 
                     Text("•")
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
 
                     Text(event.timestamp, style: .relative)
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
 
@@ -450,7 +450,7 @@ struct PartnerDashboardView: View {
             PointsBadge(points: event.pointsApplied, useStars: true)
         }
         .padding()
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(12)
     }
 
@@ -460,15 +460,15 @@ struct PartnerDashboardView: View {
         VStack(spacing: 20) {
             Image(systemName: "person.2.slash")
                 .font(.system(size: 48))
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textDisabled)
 
             Text("Partner Not Connected")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("Invite your partner to see activity comparisons and celebrate alignment.")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
 
             NavigationLink(destination: CoParentSettingsView()) {
@@ -477,12 +477,12 @@ struct PartnerDashboardView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(theme.accentColor)
+                    .background(theme.accentPrimary)
                     .cornerRadius(theme.cornerRadius)
             }
         }
         .padding(32)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
     }
 
@@ -562,5 +562,5 @@ private struct AlignmentData {
     }
     .environmentObject(Repository.preview)
     .environmentObject(SubscriptionManager.shared)
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

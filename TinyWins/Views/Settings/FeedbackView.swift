@@ -75,6 +75,7 @@ enum FeedbackCategory: String, CaseIterable, Identifiable {
 
 struct FeedbackView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     // Form state
     @State private var selectedCategory: FeedbackCategory = .general
@@ -166,7 +167,7 @@ struct FeedbackView: View {
                                 Text("Copy to clipboard instead")
                                     .font(.system(size: 14, weight: .medium))
                             }
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                         }
                     }
                     .padding(.horizontal, 16)
@@ -174,7 +175,7 @@ struct FeedbackView: View {
                 }
                 .padding(.top, 16)
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationTitle("Help & Feedback")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -259,7 +260,7 @@ struct FeedbackView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
     }
@@ -297,7 +298,7 @@ struct FeedbackView: View {
 
                 Text("Your feedback helps us make Tiny Wins better for families like yours.")
                     .font(.system(size: 15))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -324,10 +325,11 @@ struct FeedbackView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("OK to follow up")
                         .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(theme.textPrimary)
 
                     Text("We may reach out to learn more")
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -340,11 +342,11 @@ struct FeedbackView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
     }
-    
+
     // MARK: - Actions
     
     private func sendFeedback() {
@@ -410,6 +412,8 @@ struct FeedbackView: View {
 // MARK: - Category Chip
 
 private struct CategoryChip: View {
+    @Environment(\.theme) private var theme
+
     let category: FeedbackCategory
     let isSelected: Bool
     let action: () -> Void
@@ -427,13 +431,13 @@ private struct CategoryChip: View {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? category.color.opacity(0.15) : Color(.systemGray6))
+                    .fill(isSelected ? category.color.opacity(0.15) : theme.surface2)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .strokeBorder(isSelected ? category.color : Color.clear, lineWidth: 1.5)
             )
-            .foregroundColor(isSelected ? category.color : .secondary)
+            .foregroundColor(isSelected ? category.color : theme.textSecondary)
         }
         .buttonStyle(.plain)
     }
@@ -442,6 +446,8 @@ private struct CategoryChip: View {
 // MARK: - Feedback Input Section
 
 private struct FeedbackInputSection: View {
+    @Environment(\.theme) private var theme
+
     let icon: String
     let iconGradient: [Color]
     let title: String
@@ -472,6 +478,7 @@ private struct FeedbackInputSection: View {
 
                 Text(title)
                     .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(theme.textPrimary)
             }
 
             // Text Editor
@@ -479,7 +486,7 @@ private struct FeedbackInputSection: View {
                 if text.isEmpty {
                     Text(placeholder)
                         .font(.system(size: 15))
-                        .foregroundColor(.secondary.opacity(0.6))
+                        .foregroundColor(theme.textSecondary.opacity(0.6))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 14)
                 }
@@ -492,13 +499,13 @@ private struct FeedbackInputSection: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.systemGray6))
+                    .fill(theme.surface2)
             )
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
     }

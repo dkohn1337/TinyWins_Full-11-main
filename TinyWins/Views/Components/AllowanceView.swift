@@ -5,6 +5,7 @@ struct AllowanceView: View {
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var userPreferences: UserPreferencesStore
+    @Environment(\.theme) private var theme
     @State private var showingPayoutSheet = false
     @State private var selectedChild: Child?
 
@@ -32,7 +33,7 @@ struct AllowanceView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationTitle("Allowance")
             .sheet(isPresented: $showingPayoutSheet) {
                 if let child = selectedChild {
@@ -80,7 +81,7 @@ struct AllowanceView: View {
                             .foregroundColor(.green)
                         Text("Earned")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .frame(maxWidth: .infinity)
 
@@ -91,7 +92,7 @@ struct AllowanceView: View {
                             .foregroundColor(.blue)
                         Text("Paid Out")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .frame(maxWidth: .infinity)
 
@@ -102,21 +103,21 @@ struct AllowanceView: View {
                             .foregroundColor(.orange)
                         Text("Balance")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .frame(maxWidth: .infinity)
                 }
             } else {
                 Text("Enable allowance in Settings to track earnings")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(16)
     }
-    
+
     // MARK: - Behaviors with Allowance
 
     private var behaviorsWithAllowanceSection: some View {
@@ -134,7 +135,7 @@ struct AllowanceView: View {
                         if allowanceSettings.isEnabled {
                             Text("\(Int(allowanceSettings.pointsPerUnitCurrency)) pts = \(allowanceSettings.currencySymbol)1")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                     
@@ -151,7 +152,7 @@ struct AllowanceView: View {
                             
                             Text("+\(behavior.defaultPoints) pts")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
 
                             if allowanceSettings.isEnabled {
                                 Text(allowanceSettings.formatMoney(allowanceSettings.pointsToMoney(behavior.defaultPoints)))
@@ -164,25 +165,25 @@ struct AllowanceView: View {
                     }
                 }
                 .padding()
-                .background(Color(.systemBackground))
+                .background(theme.surface1)
                 .cornerRadius(16)
             } else {
                 VStack(spacing: 12) {
                     Image(systemName: "dollarsign.circle")
                         .font(.system(size: 40))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     
                     Text("No Monetized Behaviors")
                         .font(.headline)
                     
                     Text("Mark behaviors as 'Counts for Allowance' in the Manage Behaviors section")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color(.systemBackground))
+                .background(theme.surface1)
                 .cornerRadius(16)
             }
         }
@@ -209,6 +210,7 @@ struct ChildAllowanceCard: View {
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
+    @Environment(\.theme) private var theme
     let child: Child
     let onPayout: () -> Void
 
@@ -239,7 +241,7 @@ struct ChildAllowanceCard: View {
                     
                     Text("Balance: \(formatCurrency(balance))")
                         .font(.subheadline)
-                        .foregroundColor(balance > 0 ? .green : .secondary)
+                        .foregroundColor(balance > 0 ? .green : theme.textSecondary)
                 }
                 
                 Spacer()
@@ -250,7 +252,7 @@ struct ChildAllowanceCard: View {
                         .fontWeight(.semibold)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
-                        .background(balance > 0 ? currentChild.colorTag.color : Color.gray)
+                        .background(balance > 0 ? currentChild.colorTag.color : theme.textDisabled)
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
@@ -261,7 +263,7 @@ struct ChildAllowanceCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Earned")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Text(formatCurrency(earned))
                         .font(.subheadline)
                         .fontWeight(.semibold)
@@ -272,7 +274,7 @@ struct ChildAllowanceCard: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("Paid Out")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Text(formatCurrency(currentChild.allowancePaidOut))
                         .font(.subheadline)
                         .fontWeight(.semibold)
@@ -281,7 +283,7 @@ struct ChildAllowanceCard: View {
             .padding(.top, 4)
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(16)
     }
     

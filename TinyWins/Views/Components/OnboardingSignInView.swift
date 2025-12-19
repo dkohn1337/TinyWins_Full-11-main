@@ -5,7 +5,7 @@ import SwiftUI
 /// Sign-in step for onboarding when Firebase is enabled.
 /// Allows users to sign in for cloud sync or skip to continue locally.
 struct OnboardingSignInView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let authService: any AuthService
     let onSignedIn: (AuthUser) -> Void
@@ -100,7 +100,7 @@ struct OnboardingSignInView: View {
                     HStack(spacing: 8) {
                         ForEach(0..<4) { _ in
                             Capsule()
-                                .fill(Color(.systemGray4))
+                                .fill(theme.borderStrong)
                                 .frame(height: 4)
                         }
                     }
@@ -110,7 +110,7 @@ struct OnboardingSignInView: View {
                         ForEach(["Child", "Goal", "Behaviors", "Done"], id: \.self) { label in
                             Text(label)
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .frame(maxWidth: .infinity)
                         }
                     }
@@ -137,7 +137,7 @@ struct OnboardingSignInView: View {
 
                     Text("Sign in to save your progress and keep your data safe")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                 }
@@ -149,7 +149,7 @@ struct OnboardingSignInView: View {
                     benefitRow(icon: "wifi.slash", color: .orange, text: "Works offline too")
                 }
                 .padding(16)
-                .background(Color(.systemGray6))
+                .background(theme.surface2)
                 .cornerRadius(14)
                 .padding(.horizontal)
 
@@ -199,12 +199,12 @@ struct OnboardingSignInView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color(.systemGray6))
-                        .foregroundColor(.primary)
+                        .background(theme.surface2)
+                        .foregroundColor(theme.textPrimary)
                         .cornerRadius(14)
                         .overlay(
                             RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color(.systemGray4), lineWidth: 1)
+                                .stroke(theme.borderStrong, lineWidth: 1)
                         )
                     }
                     .disabled(phase == .loading)
@@ -222,12 +222,12 @@ struct OnboardingSignInView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color(.systemGray6))
-                        .foregroundColor(.primary)
+                        .background(theme.surface2)
+                        .foregroundColor(theme.textPrimary)
                         .cornerRadius(14)
                         .overlay(
                             RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color(.systemGray4), lineWidth: 1)
+                                .stroke(theme.borderStrong, lineWidth: 1)
                         )
                     }
                     .disabled(phase == .loading)
@@ -250,7 +250,7 @@ struct OnboardingSignInView: View {
                         Text("You can always sign in later from Settings")
                             .font(.caption)
                     }
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 32)
@@ -272,7 +272,7 @@ struct OnboardingSignInView: View {
 
             Text(text)
                 .font(.subheadline)
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
 
             Spacer()
         }
@@ -466,6 +466,7 @@ struct OnboardingSignInView: View {
 /// Email sign-in for onboarding flow with success callback
 private struct OnboardingEmailSignInView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     let authService: any AuthService
     let onComplete: (AuthUser, String, String?, Bool) -> Void
@@ -521,7 +522,7 @@ private struct OnboardingEmailSignInView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("Your Name")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
 
                                 TextField("How should we greet you?", text: $displayName)
                                     .textFieldStyle(.roundedBorder)
@@ -535,7 +536,7 @@ private struct OnboardingEmailSignInView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Email")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
 
                             TextField("your@email.com", text: $email)
                                 .textFieldStyle(.roundedBorder)
@@ -549,7 +550,7 @@ private struct OnboardingEmailSignInView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Password")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
 
                             SecureField(isSignUp ? "Create a password" : "Enter password", text: $password)
                                 .textFieldStyle(.roundedBorder)
@@ -693,6 +694,7 @@ private struct OnboardingEmailSignInView: View {
 // MARK: - Password Requirement Row Small
 
 private struct PasswordRequirementRowSmall: View {
+    @Environment(\.theme) private var theme
     let text: String
     let isMet: Bool
 
@@ -700,10 +702,10 @@ private struct PasswordRequirementRowSmall: View {
         HStack(spacing: 6) {
             Image(systemName: isMet ? "checkmark.circle.fill" : "circle")
                 .font(.caption)
-                .foregroundColor(isMet ? .green : .secondary)
+                .foregroundColor(isMet ? .green : theme.textSecondary)
             Text(text)
                 .font(.caption)
-                .foregroundColor(isMet ? .primary : .secondary)
+                .foregroundColor(isMet ? theme.textPrimary : theme.textSecondary)
         }
     }
 }

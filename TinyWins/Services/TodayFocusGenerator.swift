@@ -144,6 +144,71 @@ final class TodayFocusGenerator: ObservableObject {
         todayFocus = nil
     }
 
+    /// Non-blocking focus generation that runs heavy analysis off-main.
+    /// Results are published to `todayFocus` when ready.
+    ///
+    /// PERFORMANCE: This prevents UI freezes on cache miss by running
+    /// the 14-day pattern analysis in a background task.
+    func generateTodayFocusNonBlocking(
+        children: [Child],
+        behaviorEvents: [BehaviorEvent],
+        behaviorTypes: [BehaviorType]
+    ) {
+        let calendar = Calendar.current
+        let now = Date()
+
+        // Fast path: return cached if same day
+        if let cached = cachedFocus,
+           let lastDate = lastGeneratedDate,
+           calendar.isDate(lastDate, inSameDayAs: now) {
+            todayFocus = cached
+            return
+        }
+
+        // Avoid duplicate generation
+        if isGenerating { return }
+        isGenerating = true
+
+        // Capture data for background task
+        let childrenSnapshot = children
+        let eventsSnapshot = behaviorEvents
+        let typesSnapshot = behaviorTypes
+        let minimumEvents = minimumEventsForInsights
+        let windowDays = analysisWindowDays
+
+        Task.detached(priority: .userInitiated) { [weak self] in
+            // Filter to recent events (off-main)
+            let cutoffDate = calendar.date(byAdding: .day, value: -windowDays, to: now) ?? now
+            let recentEvents = eventsSnapshot.filter { $0.timestamp >= cutoffDate }
+
+            // Generate focus (off-main)
+            let focus: TodayFocus
+            if recentEvents.count >= minimumEvents {
+                focus = TodayFocusComputer.generateDataDrivenFocus(
+                    children: childrenSnapshot,
+                    events: recentEvents,
+                    behaviorTypes: typesSnapshot,
+                    now: now
+                )
+            } else {
+                focus = TodayFocusComputer.generateGenericFocus(now: now)
+            }
+
+            // Publish on main
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                self.cachedFocus = focus
+                self.lastGeneratedDate = now
+                self.todayFocus = focus
+                self.isGenerating = false
+
+                #if DEBUG
+                print("[TodayFocus] Generated focus (non-blocking): \(focus.source.rawValue) - \(focus.primaryTip)")
+                #endif
+            }
+        }
+    }
+
     // MARK: - Data-Driven Focus Generation
 
     private func generateDataDrivenFocus(
@@ -691,5 +756,439 @@ extension TodayFocusGenerator {
             relatedChildName: childName,
             confidence: confidence
         )
+    }
+}
+
+// MARK: - TodayFocusComputer (Off-Main Computation)
+
+/// Pure compute functions for focus generation that can run off the main thread.
+/// Used by `generateTodayFocusNonBlocking` to avoid blocking the UI.
+enum TodayFocusComputer {
+
+    /// Generate data-driven focus (off-main safe)
+    static func generateDataDrivenFocus(
+        children: [Child],
+        events: [BehaviorEvent],
+        behaviorTypes: [BehaviorType],
+        now: Date
+    ) -> TodayFocus {
+        let calendar = Calendar.current
+        let patterns = analyzePatterns(events: events, behaviorTypes: behaviorTypes, children: children, now: now, calendar: calendar)
+
+        // Priority order for focus generation
+        if let focus = generateChallengeFocus(patterns: patterns, children: children, behaviorTypes: behaviorTypes) {
+            return focus
+        }
+        if let focus = generateStrengthFocus(patterns: patterns, children: children, behaviorTypes: behaviorTypes) {
+            return focus
+        }
+        if let focus = generateStreakFocus(patterns: patterns, children: children) {
+            return focus
+        }
+        if let focus = generateRecoveryFocus(patterns: patterns, children: children) {
+            return focus
+        }
+        if let focus = generateBalanceFocus(patterns: patterns, children: children) {
+            return focus
+        }
+        if let focus = generateRoutineFocus(patterns: patterns, children: children, behaviorTypes: behaviorTypes) {
+            return focus
+        }
+
+        return generateGenericFocus(now: now)
+    }
+
+    /// Generate generic focus (off-main safe)
+    static func generateGenericFocus(now: Date) -> TodayFocus {
+        let tips = [
+            ("Try to catch one sharing moment today.", "Say \"I see you working hard on that.\""),
+            ("Notice one moment of effort today.", "Tell them what you loved about how they tried."),
+            ("Look for a chance to appreciate without commenting.", "Just watch and enjoy one moment."),
+            ("When they struggle, try \"That looks hard\" first.", "See if they ask for help before offering."),
+            ("Catch them being patient today.", "Notice kindness with a sibling or friend."),
+            ("Look for a moment of curiosity or wonder.", "Celebrate their questions today."),
+            ("Notice when they handle frustration.", "See how they manage a tough moment."),
+            ("Watch for acts of kindness today.", "Notice when they think of others.")
+        ]
+
+        let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: now) ?? 0
+        let (primary, action) = tips[dayOfYear % tips.count]
+
+        return TodayFocus(
+            date: now,
+            primaryTip: primary,
+            actionTip: action,
+            source: .genericTip,
+            confidence: .low
+        )
+    }
+
+    // MARK: - Pattern Analysis
+
+    private struct BehaviorPatterns {
+        var topChallengeBehavior: (typeId: UUID, count: Int, name: String)?
+        var topPositiveBehavior: (typeId: UUID, count: Int, name: String)?
+        var challengeRatio: Double
+        var childPatterns: [UUID: ChildPattern]
+        var recentTrend: Trend
+        var thisWeekPositiveCount: Int
+        var lastWeekPositiveCount: Int
+        var thisWeekChallengeCount: Int
+        var lastWeekChallengeCount: Int
+        var consecutiveDaysWithActivity: Int
+        var hadToughLastWeek: Bool
+
+        struct ChildPattern {
+            let childId: UUID
+            let childName: String
+            let topChallenge: String?
+            let topChallengeCount: Int
+            let topStrength: String?
+            let topStrengthCount: Int
+            let positiveRatio: Double
+            let thisWeekPositive: Int
+            let lastWeekPositive: Int
+            let consecutiveDays: Int
+        }
+
+        enum Trend {
+            case improving, declining, stable
+        }
+    }
+
+    private static func analyzePatterns(
+        events: [BehaviorEvent],
+        behaviorTypes: [BehaviorType],
+        children: [Child],
+        now: Date,
+        calendar: Calendar
+    ) -> BehaviorPatterns {
+        let weekAgo = calendar.date(byAdding: .day, value: -7, to: now) ?? now
+        let twoWeeksAgo = calendar.date(byAdding: .day, value: -14, to: now) ?? now
+
+        let thisWeekEvents = events.filter { $0.timestamp >= weekAgo }
+        let lastWeekEvents = events.filter { $0.timestamp >= twoWeeksAgo && $0.timestamp < weekAgo }
+
+        var positiveCount: [UUID: Int] = [:]
+        var challengeCount: [UUID: Int] = [:]
+
+        for event in events {
+            if event.pointsApplied > 0 {
+                positiveCount[event.behaviorTypeId, default: 0] += 1
+            } else {
+                challengeCount[event.behaviorTypeId, default: 0] += 1
+            }
+        }
+
+        let topChallenge = challengeCount.max(by: { $0.value < $1.value })
+        let topPositive = positiveCount.max(by: { $0.value < $1.value })
+
+        let topChallengeBehavior: (UUID, Int, String)? = topChallenge.flatMap { (typeId, count) in
+            behaviorTypes.first(where: { $0.id == typeId }).map { (typeId, count, $0.name) }
+        }
+
+        let topPositiveBehavior: (UUID, Int, String)? = topPositive.flatMap { (typeId, count) in
+            behaviorTypes.first(where: { $0.id == typeId }).map { (typeId, count, $0.name) }
+        }
+
+        let totalPositive = positiveCount.values.reduce(0, +)
+        let totalChallenges = challengeCount.values.reduce(0, +)
+        let total = totalPositive + totalChallenges
+        let challengeRatio = total > 0 ? Double(totalChallenges) / Double(total) : 0
+
+        let thisWeekPositiveCount = thisWeekEvents.filter { $0.pointsApplied > 0 }.count
+        let lastWeekPositiveCount = lastWeekEvents.filter { $0.pointsApplied > 0 }.count
+        let thisWeekChallengeCount = thisWeekEvents.filter { $0.pointsApplied <= 0 }.count
+        let lastWeekChallengeCount = lastWeekEvents.filter { $0.pointsApplied <= 0 }.count
+
+        let consecutiveDays = calculateConsecutiveDays(events: events, now: now, calendar: calendar)
+        let hadToughLastWeek = lastWeekChallengeCount >= 3
+
+        var childPatterns: [UUID: BehaviorPatterns.ChildPattern] = [:]
+        for child in children {
+            let childEvents = events.filter { $0.childId == child.id }
+            if childEvents.isEmpty { continue }
+
+            let childThisWeek = childEvents.filter { $0.timestamp >= weekAgo }
+            let childLastWeek = childEvents.filter { $0.timestamp >= twoWeeksAgo && $0.timestamp < weekAgo }
+
+            var childPositive: [UUID: Int] = [:]
+            var childChallenge: [UUID: Int] = [:]
+
+            for event in childEvents {
+                if event.pointsApplied > 0 {
+                    childPositive[event.behaviorTypeId, default: 0] += 1
+                } else {
+                    childChallenge[event.behaviorTypeId, default: 0] += 1
+                }
+            }
+
+            let childTopChallenge = childChallenge.max(by: { $0.value < $1.value })
+            let childTopPositive = childPositive.max(by: { $0.value < $1.value })
+
+            let topChallengeName = childTopChallenge.flatMap { typeId, _ in
+                behaviorTypes.first(where: { $0.id == typeId })?.name
+            }
+            let topChallengeCount = childTopChallenge?.value ?? 0
+
+            let topStrengthName = childTopPositive.flatMap { typeId, _ in
+                behaviorTypes.first(where: { $0.id == typeId })?.name
+            }
+            let topStrengthCount = childTopPositive?.value ?? 0
+
+            let childTotal = childPositive.values.reduce(0, +) + childChallenge.values.reduce(0, +)
+            let positiveRatio = childTotal > 0 ? Double(childPositive.values.reduce(0, +)) / Double(childTotal) : 0
+
+            let childThisWeekPositive = childThisWeek.filter { $0.pointsApplied > 0 }.count
+            let childLastWeekPositive = childLastWeek.filter { $0.pointsApplied > 0 }.count
+            let childConsecutiveDays = calculateConsecutiveDays(events: childEvents, now: now, calendar: calendar)
+
+            childPatterns[child.id] = BehaviorPatterns.ChildPattern(
+                childId: child.id,
+                childName: child.name,
+                topChallenge: topChallengeName,
+                topChallengeCount: topChallengeCount,
+                topStrength: topStrengthName,
+                topStrengthCount: topStrengthCount,
+                positiveRatio: positiveRatio,
+                thisWeekPositive: childThisWeekPositive,
+                lastWeekPositive: childLastWeekPositive,
+                consecutiveDays: childConsecutiveDays
+            )
+        }
+
+        let trend = calculateTrend(events: events, now: now, calendar: calendar)
+
+        return BehaviorPatterns(
+            topChallengeBehavior: topChallengeBehavior,
+            topPositiveBehavior: topPositiveBehavior,
+            challengeRatio: challengeRatio,
+            childPatterns: childPatterns,
+            recentTrend: trend,
+            thisWeekPositiveCount: thisWeekPositiveCount,
+            lastWeekPositiveCount: lastWeekPositiveCount,
+            thisWeekChallengeCount: thisWeekChallengeCount,
+            lastWeekChallengeCount: lastWeekChallengeCount,
+            consecutiveDaysWithActivity: consecutiveDays,
+            hadToughLastWeek: hadToughLastWeek
+        )
+    }
+
+    private static func calculateConsecutiveDays(events: [BehaviorEvent], now: Date, calendar: Calendar) -> Int {
+        let today = calendar.startOfDay(for: now)
+        var daysWithEvents: Set<Date> = []
+        for event in events {
+            daysWithEvents.insert(calendar.startOfDay(for: event.timestamp))
+        }
+
+        var consecutiveDays = 0
+        var checkDate = today
+
+        while daysWithEvents.contains(checkDate) {
+            consecutiveDays += 1
+            guard let previousDay = calendar.date(byAdding: .day, value: -1, to: checkDate) else { break }
+            checkDate = previousDay
+        }
+
+        return consecutiveDays
+    }
+
+    private static func calculateTrend(events: [BehaviorEvent], now: Date, calendar: Calendar) -> BehaviorPatterns.Trend {
+        guard let weekAgo = calendar.date(byAdding: .day, value: -7, to: now),
+              let twoWeeksAgo = calendar.date(byAdding: .day, value: -14, to: now) else {
+            return .stable
+        }
+
+        let recentEvents = events.filter { $0.timestamp >= weekAgo }
+        let previousEvents = events.filter { $0.timestamp >= twoWeeksAgo && $0.timestamp < weekAgo }
+
+        let recentPositive = recentEvents.filter { $0.pointsApplied > 0 }.count
+        let previousPositive = previousEvents.filter { $0.pointsApplied > 0 }.count
+
+        if recentPositive > previousPositive + 2 {
+            return .improving
+        } else if recentPositive < previousPositive - 2 {
+            return .declining
+        }
+        return .stable
+    }
+
+    // MARK: - Focus Generators
+
+    private static func generateChallengeFocus(
+        patterns: BehaviorPatterns,
+        children: [Child],
+        behaviorTypes: [BehaviorType]
+    ) -> TodayFocus? {
+        let childWithMostChallenges = patterns.childPatterns.values
+            .filter { $0.positiveRatio < 0.5 && $0.topChallenge != nil }
+            .min(by: { $0.positiveRatio < $1.positiveRatio })
+
+        if let child = childWithMostChallenges, let challenge = child.topChallenge {
+            let challengeCount = child.topChallengeCount
+            let comparisonText: String
+            if child.lastWeekPositive > 0 && child.thisWeekPositive > child.lastWeekPositive {
+                comparisonText = " (but \(child.thisWeekPositive) wins this week, up from \(child.lastWeekPositive))"
+            } else {
+                comparisonText = ""
+            }
+
+            return TodayFocus(
+                primaryTip: "\(challengeCount) \(challenge.lowercased()) moments with \(child.childName) this week\(comparisonText).",
+                actionTip: "Try saying \"I can see this is hard\" before reacting.",
+                source: .challengePattern,
+                relatedChildId: child.childId,
+                relatedChildName: child.childName,
+                confidence: .high
+            )
+        }
+
+        return nil
+    }
+
+    private static func generateStrengthFocus(
+        patterns: BehaviorPatterns,
+        children: [Child],
+        behaviorTypes: [BehaviorType]
+    ) -> TodayFocus? {
+        let childWithStrength = patterns.childPatterns.values
+            .filter { $0.topStrength != nil && $0.positiveRatio >= 0.6 }
+            .max(by: { $0.positiveRatio < $1.positiveRatio })
+
+        if let child = childWithStrength, let strength = child.topStrength {
+            let strengthCount = child.topStrengthCount
+            let comparisonText: String
+            if child.lastWeekPositive > 0 {
+                let diff = child.thisWeekPositive - child.lastWeekPositive
+                if diff > 0 {
+                    comparisonText = ", up from \(child.lastWeekPositive) last week"
+                } else {
+                    comparisonText = ""
+                }
+            } else {
+                comparisonText = ""
+            }
+
+            return TodayFocus(
+                primaryTip: "\(child.childName) showed \(strength.lowercased()) \(strengthCount) times this week\(comparisonText).",
+                actionTip: "Notice it out loud: \"I saw you \(strength.lowercased()) today.\"",
+                source: .strengthBuilding,
+                relatedChildId: child.childId,
+                relatedChildName: child.childName,
+                confidence: .high
+            )
+        }
+
+        return nil
+    }
+
+    private static func generateStreakFocus(
+        patterns: BehaviorPatterns,
+        children: [Child]
+    ) -> TodayFocus? {
+        let childWithStreak = patterns.childPatterns.values
+            .filter { $0.consecutiveDays >= 3 }
+            .max(by: { $0.consecutiveDays < $1.consecutiveDays })
+
+        if let child = childWithStreak {
+            let days = child.consecutiveDays
+            return TodayFocus(
+                primaryTip: "You've noticed \(child.childName) \(days) days in a row. That consistency matters.",
+                actionTip: "Keep it going - one moment today keeps the streak alive.",
+                source: .streakCelebration,
+                relatedChildId: child.childId,
+                relatedChildName: child.childName,
+                confidence: .high
+            )
+        }
+
+        if patterns.consecutiveDaysWithActivity >= 3 {
+            let days = patterns.consecutiveDaysWithActivity
+            return TodayFocus(
+                primaryTip: "You've logged moments \(days) days in a row. You're building a habit.",
+                actionTip: "One small win today keeps the streak alive.",
+                source: .streakCelebration,
+                confidence: .high
+            )
+        }
+
+        return nil
+    }
+
+    private static func generateRecoveryFocus(
+        patterns: BehaviorPatterns,
+        children: [Child]
+    ) -> TodayFocus? {
+        guard patterns.hadToughLastWeek && patterns.thisWeekPositiveCount >= 3 else {
+            return nil
+        }
+
+        let childWhoRecovered = patterns.childPatterns.values
+            .filter { $0.thisWeekPositive >= 3 }
+            .max(by: { $0.thisWeekPositive < $1.thisWeekPositive })
+
+        if let child = childWhoRecovered {
+            return TodayFocus(
+                primaryTip: "\(child.childName) bounced back - \(child.thisWeekPositive) wins this week after a tough stretch.",
+                actionTip: "Celebrate the turnaround: \"I noticed things are going better.\"",
+                source: .recoveryCelebration,
+                relatedChildId: child.childId,
+                relatedChildName: child.childName,
+                confidence: .high
+            )
+        }
+
+        return TodayFocus(
+            primaryTip: "Your family bounced back - \(patterns.thisWeekPositiveCount) wins this week after a tough stretch.",
+            actionTip: "Acknowledge the turnaround tonight.",
+            source: .recoveryCelebration,
+            confidence: .medium
+        )
+    }
+
+    private static func generateBalanceFocus(
+        patterns: BehaviorPatterns,
+        children: [Child]
+    ) -> TodayFocus? {
+        if patterns.challengeRatio > 0.4 {
+            let wins = patterns.thisWeekPositiveCount
+            let challenges = patterns.thisWeekChallengeCount
+            let comparisonText: String
+            if patterns.lastWeekPositiveCount > 0 && wins > patterns.lastWeekPositiveCount {
+                comparisonText = " (up from \(patterns.lastWeekPositiveCount) last week)"
+            } else {
+                comparisonText = ""
+            }
+
+            return TodayFocus(
+                primaryTip: "\(wins) wins vs \(challenges) challenges this week\(comparisonText). Try catching one more positive today.",
+                actionTip: "Even a brief \"thank you\" or smile counts.",
+                source: .balanceNeeded,
+                confidence: .medium
+            )
+        }
+        return nil
+    }
+
+    private static func generateRoutineFocus(
+        patterns: BehaviorPatterns,
+        children: [Child],
+        behaviorTypes: [BehaviorType]
+    ) -> TodayFocus? {
+        if let topPositive = patterns.topPositiveBehavior {
+            let routineKeywords = ["routine", "morning", "bedtime", "teeth", "homework"]
+            let isRoutine = routineKeywords.contains(where: { topPositive.name.lowercased().contains($0) })
+
+            if isRoutine {
+                let count = topPositive.count
+                return TodayFocus(
+                    primaryTip: "\(topPositive.name) logged \(count) times this week. It's becoming a habit.",
+                    actionTip: "Consistency matters more than perfection.",
+                    source: .routineSupport,
+                    confidence: .medium
+                )
+            }
+        }
+        return nil
     }
 }

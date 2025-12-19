@@ -9,7 +9,7 @@ struct SettingsView: View {
     @EnvironmentObject private var coordinator: AppCoordinator
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @EnvironmentObject private var featureFlags: FeatureFlags
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
     @State private var showingAllowanceSettings = false
@@ -77,18 +77,18 @@ struct SettingsView: View {
                     // Search bar
                     HStack {
                         Image(systemName: "magnifyingglass")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                         TextField("Search settings...", text: $searchText)
                             .textFieldStyle(.plain)
                         if !searchText.isEmpty {
                             Button(action: { searchText = "" }) {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
                     }
                     .padding(12)
-                    .background(Color(.systemGray6))
+                    .background(theme.surface2)
                     .cornerRadius(12)
 
                     // Search results hint
@@ -96,10 +96,10 @@ struct SettingsView: View {
                         let matchCount = allSettingsItems.filter { itemMatchesSearch($0) }.count
                         HStack {
                             Image(systemName: "info.circle.fill")
-                                .foregroundColor(.blue)
+                                .foregroundColor(theme.accentPrimary)
                             Text("\(matchCount) setting\(matchCount == 1 ? "" : "s") found")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                             Spacer()
                         }
                         .padding(.horizontal, 4)
@@ -164,10 +164,10 @@ struct SettingsView: View {
                 .padding(.top, 16)
                 .padding(.bottom, 40)
             }
-            .background(themeProvider.backgroundColor)
+            .background(theme.bg0)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
-            .themedNavigationBar(themeProvider)
+            .themedNavigationBar(theme)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
@@ -261,13 +261,13 @@ struct SettingsView: View {
             HStack {
                 Text("Quick Actions")
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 Spacer()
 
                 Text("Common tasks")
                     .font(.caption)
-                    .foregroundColor(.secondary.opacity(0.7))
+                    .foregroundColor(theme.textSecondary.opacity(0.7))
             }
             .padding(.leading, 4)
 
@@ -363,12 +363,12 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Tip of the Day")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .textCase(.uppercase)
 
                     Text(tip.title)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
                 }
 
                 Spacer()
@@ -376,13 +376,13 @@ struct SettingsView: View {
 
             Text(tip.message)
                 .font(.system(size: 14))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(themeProvider.resolved.cardBackground)
+                .fill(theme.surface1)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
@@ -431,7 +431,7 @@ struct SettingsView: View {
 
                             Text("All features unlocked")
                                 .font(.system(size: 14))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
 
                         Spacer()
@@ -508,11 +508,11 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Get TinyWins+")
                                 .font(.system(size: 17, weight: .bold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(theme.textPrimary)
 
                             Text("More kids, deeper insights, safe backups")
                                 .font(.system(size: 13))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
 
                         Spacer()
@@ -524,13 +524,13 @@ struct SettingsView: View {
                     .padding(16)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
-                            .fill(themeProvider.resolved.cardBackground)
+                            .fill(theme.surface1)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .strokeBorder(themeProvider.resolved.cardBorderColor, lineWidth: themeProvider.resolved.cardBorderWidth)
+                            .strokeBorder(theme.borderSoft, lineWidth: 1)
                     )
-                    .shadow(color: .purple.opacity(themeProvider.resolved.isDark ? 0.3 : 0.15), radius: 12, y: 4)
+                    .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 12, y: 4)
                 }
                 .buttonStyle(.plain)
             }
@@ -543,7 +543,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Preferences")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
@@ -596,13 +596,13 @@ struct SettingsView: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(themeProvider.resolved.cardBackground)
+                    .fill(theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(themeProvider.resolved.cardBorderColor, lineWidth: themeProvider.resolved.cardBorderWidth)
+                    .strokeBorder(theme.borderSoft, lineWidth: theme.cardBorderWidth)
             )
-            .shadow(color: themeProvider.resolved.shadowColor.opacity(themeProvider.resolved.isDark ? 0.3 : 0.04), radius: 8, y: 2)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
 
             // Backup & Sync - REMOVED: iCloud backup feature deprecated
         }
@@ -614,7 +614,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Family & Data")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
@@ -631,7 +631,7 @@ struct SettingsView: View {
                         )
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                             .padding(.trailing, 16)
                     }
                 }
@@ -666,13 +666,13 @@ struct SettingsView: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(themeProvider.resolved.cardBackground)
+                    .fill(theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(themeProvider.resolved.cardBorderColor, lineWidth: themeProvider.resolved.cardBorderWidth)
+                    .strokeBorder(theme.borderSoft, lineWidth: theme.cardBorderWidth)
             )
-            .shadow(color: themeProvider.resolved.shadowColor.opacity(themeProvider.resolved.isDark ? 0.3 : 0.04), radius: 8, y: 2)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         }
     }
 
@@ -682,7 +682,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Help & Support")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
@@ -719,13 +719,13 @@ struct SettingsView: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(themeProvider.resolved.cardBackground)
+                    .fill(theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(themeProvider.resolved.cardBorderColor, lineWidth: themeProvider.resolved.cardBorderWidth)
+                    .strokeBorder(theme.borderSoft, lineWidth: theme.cardBorderWidth)
             )
-            .shadow(color: themeProvider.resolved.shadowColor.opacity(themeProvider.resolved.isDark ? 0.3 : 0.04), radius: 8, y: 2)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         }
     }
 
@@ -735,7 +735,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Connect")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
@@ -761,13 +761,13 @@ struct SettingsView: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(themeProvider.resolved.cardBackground)
+                    .fill(theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(themeProvider.resolved.cardBorderColor, lineWidth: themeProvider.resolved.cardBorderWidth)
+                    .strokeBorder(theme.borderSoft, lineWidth: theme.cardBorderWidth)
             )
-            .shadow(color: themeProvider.resolved.shadowColor.opacity(themeProvider.resolved.isDark ? 0.3 : 0.04), radius: 8, y: 2)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         }
     }
 
@@ -777,7 +777,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Privacy & Legal")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
@@ -804,11 +804,11 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Help Improve the App")
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
 
                         Text("Send anonymous usage data")
                             .font(.system(size: 13))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Spacer()
@@ -866,13 +866,13 @@ struct SettingsView: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(themeProvider.resolved.cardBackground)
+                    .fill(theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(themeProvider.resolved.cardBorderColor, lineWidth: themeProvider.resolved.cardBorderWidth)
+                    .strokeBorder(theme.borderSoft, lineWidth: theme.cardBorderWidth)
             )
-            .shadow(color: themeProvider.resolved.shadowColor.opacity(themeProvider.resolved.isDark ? 0.3 : 0.04), radius: 8, y: 2)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         }
         .sheet(isPresented: $showingExportSheet) {
             if let url = exportFileURL {
@@ -991,18 +991,18 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Show Onboarding")
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(theme.textPrimary)
 
                                 Text("Test the welcome flow")
                                     .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
 
                             Spacer()
 
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                     .buttonStyle(.plain)
@@ -1032,7 +1032,7 @@ struct SettingsView: View {
 
                                 Text("Show 'Logged by' on events")
                                     .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
                     }
@@ -1059,18 +1059,18 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Partner Dashboard")
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(theme.textPrimary)
 
                                 Text("View co-parent activity")
                                     .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
 
                             Spacer()
 
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                     .buttonStyle(.plain)
@@ -1099,7 +1099,7 @@ struct SettingsView: View {
 
                                 Text("Show mock pricing without StoreKit")
                                     .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
                     }
@@ -1129,7 +1129,7 @@ struct SettingsView: View {
 
                                 Text("Cloud sync, Sign-In, co-parent")
                                     .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
                     }
@@ -1150,14 +1150,14 @@ struct SettingsView: View {
                     } else {
                         HStack(spacing: 8) {
                             Image(systemName: "iphone")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                             Text("Local-only mode - restart app for changes")
                                 .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .padding(12)
                         .frame(maxWidth: .infinity)
-                        .background(Color(.systemGray6))
+                        .background(theme.surface2)
                         .cornerRadius(10)
                     }
                 }
@@ -1185,11 +1185,11 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Load Demo Data")
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(theme.textPrimary)
 
                                 Text("4 kids, 45 days of data, all features")
                                     .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
 
                             Spacer()
@@ -1200,7 +1200,7 @@ struct SettingsView: View {
                             } else {
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
                     }
@@ -1234,7 +1234,7 @@ struct SettingsView: View {
 
                                 Text("Erase local + cloud data → onboarding")
                                     .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
 
                             Spacer()
@@ -1253,6 +1253,40 @@ struct SettingsView: View {
                     .disabled(isErasingData)
                 }
 
+                // Frame Stall Monitor Toggle (DEBUG only)
+                #if DEBUG
+                Divider()
+                    .padding(.vertical, 4)
+
+                Toggle(isOn: Binding(
+                    get: { FrameStallMonitor.shared.isEnabled },
+                    set: { FrameStallMonitor.shared.isEnabled = $0 }
+                )) {
+                    HStack(spacing: 12) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.purple.opacity(0.15))
+                                .frame(width: 42, height: 42)
+
+                            Image(systemName: "waveform.path.ecg")
+                                .font(.system(size: 18))
+                                .foregroundColor(.purple)
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Frame Stall Monitor")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(theme.textPrimary)
+
+                            Text("Log >33ms stalls with context")
+                                .font(.system(size: 12))
+                                .foregroundColor(theme.textSecondary)
+                        }
+                    }
+                }
+                .tint(.purple)
+                #endif
+
                 // Backend Info
                 VStack(alignment: .leading, spacing: 6) {
                     Divider()
@@ -1261,7 +1295,7 @@ struct SettingsView: View {
                     HStack {
                         Text("Backend:")
                             .font(.system(size: 12))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                         Spacer()
                         Text(repository.backendName)
                             .font(.system(size: 12, weight: .medium, design: .monospaced))
@@ -1271,18 +1305,18 @@ struct SettingsView: View {
                     HStack {
                         Text("Firebase:")
                             .font(.system(size: 12))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                         Spacer()
                         Text(AppConfiguration.isFirebaseEnabled ? "Enabled" : "Disabled")
                             .font(.system(size: 12, weight: .medium, design: .monospaced))
-                            .foregroundColor(AppConfiguration.isFirebaseEnabled ? .green : .secondary)
+                            .foregroundColor(AppConfiguration.isFirebaseEnabled ? .green : theme.textSecondary)
                     }
 
                     if AppConfiguration.isSignedIn {
                         HStack {
                             Text("Signed In:")
                                 .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                             Spacer()
                             Text("Yes")
                                 .font(.system(size: 12, weight: .medium, design: .monospaced))
@@ -1294,7 +1328,7 @@ struct SettingsView: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(themeProvider.resolved.cardBackground)
+                    .fill(theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
@@ -1331,7 +1365,7 @@ struct SettingsView: View {
 
                         Text("This cannot be undone")
                             .font(.system(size: 12))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Spacer()
@@ -1345,7 +1379,7 @@ struct SettingsView: View {
             .buttonStyle(.plain)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(themeProvider.resolved.cardBackground)
+                    .fill(theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
@@ -1472,6 +1506,8 @@ struct SettingsView: View {
 // MARK: - Settings Quick Action Button
 
 private struct SettingsQuickActionButton: View {
+    @Environment(\.theme) private var theme
+
     let icon: String
     let title: String
     let gradient: [Color]
@@ -1509,7 +1545,7 @@ private struct SettingsQuickActionButton: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
@@ -1738,7 +1774,8 @@ struct AllowanceSettingsView: View {
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @Environment(\.dismiss) private var dismiss
-    
+    @Environment(\.theme) private var theme
+
     @State private var isEnabled: Bool
     @State private var selectedCurrency: String
     @State private var pointsPerUnit: String
@@ -1829,6 +1866,8 @@ struct AllowanceSettingsView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(theme.bg1)
             .navigationTitle("Allowance")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -1847,7 +1886,7 @@ struct AllowanceSettingsView: View {
             }
         }
     }
-    
+
     private var currencySymbol: String {
         let locale = Locale(identifier: Locale.identifier(fromComponents: [NSLocale.Key.currencyCode.rawValue: selectedCurrency]))
         return locale.currencySymbol ?? "$"
@@ -1868,7 +1907,7 @@ struct AllowanceSettingsView: View {
 
 struct AboutView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @State private var animateIcon = false
 
     var body: some View {
@@ -1913,7 +1952,7 @@ struct AboutView: View {
                                 .foregroundColor(.secondary)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 4)
-                                .background(themeProvider.streakInactiveColor)
+                                .background(theme.textSecondary.opacity(0.3))
                                 .cornerRadius(8)
 
                             Text("Turn small moments into big progress")
@@ -1968,13 +2007,13 @@ struct AboutView: View {
                         }
                         .background(
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(themeProvider.resolved.cardBackground)
+                                .fill(theme.surface1)
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
-                                .strokeBorder(themeProvider.resolved.cardBorderColor, lineWidth: themeProvider.resolved.cardBorderWidth)
+                                .strokeBorder(theme.borderSoft, lineWidth: 1)
                         )
-                        .shadow(color: themeProvider.resolved.shadowColor.opacity(themeProvider.resolved.isDark ? 0.3 : 0.04), radius: 8, y: 2)
+                        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
                     }
                     .padding(.horizontal, 16)
 
@@ -1987,20 +2026,20 @@ struct AboutView: View {
                             Text("for families everywhere")
                         }
                         .font(.system(size: 14))
-                        .foregroundColor(themeProvider.resolved.secondaryTextColor)
+                        .foregroundColor(theme.textSecondary)
 
                         Text("© 2024 Tiny Wins")
                             .font(.system(size: 12))
-                            .foregroundColor(themeProvider.resolved.secondaryTextColor.opacity(0.7))
+                            .foregroundColor(theme.textSecondary.opacity(0.7))
                     }
                     .padding(.vertical, 20)
                 }
                 .padding(.bottom, 20)
             }
-            .background(themeProvider.resolved.backgroundColor)
+            .background(theme.bg0)
             .navigationTitle("About Tiny Wins")
             .navigationBarTitleDisplayMode(.inline)
-            .themedNavigationBar(themeProvider)
+            .themedNavigationBar(theme)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
@@ -2082,7 +2121,7 @@ struct AboutSection: View {
 
 struct HowItWorksView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     var body: some View {
         NavigationStack {
@@ -2206,10 +2245,10 @@ struct HowItWorksView: View {
                     .padding(.bottom, 20)
                 }
             }
-            .background(themeProvider.resolved.backgroundColor)
+            .background(theme.bg0)
             .navigationTitle("How It Works")
             .navigationBarTitleDisplayMode(.inline)
-            .themedNavigationBar(themeProvider)
+            .themedNavigationBar(theme)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
@@ -2290,7 +2329,7 @@ private struct EnhancedHowItWorksStep: View {
 
 // Legacy HowItWorksStep kept for compatibility
 struct HowItWorksStep: View {
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     let number: Int
     let icon: String
     let color: Color
@@ -2322,7 +2361,7 @@ struct HowItWorksStep: View {
             Spacer()
         }
         .padding()
-        .background(themeProvider.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(16)
         .padding(.horizontal)
     }
@@ -2416,7 +2455,7 @@ enum AppInfo {
 
 struct FAQView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     private let faqs: [(question: String, answer: String)] = [
         (
@@ -2478,7 +2517,7 @@ struct FAQView: View {
 
                         // FAQ Items
                         ForEach(Array(faqs.enumerated()), id: \.offset) { index, faq in
-                            FAQItem(question: faq.question, answer: faq.answer, themeProvider: themeProvider) {
+                            FAQItem(question: faq.question, answer: faq.answer) {
                                 // Scroll to expanded item after animation
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                                     withAnimation(.easeInOut(duration: 0.3)) {
@@ -2493,11 +2532,11 @@ struct FAQView: View {
                         VStack(spacing: 12) {
                             Text("Still have questions?")
                                 .font(.subheadline)
-                                .foregroundColor(themeProvider.resolved.secondaryTextColor)
+                                .foregroundColor(theme.textSecondary)
 
                             Text("Send us a message via Settings > Send Feedback")
                                 .font(.caption)
-                                .foregroundColor(themeProvider.resolved.secondaryTextColor)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .padding(.vertical, 20)
                     }
@@ -2505,10 +2544,10 @@ struct FAQView: View {
                     .padding(.bottom, 32)
                 }
             }
-            .background(themeProvider.resolved.backgroundColor)
+            .background(theme.bg0)
             .navigationTitle("FAQ")
             .navigationBarTitleDisplayMode(.inline)
-            .themedNavigationBar(themeProvider)
+            .themedNavigationBar(theme)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
@@ -2519,9 +2558,9 @@ struct FAQView: View {
 }
 
 private struct FAQItem: View {
+    @Environment(\.theme) private var theme
     let question: String
     let answer: String
-    let themeProvider: ThemeProvider
     var onExpand: (() -> Void)? = nil
     @State private var isExpanded = false
 
@@ -2539,7 +2578,7 @@ private struct FAQItem: View {
                 HStack {
                     Text(question)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(themeProvider.resolved.primaryTextColor)
+                        .foregroundColor(theme.textPrimary)
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -2547,7 +2586,7 @@ private struct FAQItem: View {
 
                     Image(systemName: "chevron.down")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(themeProvider.resolved.secondaryTextColor)
+                        .foregroundColor(theme.textSecondary)
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 }
                 .frame(minHeight: 44) // Accessibility: minimum tap target
@@ -2562,7 +2601,7 @@ private struct FAQItem: View {
             if isExpanded {
                 Text(answer)
                     .font(.system(size: 15))
-                    .foregroundColor(themeProvider.resolved.secondaryTextColor)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 16)
@@ -2571,13 +2610,13 @@ private struct FAQItem: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(themeProvider.resolved.cardBackground)
+                .fill(theme.surface1)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(themeProvider.resolved.cardBorderColor, lineWidth: themeProvider.resolved.cardBorderWidth)
+                .strokeBorder(theme.borderSoft, lineWidth: theme.cardBorderWidth)
         )
-        .shadow(color: themeProvider.resolved.shadowColor.opacity(themeProvider.resolved.isDark ? 0.3 : 0.04), radius: 8, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.isDark ? 0.3 : 0.04), radius: 8, y: 2)
     }
 }
 
@@ -2585,7 +2624,7 @@ private struct FAQItem: View {
 
 struct ChangelogView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     private let releases: [(version: String, date: String, changes: [String])] = [
         (
@@ -2624,7 +2663,7 @@ struct ChangelogView: View {
 
                         Text("See what we've been working on")
                             .font(.subheadline)
-                            .foregroundColor(themeProvider.resolved.secondaryTextColor)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .padding(.top, 20)
 
@@ -2634,18 +2673,17 @@ struct ChangelogView: View {
                             version: release.version,
                             date: release.date,
                             changes: release.changes,
-                            isLatest: index == 0,
-                            themeProvider: themeProvider
+                            isLatest: index == 0
                         )
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 32)
             }
-            .background(themeProvider.resolved.backgroundColor)
+            .background(theme.bg0)
             .navigationTitle("Changelog")
             .navigationBarTitleDisplayMode(.inline)
-            .themedNavigationBar(themeProvider)
+            .themedNavigationBar(theme)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
@@ -2656,11 +2694,11 @@ struct ChangelogView: View {
 }
 
 private struct ChangelogReleaseCard: View {
+    @Environment(\.theme) private var theme
     let version: String
     let date: String
     let changes: [String]
     let isLatest: Bool
-    let themeProvider: ThemeProvider
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -2670,7 +2708,7 @@ private struct ChangelogReleaseCard: View {
                     HStack(spacing: 8) {
                         Text("Version \(version)")
                             .font(.system(size: 17, weight: .bold))
-                            .foregroundColor(themeProvider.resolved.primaryTextColor)
+                            .foregroundColor(theme.textPrimary)
 
                         if isLatest {
                             Text("LATEST")
@@ -2691,7 +2729,7 @@ private struct ChangelogReleaseCard: View {
 
                     Text(date)
                         .font(.system(size: 13))
-                        .foregroundColor(themeProvider.resolved.secondaryTextColor)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -2708,7 +2746,7 @@ private struct ChangelogReleaseCard: View {
 
                         Text(change)
                             .font(.system(size: 15))
-                            .foregroundColor(themeProvider.resolved.primaryTextColor)
+                            .foregroundColor(theme.textPrimary)
                     }
                 }
             }
@@ -2716,13 +2754,13 @@ private struct ChangelogReleaseCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(themeProvider.resolved.cardBackground)
+                .fill(theme.surface1)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(themeProvider.resolved.cardBorderColor, lineWidth: themeProvider.resolved.cardBorderWidth)
+                .strokeBorder(theme.borderSoft, lineWidth: theme.cardBorderWidth)
         )
-        .shadow(color: themeProvider.resolved.shadowColor.opacity(themeProvider.resolved.isDark ? 0.3 : 0.04), radius: 8, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.isDark ? 0.3 : 0.04), radius: 8, y: 2)
     }
 }
 
@@ -2730,7 +2768,7 @@ private struct ChangelogReleaseCard: View {
 
 struct HelpCenterView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @State private var selectedTab: HelpTab = .guide
 
     enum HelpTab: String, CaseIterable {
@@ -2761,10 +2799,10 @@ struct HelpCenterView: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
-            .background(themeProvider.resolved.backgroundColor)
+            .background(theme.bg0)
             .navigationTitle("Help Center")
             .navigationBarTitleDisplayMode(.inline)
-            .themedNavigationBar(themeProvider)
+            .themedNavigationBar(theme)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
@@ -2885,9 +2923,9 @@ struct HelpCenterView: View {
                 .padding(16)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(themeProvider.resolved.cardBackground)
+                        .fill(theme.surface1)
                 )
-                .shadow(color: themeProvider.resolved.shadowColor.opacity(0.04), radius: 8, y: 2)
+                .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
                 .padding(.horizontal, 16)
             }
             .padding(.bottom, 32)
@@ -2955,7 +2993,7 @@ struct HelpCenterView: View {
 
                     // FAQ Items
                     ForEach(Array(faqs.enumerated()), id: \.offset) { index, faq in
-                        FAQItem(question: faq.question, answer: faq.answer, themeProvider: themeProvider) {
+                        FAQItem(question: faq.question, answer: faq.answer) {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     proxy.scrollTo("help-faq-\(index)", anchor: .top)
@@ -2969,11 +3007,11 @@ struct HelpCenterView: View {
                     VStack(spacing: 12) {
                         Text("Still have questions?")
                             .font(.subheadline)
-                            .foregroundColor(themeProvider.resolved.secondaryTextColor)
+                            .foregroundColor(theme.textSecondary)
 
                         Text("Tap 'Contact Us' in Help & Support")
                             .font(.caption)
-                            .foregroundColor(themeProvider.resolved.secondaryTextColor)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .padding(.vertical, 20)
                 }

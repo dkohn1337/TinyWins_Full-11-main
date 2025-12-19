@@ -2,10 +2,41 @@ import Foundation
 import Combine
 import SwiftUI
 
+/// Precomputed data for a child in the rewards view.
+struct ChildRewardData: Equatable, Identifiable {
+    let id: UUID
+    let child: Child
+    let hasActiveReward: Bool
+    let hasReadyReward: Bool
+    let summaryText: String
+    let activeGoalCount: Int
+
+    static func == (lhs: ChildRewardData, rhs: ChildRewardData) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.child.id == rhs.child.id &&
+        lhs.child.totalPoints == rhs.child.totalPoints &&
+        lhs.hasActiveReward == rhs.hasActiveReward &&
+        lhs.hasReadyReward == rhs.hasReadyReward &&
+        lhs.summaryText == rhs.summaryText &&
+        lhs.activeGoalCount == rhs.activeGoalCount
+    }
+}
+
 /// ViewModel for the Rewards screen.
+/// PERFORMANCE: Precomputes all child data via Combine to eliminate store access during render.
 /// Manages reward selection, child selection, paywall gating, and progress computation.
 @MainActor
 final class RewardsViewModel: ObservableObject {
+
+    // MARK: - Precomputed State
+
+    struct ViewState: Equatable {
+        var childrenData: [ChildRewardData] = []
+        var hasAnyActiveGoal: Bool = false
+        var firstChildWithReadyRewardId: UUID? = nil
+    }
+
+    @Published private(set) var state = ViewState()
 
     // MARK: - Dependencies
 
@@ -15,14 +46,24 @@ final class RewardsViewModel: ObservableObject {
     private let userPreferences: UserPreferencesStore
     private let subscriptionManager: SubscriptionManager
 
+    // MARK: - Visibility Gate
+
+    private var isVisible = false
+    private var pendingState: ViewState?
+
+    // MARK: - Combine
+
+    private var cancellables = Set<AnyCancellable>()
+
     // MARK: - Published State
 
     @Published var selectedChildId: UUID?
 
-    // MARK: - Computed Properties
+    // MARK: - Computed Properties (for compatibility)
 
+    // PHASE 2: Use precomputed activeChildren from snapshot
     var activeChildren: [Child] {
-        childrenStore.children.filter { !$0.isArchived }
+        childrenStore.activeChildren
     }
 
     var selectedChild: Child? {
@@ -40,9 +81,7 @@ final class RewardsViewModel: ObservableObject {
     }
 
     var hasAnyActiveGoal: Bool {
-        activeChildren.contains { child in
-            activeReward(forChild: child.id) != nil
-        }
+        state.hasAnyActiveGoal
     }
 
     // MARK: - Initialization
@@ -60,11 +99,134 @@ final class RewardsViewModel: ObservableObject {
         self.userPreferences = userPreferences
         self.subscriptionManager = subscriptionManager
 
+        #if DEBUG
+        print("🟢 INIT RewardsViewModel", ObjectIdentifier(self))
+        #endif
+
         // Load persisted selection
         let idString = userPreferences.selectedRewardsChildId
         if !idString.isEmpty, let id = UUID(uuidString: idString) {
             self.selectedChildId = id
         }
+
+        setupObservers()
+        recomputeState()
+    }
+
+    deinit {
+        #if DEBUG
+        print("🔴 DEINIT RewardsViewModel", ObjectIdentifier(self))
+        #endif
+    }
+
+    // MARK: - Visibility Gate
+
+    func setVisible(_ visible: Bool) {
+        isVisible = visible
+
+        guard visible else { return }
+
+        Task { @MainActor in
+            await Task.yield()
+
+            if let pending = pendingState {
+                pendingState = nil
+                state = pending
+            }
+        }
+    }
+
+    private func applyState(_ newState: ViewState) {
+        guard isVisible else {
+            pendingState = newState
+            return
+        }
+
+        state = newState
+    }
+
+    // MARK: - Combine Observers
+
+    private func setupObservers() {
+        // PHASE 1: Observe store snapshots (single publish per store) instead of individual properties
+        // Merge all store changes into a single pipeline to avoid redundant recomputation
+        Publishers.Merge3(
+            childrenStore.$snapshot.map { _ in () },
+            rewardsStore.$snapshot.map { _ in () },
+            behaviorsStore.$snapshot.map { _ in () }
+        )
+        .dropFirst()
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _ in
+            self?.recomputeState()
+        }
+        .store(in: &cancellables)
+    }
+
+    // MARK: - State Computation
+
+    private func recomputeState() {
+        let events = behaviorsStore.behaviorEvents
+        let rewards = rewardsStore.rewards
+        // PHASE 2: Use precomputed activeChildren from snapshot
+        let children = childrenStore.activeChildren
+
+        var anyActiveGoal = false
+        var firstReadyChildId: UUID? = nil
+
+        let childrenData = children.map { child -> ChildRewardData in
+            let childRewards = rewards
+                .filter { $0.childId == child.id && !$0.isRedeemed && !$0.isExpired }
+                .sorted { $0.priority < $1.priority }
+
+            let activeReward = childRewards.first
+            let hasActive = activeReward != nil
+
+            if hasActive {
+                anyActiveGoal = true
+            }
+
+            // Check if primary reward is ready
+            var hasReady = false
+            if let primary = activeReward {
+                hasReady = primary.status(from: events, isPrimaryReward: true) == .readyToRedeem
+                if hasReady && firstReadyChildId == nil {
+                    firstReadyChildId = child.id
+                }
+            }
+
+            // Generate summary text
+            let goalCount = childRewards.count
+            let summaryText: String
+            if goalCount == 0 {
+                summaryText = "\(child.totalPoints) stars · No goals yet"
+            } else {
+                summaryText = "\(child.totalPoints) stars \u{00B7} \(goalCount) goal\(goalCount == 1 ? "" : "s")"
+            }
+
+            return ChildRewardData(
+                id: child.id,
+                child: child,
+                hasActiveReward: hasActive,
+                hasReadyReward: hasReady,
+                summaryText: summaryText,
+                activeGoalCount: goalCount
+            )
+        }
+
+        let newState = ViewState(
+            childrenData: childrenData,
+            hasAnyActiveGoal: anyActiveGoal,
+            firstChildWithReadyRewardId: firstReadyChildId
+        )
+
+        applyState(newState)
+    }
+
+    // MARK: - Precomputed Data Access
+
+    func childData(for childId: UUID) -> ChildRewardData? {
+        state.childrenData.first { $0.id == childId }
     }
 
     // MARK: - Reward Query Methods
@@ -81,16 +243,12 @@ final class RewardsViewModel: ObservableObject {
     }
 
     func hasReadyReward(for child: Child) -> Bool {
-        let rewards = rewards(forChild: child.id)
-            .filter { !$0.isRedeemed && !$0.isExpired }
-            .sorted { $0.priority < $1.priority }
-
-        guard let primaryReward = rewards.first else { return false }
-        return primaryReward.status(from: behaviorsStore.behaviorEvents, isPrimaryReward: true) == .readyToRedeem
+        childData(for: child.id)?.hasReadyReward ?? false
     }
 
     func firstChildWithReadyReward() -> Child? {
-        activeChildren.first { hasReadyReward(for: $0) }
+        guard let id = state.firstChildWithReadyRewardId else { return nil }
+        return activeChildren.first { $0.id == id }
     }
 
     func starsEarned(for reward: Reward, isPrimary: Bool) -> Int {
@@ -104,16 +262,7 @@ final class RewardsViewModel: ObservableObject {
     // MARK: - Summary Text
 
     func summaryText(for child: Child) -> String {
-        let points = child.totalPoints
-        let goalCount = rewards(forChild: child.id)
-            .filter { !$0.isRedeemed && !$0.isExpired }
-            .count
-
-        if goalCount == 0 {
-            return "\(points) points · No goals yet"
-        } else {
-            return "\(points) points \u{00B7} \(goalCount) goal\(goalCount == 1 ? "" : "s")"
-        }
+        childData(for: child.id)?.summaryText ?? "\(child.totalPoints) stars"
     }
 
     // MARK: - Selection Management

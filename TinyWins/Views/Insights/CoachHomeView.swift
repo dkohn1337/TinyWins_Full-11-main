@@ -10,7 +10,7 @@ import SwiftUI
 /// Uses the global InsightsContext for scope, child, and time range state.
 /// @available(*, deprecated, message: "Use InsightsHomeView instead")
 struct CoachHomeView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.insightsContext) private var context
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var childrenStore: ChildrenStore
@@ -58,7 +58,7 @@ struct CoachHomeView: View {
                     }
                 }
             }
-            .background(theme.backgroundColor.ignoresSafeArea())
+            .background(theme.bg0.ignoresSafeArea())
             .navigationTitle(Text("coach_title", tableName: "Insights"))
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showingScopeSelector) {
@@ -96,7 +96,7 @@ struct CoachHomeView: View {
             ProgressView()
             Text("loading_insights", tableName: "Insights")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 60)
@@ -110,7 +110,7 @@ struct CoachHomeView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [theme.accentColor, theme.positiveColor],
+                        colors: [theme.accentPrimary, theme.success],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -118,11 +118,11 @@ struct CoachHomeView: View {
 
             Text("no_insights_title", tableName: "Insights")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("no_insights_message", tableName: "Insights")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
 
@@ -134,7 +134,7 @@ struct CoachHomeView: View {
                     .foregroundColor(.white)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
-                    .background(theme.accentColor)
+                    .background(theme.accentPrimary)
                     .clipShape(Capsule())
             }
             .padding(.top, 8)
@@ -176,7 +176,7 @@ struct CoachHomeView: View {
                 icon: "star.fill",
                 value: "\(stats.wins)",
                 label: String(localized: "wins", table: "Insights"),
-                color: theme.positiveColor
+                color: theme.success
             )
 
             // Challenges stat
@@ -184,7 +184,7 @@ struct CoachHomeView: View {
                 icon: "exclamationmark.triangle.fill",
                 value: "\(stats.challenges)",
                 label: String(localized: "challenges", table: "Insights"),
-                color: theme.challengeColor
+                color: theme.danger
             )
 
             // Trend indicator
@@ -200,7 +200,7 @@ struct CoachHomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("more_insights", tableName: "Insights")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             ForEach(insights.dropFirst()) { insight in
                 InsightCard(insight: insight)
@@ -217,31 +217,31 @@ struct CoachHomeView: View {
                     HStack(spacing: 12) {
                         Image(systemName: "chart.bar.doc.horizontal")
                             .font(.title3)
-                            .foregroundColor(theme.accentColor)
+                            .foregroundColor(theme.accentPrimary)
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text("advanced_insights_title", tableName: "Insights")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                                .foregroundColor(theme.primaryText)
+                                .foregroundColor(theme.textPrimary)
 
                             Text("advanced_insights_subtitle", tableName: "Insights")
                                 .font(.caption)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                         }
 
                         Spacer()
 
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .padding(16)
-                    .background(theme.cardBackground)
+                    .background(theme.surface1)
                     .cornerRadius(theme.cornerRadius)
                     .overlay(
                         RoundedRectangle(cornerRadius: theme.cornerRadius)
-                            .stroke(theme.borderSubtle, lineWidth: 1)
+                            .stroke(theme.borderSoft, lineWidth: 1)
                     )
                 }
             }
@@ -275,12 +275,12 @@ struct CoachHomeView: View {
                 Text("unlock_deeper_insights", tableName: "Insights")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
             }
 
             Text("premium_nudge_message", tableName: "Insights")
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
 
             NavigationLink(destination: PlusPaywallView()) {
@@ -372,7 +372,7 @@ struct CoachHomeView: View {
 // MARK: - Quick Stat Chip
 
 struct QuickStatChip: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let icon: String
     let value: String
@@ -388,20 +388,20 @@ struct QuickStatChip: View {
 
                 Text(value)
                     .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
             }
 
             Text(label)
                 .font(.caption2)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(theme.borderSubtle, lineWidth: 1)
+                .stroke(theme.borderSoft, lineWidth: 1)
         )
     }
 }
@@ -409,7 +409,7 @@ struct QuickStatChip: View {
 // MARK: - Trend Chip
 
 struct TrendChip: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let trend: InsightVisualData.TrendDirection
     let percentage: Double?
@@ -454,5 +454,5 @@ struct TrendChip: View {
         .environmentObject(repository)
         .environmentObject(ChildrenStore(repository: repository))
         .environmentObject(SubscriptionManager())
-        .withThemeProvider(ThemeProvider())
+        .withTheme(Theme())
 }

@@ -7,6 +7,7 @@ import SwiftUI
 
 /// Header for the goal selection screen with child context
 struct GoalStoreHeader: View {
+    @Environment(\.theme) private var theme
     let childName: String
     let childColor: Color
     let childEmoji: String
@@ -43,7 +44,7 @@ struct GoalStoreHeader: View {
 
                 Text("Pick something exciting to work toward together")
                     .font(.system(size: 16))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
@@ -141,6 +142,7 @@ struct GoalStoreCard: View {
     let childColor: Color
     let onSelect: () -> Void
 
+    @Environment(\.theme) private var theme
     @State private var isPressed = false
     @State private var shimmerOffset: CGFloat = -100
 
@@ -229,7 +231,7 @@ struct GoalStoreCard: View {
                 // Name
                 Text(goal.name)
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .frame(height: 44)
@@ -241,10 +243,10 @@ struct GoalStoreCard: View {
                         .foregroundColor(.yellow)
                     Text("\(goal.defaultStars)")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Text("stars")
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 // Difficulty badge
@@ -257,7 +259,7 @@ struct GoalStoreCard: View {
                     ForEach(0..<(4 - goal.difficulty.stars), id: \.self) { _ in
                         Image(systemName: "star")
                             .font(.system(size: 8))
-                            .foregroundColor(Color(.systemGray4))
+                            .foregroundColor(theme.borderStrong)
                     }
 
                     Text(goal.difficulty.rawValue)
@@ -274,13 +276,13 @@ struct GoalStoreCard: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .strokeBorder(
                                 goal.isPremium ?
                                     LinearGradient(colors: [.yellow, .orange], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                                    LinearGradient(colors: [Color(.systemGray5)], startPoint: .top, endPoint: .bottom),
+                                    LinearGradient(colors: [theme.borderSoft], startPoint: .top, endPoint: .bottom),
                                 lineWidth: goal.isPremium ? 2 : 1
                             )
                     )
@@ -321,6 +323,7 @@ struct GoalStoreCard: View {
 
 /// Full-screen modal when a goal is selected
 struct GoalDetailModal: View {
+    @Environment(\.theme) private var theme
     let goal: GoalStoreCard.GoalTemplate
     let childName: String
     let childColor: Color
@@ -364,7 +367,7 @@ struct GoalDetailModal: View {
                     }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 28))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -400,7 +403,7 @@ struct GoalDetailModal: View {
 
                     Text(goal.description)
                         .font(.system(size: 16))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 20)
                 }
@@ -428,7 +431,7 @@ struct GoalDetailModal: View {
                     // Estimated time
                     Text(estimatedTimeText)
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -458,7 +461,7 @@ struct GoalDetailModal: View {
             .padding(28)
             .background(
                 RoundedRectangle(cornerRadius: 32)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
             )
             .padding(.horizontal, 24)
             .transition(.scale.combined(with: .opacity))
@@ -515,6 +518,7 @@ struct StarCountButton: View {
 
 /// Section for creating a custom goal
 struct CustomGoalEntry: View {
+    @Environment(\.theme) private var theme
     let childColor: Color
     let onTap: () -> Void
 
@@ -540,11 +544,11 @@ struct CustomGoalEntry: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Create Custom Goal")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("Design your own unique reward")
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -556,7 +560,7 @@ struct CustomGoalEntry: View {
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .strokeBorder(

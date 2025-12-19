@@ -6,7 +6,7 @@ import SwiftUI
 /// Always visible, shows: scope label, time range, change affordance
 struct InsightsContextBar: View {
     @Environment(\.insightsContext) private var context
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
 
     @Binding var showingScopeSelector: Bool
@@ -39,28 +39,28 @@ struct InsightsContextBar: View {
                 // Icon
                 Image(systemName: scopeIcon)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(theme.accentColor)
+                    .foregroundColor(theme.accentPrimary)
 
                 // Label
                 VStack(alignment: .leading, spacing: 1) {
                     Text(scopeLabel)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("tap_to_change", tableName: "Insights")
                         .font(.system(size: 11))
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Image(systemName: "chevron.down")
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(theme.accentColor.opacity(0.08))
+                    .fill(theme.accentPrimary.opacity(0.08))
             )
         }
         .buttonStyle(.plain)
@@ -104,13 +104,13 @@ struct InsightsContextBar: View {
             .padding(.vertical, 10)
             .background(
                 LinearGradient(
-                    colors: [theme.accentColor, theme.accentColor.opacity(0.85)],
+                    colors: [theme.accentPrimary, theme.accentPrimary.opacity(0.85)],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
             )
             .cornerRadius(10)
-            .shadow(color: theme.accentColor.opacity(0.3), radius: 4, y: 2)
+            .shadow(color: theme.accentPrimary.opacity(0.3), radius: 4, y: 2)
         }
         .accessibilityLabel(Text("time_range_label", tableName: "Insights"))
         .accessibilityHint(Text("Double tap to change time range", tableName: "Insights"))
@@ -120,7 +120,7 @@ struct InsightsContextBar: View {
 
     private var contextBarBackground: some View {
         Rectangle()
-            .fill(theme.backgroundColor)
+            .fill(theme.bg0)
             .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
     }
 
@@ -162,7 +162,7 @@ struct InsightsContextBar: View {
 /// More compact version for sub-pages where space is tighter
 struct CompactInsightsContextBar: View {
     @Environment(\.insightsContext) private var context
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
 
     var body: some View {
@@ -174,12 +174,12 @@ struct CompactInsightsContextBar: View {
                 Text(scopeLabel)
                     .font(.system(size: 12, weight: .medium))
             }
-            .foregroundColor(theme.accentColor)
+            .foregroundColor(theme.accentPrimary)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(
                 Capsule()
-                    .fill(theme.accentColor.opacity(0.12))
+                    .fill(theme.accentPrimary.opacity(0.12))
             )
 
             // Time range pill
@@ -189,16 +189,16 @@ struct CompactInsightsContextBar: View {
                 Text(context.timeRange.shortDisplayKey)
                     .font(.system(size: 12, weight: .semibold))
             }
-            .foregroundColor(theme.accentColor)
+            .foregroundColor(theme.accentPrimary)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(
                 Capsule()
-                    .fill(theme.accentColor.opacity(0.1))
+                    .fill(theme.accentPrimary.opacity(0.1))
             )
             .overlay(
                 Capsule()
-                    .stroke(theme.accentColor.opacity(0.2), lineWidth: 1)
+                    .stroke(theme.accentPrimary.opacity(0.2), lineWidth: 1)
             )
 
             Spacer()
@@ -246,5 +246,5 @@ struct CompactInsightsContextBar: View {
     }
     .withInsightsContext(context)
     .environmentObject(ChildrenStore(repository: repository))
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

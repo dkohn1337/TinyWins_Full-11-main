@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AddRewardView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var rewardsStore: RewardsStore
     @Environment(\.dismiss) private var dismiss
 
@@ -103,7 +104,7 @@ struct AddRewardView: View {
                     .padding(.bottom, 100) // Space for save button
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .safeAreaInset(edge: .bottom) {
                 saveButton
             }
@@ -156,7 +157,7 @@ struct AddRewardView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(name.isEmpty ? "Your goal name..." : name)
                         .font(.headline)
-                        .foregroundColor(name.isEmpty ? .secondary : .primary)
+                        .foregroundColor(name.isEmpty ? theme.textSecondary : theme.textPrimary)
                         .lineLimit(2)
 
                     HStack(spacing: 12) {
@@ -167,17 +168,17 @@ struct AddRewardView: View {
                                 .foregroundColor(.yellow)
                             Text("\(targetPoints) stars")
                                 .font(.caption.weight(.medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
 
                         // Time estimate badge
                         HStack(spacing: 4) {
                             Image(systemName: "clock")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                             Text(timeEstimate)
                                 .font(.caption.weight(.medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                 }
@@ -189,7 +190,7 @@ struct AddRewardView: View {
             VStack(alignment: .leading, spacing: 6) {
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 6)
-                        .fill(Color(.systemGray5))
+                        .fill(theme.borderSoft)
                         .frame(height: 10)
 
                     RoundedRectangle(cornerRadius: 6)
@@ -206,24 +207,24 @@ struct AddRewardView: View {
                 HStack {
                     Text("0 / \(targetPoints) stars")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     Spacer()
 
                     if hasDeadline {
                         Text("Due \(dueDate, style: .date)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     } else {
                         Text("No deadline")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }
         }
         .padding(20)
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(20)
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
@@ -234,7 +235,7 @@ struct AddRewardView: View {
         VStack(alignment: .leading, spacing: 12) {
             Label("What's the reward?", systemImage: "pencil")
                 .font(.subheadline.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             HStack(spacing: 12) {
                 // Icon button
@@ -254,7 +255,7 @@ struct AddRewardView: View {
                         Image(systemName: "pencil.circle.fill")
                             .font(.system(size: 16))
                             .foregroundColor(child.colorTag.color)
-                            .background(Color(.systemBackground).clipShape(Circle()))
+                            .background(theme.surface1.clipShape(Circle()))
                             .offset(x: 20, y: 20)
                     }
                 }
@@ -264,7 +265,7 @@ struct AddRewardView: View {
                 TextField("Movie night, park trip, ice cream...", text: $name)
                     .font(.body)
                     .padding(14)
-                    .background(Color(.systemBackground))
+                    .background(theme.surface1)
                     .cornerRadius(14)
                     .focused($isNameFocused)
             }
@@ -277,7 +278,7 @@ struct AddRewardView: View {
         VStack(alignment: .leading, spacing: 12) {
             Label("How many stars?", systemImage: "star.fill")
                 .font(.subheadline.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             // Use shared GoalSizeSelector for consistency across the app
             VStack(spacing: 16) {
@@ -292,14 +293,14 @@ struct AddRewardView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "clock")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Text("Typical: \(GoalSizeCategory.from(stars: targetPoints).timeframeHint)")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
             .padding(16)
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(16)
         }
     }
@@ -310,7 +311,7 @@ struct AddRewardView: View {
         VStack(alignment: .leading, spacing: 12) {
             Label("Deadline (optional)", systemImage: "calendar")
                 .font(.subheadline.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             VStack(spacing: 0) {
                 // No deadline toggle
@@ -337,7 +338,7 @@ struct AddRewardView: View {
                     .padding(16)
                 }
             }
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(16)
         }
     }
@@ -356,7 +357,7 @@ struct AddRewardView: View {
             .foregroundColor(.red)
             .frame(maxWidth: .infinity)
             .padding(16)
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(16)
         }
         .buttonStyle(.plain)
@@ -381,7 +382,7 @@ struct AddRewardView: View {
                             endPoint: .trailing
                           )
                         : LinearGradient(
-                            colors: [Color(.systemGray4), Color(.systemGray4)],
+                            colors: [theme.borderStrong, theme.borderStrong],
                             startPoint: .leading,
                             endPoint: .trailing
                           )
@@ -391,7 +392,7 @@ struct AddRewardView: View {
         .disabled(!isValid)
         .padding(.horizontal)
         .padding(.vertical, 12)
-        .background(.ultraThinMaterial)
+        .background(theme.surface1)
     }
 
     // MARK: - Save
@@ -429,6 +430,7 @@ struct AddRewardView: View {
 
 private struct IconPickerSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @Binding var selectedIcon: String
     let childColor: Color
 
@@ -448,14 +450,14 @@ private struct IconPickerSheet: View {
                                     .fill(
                                         selectedIcon == icon
                                             ? childColor
-                                            : Color(.systemGray6)
+                                            : theme.surface2
                                     )
                                     .frame(width: 52, height: 52)
 
                                 Image(systemName: icon)
                                     .font(.system(size: 22))
                                     .foregroundColor(
-                                        selectedIcon == icon ? .white : .primary
+                                        selectedIcon == icon ? .white : theme.textPrimary
                                     )
                             }
                         }

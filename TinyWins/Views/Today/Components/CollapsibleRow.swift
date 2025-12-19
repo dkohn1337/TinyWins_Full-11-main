@@ -5,7 +5,7 @@ import SwiftUI
 /// A row that can expand/collapse to show additional content.
 /// Used for streak, focus, and reflection sections on Today.
 struct CollapsibleRow<CollapsedContent: View, ExpandedContent: View>: View {
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     let icon: String
     let iconColor: Color
@@ -50,12 +50,12 @@ struct CollapsibleRow<CollapsedContent: View, ExpandedContent: View>: View {
                     VStack(alignment: .leading, spacing: 1) {
                         Text(title)
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(themeProvider.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         if let subtitle = subtitle, !isExpanded {
                             Text(subtitle)
                                 .font(.system(size: 11))
-                                .foregroundColor(themeProvider.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                                 .lineLimit(1)
                         }
                     }
@@ -70,14 +70,14 @@ struct CollapsibleRow<CollapsedContent: View, ExpandedContent: View>: View {
                     // Chevron
                     Image(systemName: "chevron.down")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(themeProvider.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 }
                 .padding(12)
                 .background(
                     RoundedRectangle(cornerRadius: isExpanded ? 14 : 10)
-                        .fill(themeProvider.cardBackground)
-                        .shadow(color: themeProvider.cardShadow.opacity(isExpanded ? 0.8 : 0.4), radius: isExpanded ? 4 : 2, y: 2)
+                        .fill(theme.surface1)
+                        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength * (isExpanded ? 0.8 : 0.4)), radius: isExpanded ? 4 : 2, y: 2)
                 )
             }
             .buttonStyle(.plain)
@@ -98,8 +98,8 @@ struct CollapsibleRow<CollapsedContent: View, ExpandedContent: View>: View {
                             bottomTrailingRadius: 14,
                             topTrailingRadius: 0
                         )
-                        .fill(themeProvider.cardBackground)
-                        .shadow(color: themeProvider.cardShadow.opacity(0.4), radius: 3, y: 2)
+                        .fill(theme.surface1)
+                        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength * 0.4), radius: 3, y: 2)
                     )
                     .transition(.opacity.combined(with: .move(edge: .top)))
             }
@@ -140,7 +140,7 @@ extension CollapsibleRow where CollapsedContent == EmptyView {
 // MARK: - Streak Row Content
 
 struct StreakRowContent: View {
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var progressionStore: ProgressionStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
 
@@ -164,8 +164,8 @@ struct StreakRowContent: View {
                             Circle()
                                 .fill(
                                     isActive
-                                        ? LinearGradient(colors: [themeProvider.streakActiveColor, themeProvider.positiveColor], startPoint: .top, endPoint: .bottom)
-                                        : LinearGradient(colors: [themeProvider.streakInactiveColor], startPoint: .top, endPoint: .bottom)
+                                        ? LinearGradient(colors: [theme.success, theme.success], startPoint: .top, endPoint: .bottom)
+                                        : LinearGradient(colors: [theme.textDisabled], startPoint: .top, endPoint: .bottom)
                                 )
                                 .frame(width: 26, height: 26)
 
@@ -178,7 +178,7 @@ struct StreakRowContent: View {
 
                         Text(dayName)
                             .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(isActive ? themeProvider.streakActiveColor : themeProvider.secondaryText)
+                            .foregroundColor(isActive ? theme.success : theme.textSecondary)
                     }
                 }
             }
@@ -186,7 +186,7 @@ struct StreakRowContent: View {
             // Supportive message (no guilt) - compact
             Text(supportiveMessage)
                 .font(.system(size: 12))
-                .foregroundColor(themeProvider.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -216,7 +216,7 @@ struct StreakRowContent: View {
 // MARK: - Focus Row Content
 
 struct FocusRowContent: View {
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     let focusTip: String
     let actionTip: String
@@ -225,23 +225,23 @@ struct FocusRowContent: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(focusTip)
                 .font(.system(size: 13))
-                .foregroundColor(themeProvider.primaryText)
+                .foregroundColor(theme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 6) {
                 Image(systemName: "target")
                     .font(.system(size: 11))
-                    .foregroundColor(themeProvider.accentColor)
+                    .foregroundColor(theme.accentPrimary)
 
                 Text(actionTip)
                     .font(.system(size: 12))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(8)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(themeProvider.accentColor.opacity(0.08))
+                    .fill(theme.accentPrimary.opacity(0.08))
             )
         }
         .padding(.top, 6)

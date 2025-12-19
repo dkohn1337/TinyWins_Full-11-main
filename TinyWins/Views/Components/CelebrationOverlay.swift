@@ -6,6 +6,7 @@ struct CelebrationOverlay: View {
     @EnvironmentObject private var celebrationManager: CelebrationManager
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var repository: Repository
+    @Environment(\.theme) private var theme
     let celebration: CelebrationManager.CelebrationType
     let onDismiss: () -> Void
 
@@ -207,18 +208,18 @@ struct CelebrationOverlay: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("You both worked toward this goal.")
                         .font(.body.weight(.medium))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     Text("Try saying:")
                         .font(.caption.weight(.medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .padding(.top, 4)
 
                     Text("\"\(childName), I noticed how hard you tried. I'm proud of your effort.\"")
                         .font(.subheadline)
                         .italic()
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .padding(.leading, 8)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -229,10 +230,10 @@ struct CelebrationOverlay: View {
             VStack(spacing: 8) {
                 Text("Gold Star Day!")
                     .font(.title.weight(.bold))
-                
+
                 Text("You noticed \(count) positive moments today.\nThat attention matters more than you know.")
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -245,16 +246,16 @@ struct CelebrationOverlay: View {
                 
                 Text("\(childName) is \(percent)% of the way to")
                     .font(.body)
-                    .foregroundColor(.secondary)
-                
+                    .foregroundColor(theme.textSecondary)
+
                 Text(rewardName)
                     .font(.title3.weight(.semibold))
                     .foregroundColor(.blue)
-                
+
                 Text(message)
                     .font(.body)
                     .multilineTextAlignment(.center)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 4)
             }
@@ -263,17 +264,17 @@ struct CelebrationOverlay: View {
             VStack(spacing: 8) {
                 Text(insight.title)
                     .font(.title2.weight(.bold))
-                
+
                 Text(insight.message)
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
-                
+
                 if let suggestion = insight.suggestion {
                     Text(suggestion)
                         .font(.callout)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.top, 4)
                 }
@@ -347,9 +348,10 @@ struct CelebrationOverlay: View {
 
 /// Lightweight banner for secondary celebrations (shown after primary modal dismisses)
 struct SecondaryCelebrationBanner: View {
+    @Environment(\.theme) private var theme
     let celebration: CelebrationManager.SecondaryCelebration
     let onDismiss: () -> Void
-    
+
     var body: some View {
         HStack(spacing: 12) {
             // Icon
@@ -369,20 +371,20 @@ struct SecondaryCelebrationBanner: View {
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundColor(celebration.color)
-                
+
                 Text(celebration.message)
                     .font(.subheadline)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
                     .lineLimit(2)
             }
-            
+
             Spacer()
-            
+
             // Dismiss button
             Button(action: onDismiss) {
                 Image(systemName: "xmark")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .accessibilityLabel("Dismiss")
             .accessibilityHint("Double tap to dismiss notification")
@@ -391,7 +393,7 @@ struct SecondaryCelebrationBanner: View {
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.1), radius: 8, y: 4)
         )
         .padding(.horizontal, 16)
@@ -405,8 +407,8 @@ struct SecondaryCelebrationBanner: View {
 
 #Preview {
     ZStack {
-        Color.gray.opacity(0.3).ignoresSafeArea()
-        
+        Theme().bg1.ignoresSafeArea()
+
         CelebrationOverlay(
             celebration: .goldStarDay(childId: UUID(), childName: "Ellie", momentCount: 5),
             onDismiss: {}

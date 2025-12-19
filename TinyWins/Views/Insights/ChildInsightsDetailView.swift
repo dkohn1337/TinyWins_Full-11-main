@@ -10,7 +10,7 @@ import SwiftUI
 /// - All coach cards for this child
 /// - Explore section (History, Growth Rings, Advanced)
 struct ChildInsightsDetailView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var navigation: InsightsNavigationState
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var childrenStore: ChildrenStore
@@ -54,7 +54,7 @@ struct ChildInsightsDetailView: View {
             .padding(.horizontal, AppSpacing.screenPadding)
             .padding(.top, AppSpacing.sectionGap)
         }
-        .background(theme.backgroundColor)
+        .background(theme.bg0)
         .navigationTitle(Text("\(child.name)'s Insights", tableName: "Insights"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
@@ -90,17 +90,17 @@ struct ChildInsightsDetailView: View {
                 Text(child.name)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text(headerSubtitle)
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
         }
         .padding(16)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
     }
 
@@ -130,14 +130,14 @@ struct ChildInsightsDetailView: View {
                 icon: "star.fill",
                 value: "\(positiveCount)",
                 label: String(localized: "Wins", table: "Insights"),
-                color: theme.positiveColor
+                color: theme.success
             )
 
             quickStatCard(
                 icon: "exclamationmark.triangle.fill",
                 value: "\(challengeCount)",
                 label: String(localized: "Challenges", table: "Insights"),
-                color: theme.challengeColor
+                color: theme.danger
             )
 
             quickStatCard(
@@ -159,16 +159,16 @@ struct ChildInsightsDetailView: View {
                 Text(value)
                     .font(.title3)
                     .fontWeight(.bold)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
             }
 
             Text(label)
                 .font(.caption2)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
     }
 
@@ -209,9 +209,9 @@ struct ChildInsightsDetailView: View {
 
     private var trendColor: Color {
         switch trendLabel {
-        case "Up": return theme.positiveColor
-        case "Down": return theme.challengeColor
-        default: return theme.accentColor
+        case "Up": return theme.success
+        case "Down": return theme.danger
+        default: return theme.accentPrimary
         }
     }
 
@@ -222,7 +222,7 @@ struct ChildInsightsDetailView: View {
         VStack(alignment: .leading, spacing: AppSpacing.cardGap) {
             Text("Insights", tableName: "Insights")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             if isLoading {
                 ProgressView()
@@ -252,20 +252,20 @@ struct ChildInsightsDetailView: View {
         VStack(spacing: 12) {
             Image(systemName: "sparkles")
                 .font(.title)
-                .foregroundColor(theme.accentColor)
+                .foregroundColor(theme.accentPrimary)
 
             Text("Building insights...", tableName: "Insights")
                 .font(.subheadline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("Log a few more moments to see patterns emerge.", tableName: "Insights")
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(32)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
     }
 
@@ -275,7 +275,7 @@ struct ChildInsightsDetailView: View {
         VStack(alignment: .leading, spacing: AppSpacing.cardGap) {
             Text("Explore", tableName: "Insights")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             // History
             Button {
@@ -330,7 +330,7 @@ struct ChildInsightsDetailView: View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundColor(isPremium && !subscriptionManager.effectiveIsPlusSubscriber ? .purple : theme.accentColor)
+                .foregroundColor(isPremium && !subscriptionManager.effectiveIsPlusSubscriber ? .purple : theme.accentPrimary)
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 2) {
@@ -338,7 +338,7 @@ struct ChildInsightsDetailView: View {
                     Text(title)
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     if isPremium && !subscriptionManager.effectiveIsPlusSubscriber {
                         Image(systemName: "lock.fill")
@@ -349,17 +349,17 @@ struct ChildInsightsDetailView: View {
 
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
 
             Image(systemName: "chevron.right")
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(14)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
     }
 
@@ -402,5 +402,5 @@ struct ChildInsightsDetailView: View {
     .environmentObject(repository)
     .environmentObject(ChildrenStore(repository: repository))
     .environmentObject(SubscriptionManager())
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

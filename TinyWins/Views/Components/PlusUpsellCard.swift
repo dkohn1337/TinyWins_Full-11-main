@@ -46,19 +46,20 @@ struct PlusUpsellCard: View {
 
 /// A compact inline upsell for premium-locked items
 struct PlusLockedOverlay: View {
+    @Environment(\.theme) private var theme
     let onTap: () -> Void
-    
+
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 6) {
                 Image(systemName: "lock.fill")
                     .font(.title3)
                     .foregroundColor(.purple)
-                
+
                 PlusBadge()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.ultraThinMaterial)
+            .background(theme.surface1.opacity(0.95))
         }
         .buttonStyle(.plain)
     }

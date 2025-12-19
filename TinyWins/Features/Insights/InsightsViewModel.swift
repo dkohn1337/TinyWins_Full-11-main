@@ -17,8 +17,9 @@ final class InsightsViewModel: ObservableObject {
 
     // MARK: - Computed Properties
 
+    // PHASE 2: Use precomputed activeChildren from snapshot
     var activeChildren: [Child] {
-        childrenStore.children.filter { !$0.isArchived }
+        childrenStore.activeChildren
     }
 
     var selectedChild: Child? {

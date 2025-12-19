@@ -25,7 +25,7 @@ struct GoalCelebrationView: View {
                 colors: [
                     Color.yellow.opacity(0.25),
                     Color.orange.opacity(0.15),
-                    Color(.systemBackground)
+                    Theme().surface1
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -33,8 +33,9 @@ struct GoalCelebrationView: View {
             .ignoresSafeArea()
 
             // Enhanced confetti layer
+            // PERFORMANCE: Uses device-appropriate particle count instead of hardcoded 120
             if showConfetti {
-                EnhancedConfettiView(particleCount: 120, duration: 3.5)
+                EnhancedConfettiView(duration: 3.5)
                     .ignoresSafeArea()
             }
 
@@ -64,7 +65,7 @@ struct GoalCelebrationView: View {
                 VStack(spacing: AppSpacing.md) {
                     Text("🎉 Goal Achieved! 🎉")
                         .font(AppTypography.display)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Theme().textPrimary)
 
                     Text(rewardName)
                         .font(AppTypography.title2)
@@ -77,7 +78,7 @@ struct GoalCelebrationView: View {
                     VStack(alignment: .leading, spacing: AppSpacing.xs) {
                         Text("You both worked toward this goal.")
                             .font(AppTypography.bodyLarge)
-                            .foregroundColor(.primary)
+                            .foregroundColor(Theme().textPrimary)
                             .frame(maxWidth: .infinity, alignment: .leading)
 
                         Spacer()
@@ -85,16 +86,16 @@ struct GoalCelebrationView: View {
 
                         Text("Try saying:")
                             .font(AppTypography.label)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Theme().textSecondary)
 
                         Text("\"\(childName), I noticed how hard you tried. I'm proud of your effort.\"")
                             .font(AppTypography.body)
                             .italic()
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Theme().textSecondary)
                             .padding(AppSpacing.sm)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color(.systemGray6))
+                                    .fill(Theme().surface2)
                             )
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -178,7 +179,7 @@ struct MilestoneCelebrationView: View {
             LinearGradient(
                 colors: [
                     childColor.opacity(0.2),
-                    Color(.systemBackground)
+                    Theme().surface1
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -186,8 +187,9 @@ struct MilestoneCelebrationView: View {
             .ignoresSafeArea()
 
             // Lighter confetti for milestones
+            // PERFORMANCE: Uses device-appropriate particle count (halved for milestones)
             if showConfetti {
-                EnhancedConfettiView(particleCount: 60, duration: 2.5)
+                EnhancedConfettiView(duration: 2.5)
                     .ignoresSafeArea()
             }
 
@@ -204,7 +206,7 @@ struct MilestoneCelebrationView: View {
                 VStack(spacing: AppSpacing.sm) {
                     Text("Milestone!")
                         .font(AppTypography.displayLarge)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Theme().textPrimary)
 
                     Text(milestoneName)
                         .font(AppTypography.title3)
@@ -259,7 +261,7 @@ struct GoldStarDayCelebrationView: View {
                 colors: [
                     Color.yellow.opacity(0.2),
                     Color.orange.opacity(0.1),
-                    Color(.systemBackground)
+                    Theme().surface1
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -280,17 +282,17 @@ struct GoldStarDayCelebrationView: View {
                 VStack(spacing: AppSpacing.md) {
                     Text("Gold Star Day!")
                         .font(AppTypography.display)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Theme().textPrimary)
 
                     Text("You noticed \(momentCount) positive moments today.")
                         .font(AppTypography.bodyLarge)
                         .multilineTextAlignment(.center)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Theme().textSecondary)
 
                     Text("That attention matters more than you know.")
                         .font(AppTypography.body)
                         .multilineTextAlignment(.center)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Theme().textSecondary)
                         .padding(.horizontal, AppSpacing.xl)
                 }
                 .scaleEffect(showContent ? 1.0 : 0.8)

@@ -12,6 +12,9 @@
 		04BCF139F91C6FF9EC176673 /* Parent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51EF51BDE94CB23E911D883 /* Parent.swift */; };
 		05BF8F74419C40B2270152FA /* SocialProofComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3DF53C2BE6E912CAE53957 /* SocialProofComponents.swift */; };
 		0C2AEF6995DB9A8D8410B676 /* InsightsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F900588316C6F2DF6555E63F /* InsightsViewModel.swift */; };
+		INHVM0010001 /* InsightsHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = INHVM0010002 /* InsightsHomeViewModel.swift */; };
+		FSTALL001001 /* FrameStallMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSTALL001002 /* FrameStallMonitor.swift */; };
+		FSTALL002001 /* StallTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSTALL002002 /* StallTracking.swift */; };
 		0CEF1A2E6F42029E5526364E /* LogBehaviorComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B00748278C1C2BA4C6BEC9 /* LogBehaviorComponents.swift */; };
 		106F49C9EBB1392092133C76 /* LogBehaviorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC75E814B5C552AAB57672C2 /* LogBehaviorViewModel.swift */; };
 		12D158D756CF1DB675DB1F0F /* ThemeEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD4EE45CFBED1EF6E550AE6 /* ThemeEnvironment.swift */; };
@@ -211,6 +214,15 @@
 		GRVM001001001 /* GrowthRingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = GRVM002001001 /* GrowthRingsViewModel.swift */; };
 		HFCARD0001001 /* HabitsFormingCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = HFCARD0001002 /* HabitsFormingCard.swift */; };
 		WKHC00010001 /* WeekHighlightsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = WKHC00020001 /* WeekHighlightsCard.swift */; };
+		TOK001001001 /* Primitives.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOK002001001 /* Primitives.swift */; };
+		TOK001001002 /* SemanticTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOK002001002 /* SemanticTokens.swift */; };
+		TOK001001003 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOK002001003 /* DesignTokens.swift */; };
+		TK001001001 /* ThemeSemanticTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = TK002001001 /* ThemeSemanticTokens.swift */; };
+		TK001001002 /* Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = TK002001002 /* Palette.swift */; };
+		TK001001003 /* ContrastUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = TK002001003 /* ContrastUtilities.swift */; };
+		TK001001004 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = TK002001004 /* Theme.swift */; };
+		TK001001005 /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = TK002001005 /* ViewModifiers.swift */; };
+		TK001001006 /* ThemeDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TK002001006 /* ThemeDebugView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -406,6 +418,9 @@
 		F1423C3464E58F5C4A1EE8C1 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingViewModel.swift; path = Features/Onboarding/OnboardingViewModel.swift; sourceTree = "<group>"; };
 		F611762C6C1B0E5E83DEC39B /* AdvancedInsightsService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdvancedInsightsService.swift; sourceTree = "<group>"; };
 		F900588316C6F2DF6555E63F /* InsightsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InsightsViewModel.swift; path = Features/Insights/InsightsViewModel.swift; sourceTree = "<group>"; };
+		INHVM0010002 /* InsightsHomeViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InsightsHomeViewModel.swift; path = Features/Insights/InsightsHomeViewModel.swift; sourceTree = "<group>"; };
+		FSTALL001002 /* FrameStallMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FrameStallMonitor.swift; sourceTree = "<group>"; };
+		FSTALL002002 /* StallTracking.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StallTracking.swift; sourceTree = "<group>"; };
 		FAD84B0F9397AB59CAF82B0E /* ChildInsightsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChildInsightsViewModel.swift; path = Features/Insights/ChildInsightsViewModel.swift; sourceTree = "<group>"; };
 		FB9DB0536D8844ABD9A1F4FA /* AppCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		FC45F10F536565B92CC6D16A /* JoinFamilyView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JoinFamilyView.swift; path = Auth/JoinFamilyView.swift; sourceTree = "<group>"; };
@@ -417,6 +432,16 @@
 		GRVM002001001 /* GrowthRingsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GrowthRingsViewModel.swift; sourceTree = "<group>"; };
 		HFCARD0001002 /* HabitsFormingCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HabitsFormingCard.swift; path = TinyWins/Views/Insights/Components/HabitsFormingCard.swift; sourceTree = "<group>"; };
 		WKHC00020001 /* WeekHighlightsCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WeekHighlightsCard.swift; path = TinyWins/Views/Insights/Components/WeekHighlightsCard.swift; sourceTree = "<group>"; };
+		TOK002001001 /* Primitives.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Primitives.swift; sourceTree = "<group>"; };
+		TOK002001002 /* SemanticTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SemanticTokens.swift; sourceTree = "<group>"; };
+		TOK002001003 /* DesignTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		TOK002001004 /* TokenTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TokenTests.swift; sourceTree = "<group>"; };
+		TK002001001 /* ThemeSemanticTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ThemeSemanticTokens.swift; sourceTree = "<group>"; };
+		TK002001002 /* Palette.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Palette.swift; sourceTree = "<group>"; };
+		TK002001003 /* ContrastUtilities.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContrastUtilities.swift; sourceTree = "<group>"; };
+		TK002001004 /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		TK002001005 /* ViewModifiers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
+		TK002001006 /* ThemeDebugView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ThemeDebugView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -468,6 +493,7 @@
 		2DEDCD47C30121205D4C5F94 /* Insights */ = {
 			isa = PBXGroup;
 			children = (
+				INHVM0010002 /* InsightsHomeViewModel.swift */,
 				F900588316C6F2DF6555E63F /* InsightsViewModel.swift */,
 				FAD84B0F9397AB59CAF82B0E /* ChildInsightsViewModel.swift */,
 				D2C1322F714D4D2E2F6E1803 /* HistoryViewModel.swift */,
@@ -495,6 +521,10 @@
 				1D4B0FFE5211D530367D4957 /* AppSpacing.swift */,
 				G0A15IZEHELPER00FREF01 /* GoalSizeHelper.swift */,
 				120189880B2F8D2CA27656C3 /* ThemeSystem.swift */,
+				FSTALL001002 /* FrameStallMonitor.swift */,
+				FSTALL002002 /* StallTracking.swift */,
+				TOK003001000 /* Tokens */,
+				TK003001000 /* ThemeKit */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -955,6 +985,30 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		TOK003001000 /* Tokens */ = {
+			isa = PBXGroup;
+			children = (
+				TOK002001001 /* Primitives.swift */,
+				TOK002001002 /* SemanticTokens.swift */,
+				TOK002001003 /* DesignTokens.swift */,
+				TOK002001004 /* TokenTests.swift */,
+			);
+			path = Tokens;
+			sourceTree = "<group>";
+		};
+		TK003001000 /* ThemeKit */ = {
+			isa = PBXGroup;
+			children = (
+				TK002001001 /* ThemeSemanticTokens.swift */,
+				TK002001002 /* Palette.swift */,
+				TK002001003 /* ContrastUtilities.swift */,
+				TK002001004 /* Theme.swift */,
+				TK002001005 /* ViewModifiers.swift */,
+				TK002001006 /* ThemeDebugView.swift */,
+			);
+			path = ThemeKit;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1129,6 +1183,9 @@
 				C6C84E04210DCB072EA67730 /* KidViewModel.swift in Sources */,
 				E08076733E126807762F9731 /* RewardsViewModel.swift in Sources */,
 				0C2AEF6995DB9A8D8410B676 /* InsightsViewModel.swift in Sources */,
+				INHVM0010001 /* InsightsHomeViewModel.swift in Sources */,
+				FSTALL001001 /* FrameStallMonitor.swift in Sources */,
+				FSTALL002001 /* StallTracking.swift in Sources */,
 				32F1B69B31B23BF43F2908C2 /* ChildInsightsViewModel.swift in Sources */,
 				CORE001001001 /* InsightsContext.swift in Sources */,
 				CORE001001002 /* InsightsContextBar.swift in Sources */,
@@ -1226,6 +1283,15 @@
 				E41CCF488AAF1657FBD2B525 /* ThemeSystem.swift in Sources */,
 				CARDIMP0002 /* CardImpressionTracker.swift in Sources */,
 				CHILDCTX002 /* InsightsChildContextHeader.swift in Sources */,
+				TOK001001001 /* Primitives.swift in Sources */,
+				TOK001001002 /* SemanticTokens.swift in Sources */,
+				TOK001001003 /* DesignTokens.swift in Sources */,
+				TK001001001 /* ThemeSemanticTokens.swift in Sources */,
+				TK001001002 /* Palette.swift in Sources */,
+				TK001001003 /* ContrastUtilities.swift in Sources */,
+				TK001001004 /* Theme.swift in Sources */,
+				TK001001005 /* ViewModifiers.swift in Sources */,
+				TK001001006 /* ThemeDebugView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

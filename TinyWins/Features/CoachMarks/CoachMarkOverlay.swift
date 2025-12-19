@@ -83,6 +83,7 @@ extension View {
 
 /// A simpler single-tip coach mark for specific features
 struct SingleCoachMark: View {
+    @Environment(\.theme) private var theme
 
     let title: String
     let message: String
@@ -117,14 +118,14 @@ struct SingleCoachMark: View {
 
                         Text(title)
                             .font(.headline)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(theme.textPrimary)
 
                         Spacer()
                     }
 
                     Text(message)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(theme.textSecondary)
                         .lineLimit(2)
 
                     Button("Got it") {
@@ -140,8 +141,8 @@ struct SingleCoachMark: View {
                 .padding(16)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(.ultraThinMaterial)
-                        .shadow(color: .black.opacity(0.2), radius: 16)
+                        .fill(theme.surface1)
+                        .shadow(color: theme.shadowColor.opacity(0.3), radius: 16)
                 )
                 .frame(maxWidth: 300)
                 .position(cardPosition(for: position, in: geometry.size))

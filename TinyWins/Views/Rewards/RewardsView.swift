@@ -15,8 +15,10 @@ struct RewardsView: View {
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var celebrationStore: CelebrationStore
     @EnvironmentObject private var prefs: UserPreferencesStore
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var coordinator: AppCoordinator
+    // PHASE 3B: Use ViewModel for precomputed data
+    @EnvironmentObject private var viewModel: RewardsViewModel
     @State private var showingTemplatePickerForChild: Child?
     @State private var selectedTemplateForChild: (child: Child, template: RewardTemplate?)?
     @State private var celebratingReward: (reward: Reward, child: Child)?
@@ -50,40 +52,26 @@ struct RewardsView: View {
     }
 
 
+    // PHASE 3B: Use precomputed data from ViewModel instead of expensive computations
+
     // Check if any child has an active goal
     private var hasAnyActiveGoal: Bool {
-        childrenStore.activeChildren.contains { child in
-            rewardsStore.activeReward(forChild: child.id) != nil
-        }
+        viewModel.hasAnyActiveGoal
     }
 
-    // Check if a child has a ready-to-redeem reward
+    // Check if a child has a ready-to-redeem reward (uses precomputed ChildRewardData)
     private func hasReadyReward(for child: Child) -> Bool {
-        let rewards = rewardsStore.rewards(forChild: child.id)
-            .filter { !$0.isRedeemed && !$0.isExpired }
-            .sorted { $0.priority < $1.priority }
-
-        guard let primaryReward = rewards.first else { return false }
-        return primaryReward.status(from: behaviorsStore.behaviorEvents, isPrimaryReward: true) == .readyToRedeem
+        viewModel.hasReadyReward(for: child)
     }
 
     // Get the first child with a ready reward
     private var firstChildWithReadyReward: Child? {
-        childrenStore.activeChildren.first { hasReadyReward(for: $0) }
+        viewModel.firstChildWithReadyReward()
     }
 
-    // Summary for child pill
+    // Summary for child pill (uses precomputed ChildRewardData)
     private func summaryText(for child: Child) -> String {
-        let points = child.totalPoints
-        let goalCount = rewardsStore.rewards(forChild: child.id)
-            .filter { !$0.isRedeemed && !$0.isExpired }
-            .count
-
-        if goalCount == 0 {
-            return "\(points) stars · No goals yet"
-        } else {
-            return "\(points) stars \u{00B7} \(goalCount) goal\(goalCount == 1 ? "" : "s")"
-        }
+        viewModel.summaryText(for: child)
     }
 
     private var completionToastMessage: String {
@@ -148,17 +136,27 @@ struct RewardsView: View {
                 }
             }
             .onAppear {
-                // Check for expired timed rewards
-                rewardsStore.checkExpiredRewards(behaviorEvents: behaviorsStore.behaviorEvents)
+                // PHASE 3B: Visibility gate
+                viewModel.setVisible(true)
 
-                // Initialize selection if needed
+                // Initialize selection immediately (needed for UI)
                 initializeChildSelection()
 
-                // Check for pending celebration from Kids tab
+                // Check for pending celebration from Kids tab (needed for UI)
                 if let pending = coordinator.pendingGoalCelebration {
                     celebratingReward = (pending.reward, pending.child)
                     coordinator.clearPendingGoalCelebration()
                 }
+
+                // PERFORMANCE: Defer expired rewards check to avoid blocking initial render
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+                    viewModel.checkExpiredRewards()
+                }
+            }
+            .onDisappear {
+                // PHASE 3B: Visibility gate
+                viewModel.setVisible(false)
             }
             .onChange(of: coordinator.pendingGoalCelebration?.reward.id) { _, newValue in
                 // Handle pending celebration when navigating from Kids tab
@@ -206,10 +204,13 @@ struct RewardsView: View {
                 get: { selectedTemplateForChild.map { TemplateSelection(child: $0.child, template: $0.template) } },
                 set: { selectedTemplateForChild = $0.map { ($0.child, $0.template) } }
             )) { selection in
-                if let template = selection.template {
-                    AddRewardView(child: selection.child, template: template)
-                } else {
-                    AddRewardView(child: selection.child)
+                // PHASE 4: DeferredBuild to prevent sheet presentation stalls
+                DeferredBuild {
+                    if let template = selection.template {
+                        AddRewardView(child: selection.child, template: template)
+                    } else {
+                        AddRewardView(child: selection.child)
+                    }
                 }
             }
             .fullScreenCover(item: Binding(
@@ -273,15 +274,16 @@ struct RewardsView: View {
                     recentGoals: recentGoalsForChild(child)
                 )
             }
-            .themedNavigationBar(themeProvider)
+            .themedNavigationBar(theme)
+            .trackScreen("RewardsView")
         }
     }
-    
+
     private var noChildrenState: some View {
         VStack(spacing: 20) {
             Image(systemName: "gift.fill")
                 .font(.system(size: 60))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             Text("No children added yet")
                 .font(.title2)
@@ -289,7 +291,7 @@ struct RewardsView: View {
 
             Text("Add a child to start setting goals together.")
                 .font(.body)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
         }
@@ -354,7 +356,7 @@ struct RewardsView: View {
 
                     Text("Choose something they will enjoy earning: time together, a fun outing, or a small treat.")
                         .font(.system(size: 15))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 24)
@@ -381,7 +383,7 @@ struct RewardsView: View {
                                         .font(.system(size: 16, weight: .semibold))
                                     Text("Start working toward something...")
                                         .font(.system(size: 13))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                 }
 
                                 Spacer()
@@ -399,7 +401,7 @@ struct RewardsView: View {
                                 RoundedRectangle(cornerRadius: 16)
                                     .strokeBorder(child.colorTag.color.opacity(0.2), lineWidth: 1)
                             )
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
                         }
                         .buttonStyle(.plain)
                     }
@@ -409,7 +411,7 @@ struct RewardsView: View {
             }
             .padding(.bottom, 120) // Space for floating tab bar
         }
-        .background(themeProvider.backgroundColor)
+        .background(theme.bg1)
     }
 
     // MARK: - Child Selection Initialization
@@ -484,7 +486,7 @@ struct RewardsView: View {
             .padding(.top, 16)
             .tabBarBottomPadding()
         }
-        .background(themeProvider.backgroundColor)
+        .background(theme.bg0)
         .animation(.easeInOut(duration: 0.25), value: coordinator.selectedChildId)
     }
 
@@ -532,7 +534,7 @@ struct RewardsView: View {
 // MARK: - Child Switcher Pill (Premium/App Store Ready Design)
 
 private struct ChildSwitcherPill: View {
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     let child: Child
     let isSelected: Bool
     let summaryText: String
@@ -581,11 +583,11 @@ private struct ChildSwitcherPill: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(child.name)
                         .font(.system(size: 15, weight: isSelected ? .bold : .medium))
-                        .foregroundColor(isSelected ? .white : .primary)
+                        .foregroundColor(isSelected ? .white : theme.textPrimary)
 
                     Text(summaryText)
                         .font(.system(size: 11))
-                        .foregroundColor(isSelected ? .white.opacity(0.9) : .secondary)
+                        .foregroundColor(isSelected ? .white.opacity(0.9) : theme.textSecondary)
                         .lineLimit(1)
                 }
 
@@ -649,11 +651,11 @@ private struct ChildSwitcherPill: View {
                     } else {
                         // Unselected: theme-aware background
                         RoundedRectangle(cornerRadius: 24)
-                            .fill(themeProvider.resolved.cardBackground)
+                            .fill(theme.surface1)
 
                         // Subtle border
                         RoundedRectangle(cornerRadius: 24)
-                            .strokeBorder(themeProvider.resolved.cardBorderColor, lineWidth: themeProvider.resolved.cardBorderWidth > 0 ? themeProvider.resolved.cardBorderWidth : 1)
+                            .strokeBorder(theme.borderSoft, lineWidth: 1)
                     }
                 }
             )
@@ -704,6 +706,7 @@ struct TemplateSelection: Identifiable {
 // MARK: - Goal Completion Celebration - Enhanced with dramatic animations
 
 struct GoalCompletionCelebration: View {
+    @Environment(\.theme) private var theme
     let reward: Reward
     let child: Child
     let onMarkGiven: () -> Void
@@ -730,23 +733,58 @@ struct GoalCompletionCelebration: View {
 
     var body: some View {
         ZStack {
-            // Animated background gradient
-            LinearGradient(
-                colors: [
-                    child.colorTag.color.opacity(0.4),
-                    Color.purple.opacity(0.3),
-                    Color.yellow.opacity(0.2)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            // Animated background gradient - theme aware
+            Group {
+                if theme.isDark {
+                    // Dark mode: rich, deep celebration gradient
+                    ZStack {
+                        // Base dark gradient
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.08, green: 0.06, blue: 0.15),
+                                Color(red: 0.12, green: 0.08, blue: 0.22),
+                                child.colorTag.color.opacity(0.15)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+
+                        // Ambient glow from child's color
+                        RadialGradient(
+                            colors: [
+                                child.colorTag.color.opacity(0.2),
+                                Color.purple.opacity(0.1),
+                                Color.clear
+                            ],
+                            center: .center,
+                            startRadius: 50,
+                            endRadius: 400
+                        )
+                    }
+                } else {
+                    // Light mode: original light celebration colors
+                    LinearGradient(
+                        colors: [
+                            child.colorTag.color.opacity(0.4),
+                            Color.purple.opacity(0.3),
+                            Color.yellow.opacity(0.2)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+            }
             .ignoresSafeArea()
 
-            // Radial burst effect
+            // Radial burst effect - brighter in dark mode for celebration feel
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [Color.yellow.opacity(0.3), Color.clear],
+                        colors: [
+                            Color.yellow.opacity(theme.isDark ? 0.25 : 0.3),
+                            Color.orange.opacity(theme.isDark ? 0.1 : 0.0),
+                            Color.clear
+                        ],
                         center: .center,
                         startRadius: 0,
                         endRadius: showConfetti ? 400 : 50
@@ -781,10 +819,13 @@ struct GoalCompletionCelebration: View {
 
                 // Enhanced trophy with glow and animation
                 ZStack {
-                    // Outer glow rings
+                    // Outer glow rings - more visible in dark mode
                     ForEach(0..<3, id: \.self) { i in
                         Circle()
-                            .stroke(Color.yellow.opacity(0.2 - Double(i) * 0.05), lineWidth: 2)
+                            .stroke(
+                                Color.yellow.opacity(theme.isDark ? (0.35 - Double(i) * 0.08) : (0.2 - Double(i) * 0.05)),
+                                lineWidth: theme.isDark ? 3 : 2
+                            )
                             .frame(width: CGFloat(160 + i * 40), height: CGFloat(160 + i * 40))
                             .scaleEffect(glowPulse ? 1.1 : 1.0)
                             .animation(
@@ -795,11 +836,15 @@ struct GoalCompletionCelebration: View {
                             )
                     }
 
-                    // Glow background
+                    // Glow background - brighter in dark mode
                     Circle()
                         .fill(
                             RadialGradient(
-                                colors: [Color.yellow.opacity(0.5), Color.orange.opacity(0.2), Color.clear],
+                                colors: [
+                                    Color.yellow.opacity(theme.isDark ? 0.6 : 0.5),
+                                    Color.orange.opacity(theme.isDark ? 0.3 : 0.2),
+                                    Color.clear
+                                ],
                                 center: .center,
                                 startRadius: 0,
                                 endRadius: 80
@@ -818,35 +863,43 @@ struct GoalCompletionCelebration: View {
                                 endPoint: .bottom
                             )
                         )
-                        .shadow(color: .orange.opacity(0.8), radius: 20)
-                        .shadow(color: .yellow.opacity(0.5), radius: 40)
+                        .shadow(color: .orange.opacity(theme.isDark ? 1.0 : 0.8), radius: theme.isDark ? 30 : 20)
+                        .shadow(color: .yellow.opacity(theme.isDark ? 0.7 : 0.5), radius: theme.isDark ? 50 : 40)
                 }
                 .scaleEffect(trophyScale)
                 .rotationEffect(.degrees(trophyRotation))
 
                 // Content with staggered animation
                 VStack(spacing: 20) {
+                    // "Goal Reached!" - bright and celebratory in dark mode
                     Text("🎉 Goal Reached! 🎉")
                         .font(.system(size: 32, weight: .black))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.primary, child.colorTag.color],
+                                colors: theme.isDark
+                                    ? [.white, Color.yellow.opacity(0.9)]  // Bright white-to-gold in dark mode
+                                    : [theme.textPrimary, child.colorTag.color],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
+                        .shadow(color: theme.isDark ? Color.yellow.opacity(0.3) : .clear, radius: 10)
 
+                    // Subtitle - ensure visibility in dark mode
                     Text("\(child.name) worked hard for this!")
                         .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.isDark ? .white.opacity(0.85) : theme.textSecondary)
 
-                    // Reward card with gradient
+                    // Reward card with gradient - enhanced for dark mode
                     HStack(spacing: 14) {
                         ZStack {
                             Circle()
                                 .fill(
                                     LinearGradient(
-                                        colors: [child.colorTag.color.opacity(0.3), child.colorTag.color.opacity(0.1)],
+                                        colors: [
+                                            child.colorTag.color.opacity(theme.isDark ? 0.4 : 0.3),
+                                            child.colorTag.color.opacity(theme.isDark ? 0.2 : 0.1)
+                                        ],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     )
@@ -860,12 +913,27 @@ struct GoalCompletionCelebration: View {
 
                         Text(reward.name)
                             .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(theme.isDark ? .white : theme.textPrimary)
                     }
                     .padding(20)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
-                            .fill((colorScheme == .dark ? Color(white: 0.15) : Color(.systemBackground)).opacity(0.95))
-                            .shadow(color: child.colorTag.color.opacity(0.3), radius: 16, y: 8)
+                            .fill(theme.isDark ? theme.surface1 : theme.surface1.opacity(0.95))
+                            .overlay(
+                                // Subtle glow border in dark mode
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(
+                                        theme.isDark
+                                            ? child.colorTag.color.opacity(0.4)
+                                            : Color.clear,
+                                        lineWidth: 1.5
+                                    )
+                            )
+                            .shadow(
+                                color: child.colorTag.color.opacity(theme.isDark ? 0.4 : 0.3),
+                                radius: theme.isDark ? 20 : 16,
+                                y: 8
+                            )
                     )
                 }
                 .opacity(textAppeared ? 1 : 0)
@@ -909,7 +977,7 @@ struct GoalCompletionCelebration: View {
                             .foregroundColor(child.colorTag.color)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(colorScheme == .dark ? Color(white: 0.15) : Color(.systemBackground))
+                            .background(theme.surface1)
                             .cornerRadius(16)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
@@ -925,10 +993,10 @@ struct GoalCompletionCelebration: View {
                             Text("Choose Next Goal")
                                 .font(.system(size: 16, weight: .semibold))
                         }
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(colorScheme == .dark ? Color(white: 0.15) : Color(.systemBackground).opacity(0.8))
+                        .background(theme.surface1.opacity(0.8))
                         .cornerRadius(14)
                     }
                 }
@@ -977,7 +1045,7 @@ struct ChildRewardSection: View {
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var rewardsStore: RewardsStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @State private var showingTemplatePicker = false
     @State private var showingAddReward = false
@@ -1034,19 +1102,19 @@ struct ChildRewardSection: View {
                     HStack(spacing: 4) {
                         Text("\(currentChild.totalPoints) points")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        
+                            .foregroundColor(theme.textSecondary)
+
                         Text("\u{00B7}")
-                            .foregroundColor(.secondary)
-                        
+                            .foregroundColor(theme.textSecondary)
+
                         if goalCount == 0 {
                             Text("No goals yet")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         } else {
                             Text("\(goalCount) goal\(goalCount == 1 ? "" : "s")")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                 }
@@ -1087,7 +1155,7 @@ struct ChildRewardSection: View {
 
                     Text("TinyWins Plus lets you add more goals for \(currentChild.name).")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(12)
@@ -1113,10 +1181,10 @@ struct ChildRewardSection: View {
                             Text("Current Focus")
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                             Text("This is the main reward they're working toward now.")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .padding(.bottom, 4)
                     } else if index == 1 {
@@ -1125,10 +1193,10 @@ struct ChildRewardSection: View {
                             Text("Upcoming Goals")
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                             Text("These become active when the main goal is completed.")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .padding(.top, 20)
                         .padding(.bottom, 4)
@@ -1203,17 +1271,22 @@ struct ChildRewardSection: View {
             )
         }
         .sheet(isPresented: $showingAddReward) {
-            AddRewardView(child: currentChild, template: selectedTemplate)
+            // PHASE 4: DeferredBuild to prevent sheet presentation stalls
+            DeferredBuild {
+                AddRewardView(child: currentChild, template: selectedTemplate)
+            }
         }
         .sheet(item: $rewardToEdit) { reward in
-            AddRewardView(child: currentChild, editingReward: reward)
+            // PHASE 4: DeferredBuild to prevent sheet presentation stalls
+            DeferredBuild {
+                AddRewardView(child: currentChild, editingReward: reward)
+            }
         }
         .sheet(isPresented: $showingRewardHistory) {
             RewardHistorySheet(
                 child: currentChild,
                 rewards: rewardsStore.rewards(forChild: currentChild.id).filter { $0.isRedeemed }
             )
-            .environmentObject(themeProvider)
         }
         .fullScreenCover(isPresented: $showingKidView) {
             if let reward = primaryReward {
@@ -1286,14 +1359,14 @@ struct ChildRewardSection: View {
 
                         Text(hasCompletedRewards ? "You can add another goal to keep the momentum going." : "Pick something to work toward together")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Spacer()
 
                     Image(systemName: "chevron.right")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding()
                 .background(currentChild.colorTag.color.opacity(0.1))
@@ -1328,13 +1401,13 @@ struct ChildRewardSection: View {
                             .foregroundColor(.pink)
                         Text("Quick picks")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         Spacer()
 
                         Image(systemName: popularChipsCollapsed ? "chevron.down" : "chevron.up")
                             .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .buttonStyle(.plain)
@@ -1396,11 +1469,11 @@ struct ChildRewardSection: View {
             ForEach(rewards) { reward in
                 HStack {
                     Image(systemName: reward.imageName ?? "gift.fill")
-                        .foregroundColor(.gray)
+                        .foregroundColor(theme.textSecondary)
 
                     Text(reward.name)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     Spacer()
 
@@ -1497,10 +1570,10 @@ struct ChildRewardSection: View {
                 Text(title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
                 Text(message)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -1535,7 +1608,7 @@ struct ChildRewardSection: View {
 
             Text(tip)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .italic()
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -1555,7 +1628,7 @@ struct ChildRewardSection: View {
                 Text("Achievements")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 // Count badge
                 Text("\(totalCount)")
@@ -1596,7 +1669,7 @@ struct ChildRewardSection: View {
                     if let date = reward.redeemedDate {
                         Text("Achieved \(formattedDate(date))")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(.vertical, 4)
@@ -1610,7 +1683,7 @@ struct ChildRewardSection: View {
                         .foregroundColor(.yellow)
                     Text(milestoneMessage(for: totalCount))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .italic()
                 }
                 .padding(.top, 4)
@@ -1640,7 +1713,7 @@ struct ChildRewardSection: View {
 
 struct RewardCard: View {
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     let reward: Reward
     let child: Child
@@ -1725,7 +1798,7 @@ struct RewardCard: View {
                 ZStack {
                     if isReadyToRedeem {
                         Circle()
-                            .fill(themeProvider.positiveColor.opacity(0.2))
+                            .fill(theme.success.opacity(0.2))
                             .frame(width: 72, height: 72)
                             .scaleEffect(pulseIcon ? 1.15 : 1.0)
                     }
@@ -1734,7 +1807,7 @@ struct RewardCard: View {
                         .fill(
                             LinearGradient(
                                 colors: isReadyToRedeem
-                                    ? [themeProvider.positiveColor, themeProvider.positiveColor.opacity(0.7)]
+                                    ? [theme.success, theme.success.opacity(0.7)]
                                     : [child.colorTag.color.opacity(0.15), child.colorTag.color.opacity(0.1)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -1761,11 +1834,11 @@ struct RewardCard: View {
 
                         Text("/ \(reward.targetPoints)")
                             .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         Image(systemName: "star.fill")
                             .font(.system(size: 14))
-                            .foregroundColor(themeProvider.starColor)
+                            .foregroundColor(theme.star)
                     }
 
                     // Timer display for deadlines (inline)
@@ -1787,7 +1860,7 @@ struct RewardCard: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 6)
-                        .fill(themeProvider.streakInactiveColor)
+                        .fill(theme.textDisabled)
                         .frame(height: 10)
 
                     RoundedRectangle(cornerRadius: 6)
@@ -1807,11 +1880,11 @@ struct RewardCard: View {
                         let reached = pointsEarned >= milestone
 
                         Circle()
-                            .fill(reached ? child.colorTag.color : Color(.systemGray5))
+                            .fill(reached ? child.colorTag.color : theme.borderSoft)
                             .frame(width: 8, height: 8)
                             .overlay(
                                 Circle()
-                                    .stroke(reached ? child.colorTag.color.opacity(0.6) : Color(.systemGray4), lineWidth: 2)
+                                    .stroke(reached ? child.colorTag.color.opacity(0.6) : theme.borderStrong, lineWidth: 2)
                             )
                             .offset(x: geometry.size.width * position - 4)
                     }
@@ -1906,18 +1979,18 @@ struct RewardCard: View {
                     Text(reward.name)
                         .font(isPrimary ? .headline : .subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(isTerminal ? .secondary : .primary)
+                        .foregroundColor(isTerminal ? theme.textSecondary : theme.textPrimary)
 
                     // Points display
                     if rewardStatus == .completed {
                         if let dateString = reward.redeemedDateString {
                             Text("Given on \(dateString)")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         } else {
                             Text("\(pointsEarned) of \(reward.targetPoints) stars")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     } else if rewardStatus == .expired {
                         Text("Deadline passed")
@@ -1930,7 +2003,7 @@ struct RewardCard: View {
                                 .foregroundColor(child.colorTag.color)
                             Image(systemName: "star.fill")
                                 .font(.system(size: 10))
-                                .foregroundColor(.yellow)
+                                .foregroundColor(theme.star)
                         }
                     }
 
@@ -1955,7 +2028,7 @@ struct RewardCard: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 6)
-                        .fill(themeProvider.streakInactiveColor)
+                        .fill(theme.textDisabled)
                         .frame(height: isPrimary ? 12 : 8)
 
                     RoundedRectangle(cornerRadius: 6)
@@ -1976,11 +2049,11 @@ struct RewardCard: View {
                             let reached = pointsEarned >= milestone
 
                             Circle()
-                                .fill(reached ? child.colorTag.color : Color(.systemGray5))
+                                .fill(reached ? child.colorTag.color : theme.borderSoft)
                                 .frame(width: 8, height: 8)
                                 .overlay(
                                     Circle()
-                                        .stroke(reached ? child.colorTag.color.opacity(0.6) : Color(.systemGray4), lineWidth: 2)
+                                        .stroke(reached ? child.colorTag.color.opacity(0.6) : theme.borderStrong, lineWidth: 2)
                                 )
                                 .offset(x: geometry.size.width * position - 4)
                         }
@@ -2042,7 +2115,7 @@ struct RewardCard: View {
         } label: {
             Image(systemName: "ellipsis.circle.fill")
                 .font(isPrimary ? .title2 : .title3)
-                .foregroundColor(.secondary.opacity(0.6))
+                .foregroundColor(theme.textSecondary.opacity(0.6))
         }
     }
     
@@ -2104,8 +2177,8 @@ struct RewardCard: View {
                     .fontWeight(.medium)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(themeProvider.streakInactiveColor)
-                    .foregroundColor(themeProvider.secondaryText)
+                    .background(theme.textDisabled)
+                    .foregroundColor(theme.textSecondary)
                     .cornerRadius(4)
             }
             
@@ -2149,12 +2222,12 @@ struct RewardCard: View {
         case .expired:
             Text("Goal not reached in time")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
         case .active, .activeWithDeadline:
             Text("\(pointsRemaining) more points to go")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
     }
     
@@ -2164,7 +2237,7 @@ struct RewardCard: View {
         switch rewardStatus {
         case .readyToRedeem: return child.colorTag.color  // Use child's color when goal reached
         case .completed: return achievementGold
-        case .expired: return themeProvider.challengeColor
+        case .expired: return theme.danger
         case .active, .activeWithDeadline: return child.colorTag.color
         }
     }
@@ -2177,7 +2250,7 @@ struct RewardCard: View {
         case .completed:
             return [achievementGold.opacity(0.5), achievementGold.opacity(0.3)]
         case .expired:
-            let color = themeProvider.challengeColor
+            let color = theme.danger
             return [color.opacity(0.5), color.opacity(0.3)]
         case .active, .activeWithDeadline:
             return [child.colorTag.color, child.colorTag.color.opacity(0.7)]
@@ -2188,7 +2261,7 @@ struct RewardCard: View {
         switch rewardStatus {
         case .readyToRedeem: return child.colorTag.color  // Use child's color
         case .completed: return achievementGold
-        case .expired: return themeProvider.challengeColor.opacity(0.7)
+        case .expired: return theme.danger.opacity(0.7)
         case .active, .activeWithDeadline: return child.colorTag.color
         }
     }
@@ -2199,12 +2272,12 @@ struct RewardCard: View {
         switch rewardStatus {
         case .readyToRedeem:
             // Neutral background - the "Earned" badge indicates ready state
-            return themeProvider.resolved.cardBackground
-        case .completed: return themeProvider.resolved.cardBackground.opacity(0.6)
-        case .expired: return themeProvider.challengeColor.opacity(0.05)
+            return theme.surface1
+        case .completed: return theme.surface1.opacity(0.6)
+        case .expired: return theme.danger.opacity(0.05)
         case .active, .activeWithDeadline:
             // Neutral background to not compete with child identity color
-            return themeProvider.resolved.cardBackground
+            return theme.surface1
         }
     }
 
@@ -2215,14 +2288,14 @@ struct RewardCard: View {
     }
     
     private var timeRemainingColor: Color {
-        guard let remaining = reward.timeRemaining else { return .secondary }
+        guard let remaining = reward.timeRemaining else { return theme.textSecondary }
         if remaining < 24 * 60 * 60 { // Less than 1 day - urgent
-            return themeProvider.challengeColor
+            return theme.danger
         } else if remaining < 3 * 24 * 60 * 60 { // Less than 3 days - attention
-            return themeProvider.starColor
+            return theme.star
         }
         // Normal time remaining - neutral, not colored (reduces visual noise)
-        return .secondary
+        return theme.textSecondary
     }
 }
 
@@ -2233,7 +2306,7 @@ struct RewardHistorySheet: View {
     let child: Child
     let rewards: [Reward]
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     private var sortedRewards: [Reward] {
         rewards.sorted { ($0.redeemedDate ?? .distantPast) > ($1.redeemedDate ?? .distantPast) }
@@ -2278,7 +2351,7 @@ struct RewardHistorySheet: View {
                                 .font(.title2.weight(.bold))
                             Text("\(child.name)'s achievements")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
 
                         Spacer()
@@ -2291,7 +2364,7 @@ struct RewardHistorySheet: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Text(group.key)
                                 .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .padding(.horizontal, 20)
 
                             VStack(spacing: 8) {
@@ -2305,7 +2378,7 @@ struct RewardHistorySheet: View {
                 }
                 .padding(.bottom, 20)
             }
-            .background(themeProvider.resolved.backgroundColor)
+            .background(theme.bg0)
             .navigationTitle("Achievements")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -2329,7 +2402,7 @@ struct RewardHistorySheet: View {
                 if let date = reward.redeemedDate {
                     Text(formattedDate(date))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
 
@@ -2338,14 +2411,14 @@ struct RewardHistorySheet: View {
             // Points badge
             Text("\(reward.targetPoints) pts")
                 .font(.caption.weight(.medium))
-                .foregroundColor(themeProvider.positiveColor)
+                .foregroundColor(theme.success)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(themeProvider.positiveColor.opacity(0.1))
+                .background(theme.success.opacity(0.1))
                 .cornerRadius(8)
         }
         .padding(12)
-        .background(themeProvider.resolved.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(12)
     }
 
@@ -2360,20 +2433,42 @@ struct RewardHistorySheet: View {
 
 #Preview {
     let repository = Repository.preview
+    let childrenStore = ChildrenStore(repository: repository)
+    let rewardsStore = RewardsStore(repository: repository)
+    let behaviorsStore = BehaviorsStore(repository: repository)
+    let viewModel = RewardsViewModel(
+        childrenStore: childrenStore,
+        rewardsStore: rewardsStore,
+        behaviorsStore: behaviorsStore,
+        userPreferences: UserPreferencesStore(),
+        subscriptionManager: SubscriptionManager()
+    )
     RewardsView()
         .environmentObject(repository)
-        .environmentObject(RewardsStore(repository: repository))
-        .environmentObject(BehaviorsStore(repository: repository))
-        .environmentObject(ChildrenStore(repository: repository))
+        .environmentObject(rewardsStore)
+        .environmentObject(behaviorsStore)
+        .environmentObject(childrenStore)
         .environmentObject(CelebrationStore())
+        .environmentObject(viewModel)
 }
 
 #Preview("Empty") {
     let repository = Repository()
+    let childrenStore = ChildrenStore(repository: repository)
+    let rewardsStore = RewardsStore(repository: repository)
+    let behaviorsStore = BehaviorsStore(repository: repository)
+    let viewModel = RewardsViewModel(
+        childrenStore: childrenStore,
+        rewardsStore: rewardsStore,
+        behaviorsStore: behaviorsStore,
+        userPreferences: UserPreferencesStore(),
+        subscriptionManager: SubscriptionManager()
+    )
     RewardsView()
         .environmentObject(repository)
-        .environmentObject(RewardsStore(repository: repository))
-        .environmentObject(BehaviorsStore(repository: repository))
-        .environmentObject(ChildrenStore(repository: repository))
+        .environmentObject(rewardsStore)
+        .environmentObject(behaviorsStore)
+        .environmentObject(childrenStore)
         .environmentObject(CelebrationStore())
+        .environmentObject(viewModel)
 }

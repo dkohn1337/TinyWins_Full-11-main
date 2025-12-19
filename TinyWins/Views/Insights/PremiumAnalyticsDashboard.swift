@@ -5,7 +5,7 @@ import SwiftUI
 /// Comprehensive analytics dashboard with momentum, balance, heatmaps, and AI insights.
 /// Premium feature for Plus subscribers.
 struct PremiumAnalyticsDashboard: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var childrenStore: ChildrenStore
 
@@ -80,7 +80,7 @@ struct PremiumAnalyticsDashboard: View {
                 .tabBarBottomPadding()
             }
         }
-        .background(theme.backgroundColor.ignoresSafeArea())
+        .background(theme.bg0.ignoresSafeArea())
         .accessibilityIdentifier(InsightsAccessibilityIdentifiers.advancedAnalyticsRoot)
         .navigationTitle("Advanced Insights")
         .navigationBarTitleDisplayMode(.large)
@@ -132,13 +132,13 @@ struct PremiumAnalyticsDashboard: View {
 
                             Text(childOption.name)
                                 .font(.body)
-                                .foregroundColor(theme.primaryText)
+                                .foregroundColor(theme.textPrimary)
 
                             Spacer()
 
                             if childOption.id == child.id {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(theme.accentColor)
+                                    .foregroundColor(theme.accentPrimary)
                             }
                         }
                         .padding(.vertical, 4)
@@ -168,7 +168,7 @@ struct PremiumAnalyticsDashboard: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [theme.accentColor.opacity(0.2), theme.accentColor.opacity(0.1)],
+                                colors: [theme.accentPrimary.opacity(0.2), theme.accentPrimary.opacity(0.1)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -177,7 +177,7 @@ struct PremiumAnalyticsDashboard: View {
 
                     Image(systemName: "gauge.with.dots.needle.67percent")
                         .font(.system(size: 32))
-                        .foregroundColor(theme.accentColor)
+                        .foregroundColor(theme.accentPrimary)
                 }
                 .padding(.top, 8)
 
@@ -186,12 +186,12 @@ struct PremiumAnalyticsDashboard: View {
                     Text("Momentum = Your Parenting Pulse")
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
                         .multilineTextAlignment(.center)
 
                     Text("Track how actively you're capturing your child's growth")
                         .font(.subheadline)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                 }
 
@@ -200,7 +200,7 @@ struct PremiumAnalyticsDashboard: View {
                     Text("What drives your score:")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     momentumFactorRow(
@@ -227,7 +227,7 @@ struct PremiumAnalyticsDashboard: View {
                 .padding(20)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(theme.cardBackground)
+                        .fill(theme.surface1)
                 )
 
                 // Trend explanation
@@ -235,7 +235,7 @@ struct PremiumAnalyticsDashboard: View {
                     Text("What the trend means:")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     HStack(spacing: 16) {
@@ -246,12 +246,12 @@ struct PremiumAnalyticsDashboard: View {
 
                     Text("Compared to your activity last week")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding(20)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(theme.cardBackground)
+                        .fill(theme.surface1)
                 )
 
                 // Tip
@@ -262,7 +262,7 @@ struct PremiumAnalyticsDashboard: View {
 
                     Text("Even 1 moment a day keeps your momentum strong!")
                         .font(.subheadline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -274,7 +274,7 @@ struct PremiumAnalyticsDashboard: View {
                 Spacer()
             }
             .padding(.horizontal, 20)
-            .background(theme.backgroundColor.ignoresSafeArea())
+            .background(theme.bg0.ignoresSafeArea())
             .navigationTitle("Understanding Momentum")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -306,11 +306,11 @@ struct PremiumAnalyticsDashboard: View {
                 Text(title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text(description)
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -332,7 +332,7 @@ struct PremiumAnalyticsDashboard: View {
             Text(label)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -372,24 +372,24 @@ struct PremiumAnalyticsDashboard: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(child.name)
                             .font(.headline)
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         if allChildren.count > 1 {
                             Text("Tap to switch")
                                 .font(.caption2)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
 
                     if allChildren.count > 1 {
                         Image(systemName: "chevron.down")
                             .font(.caption)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
-                .background(theme.cardBackground)
+                .background(theme.surface1)
                 .cornerRadius(12)
             }
             .buttonStyle(.plain)
@@ -402,11 +402,11 @@ struct PremiumAnalyticsDashboard: View {
         }
         .padding(.horizontal, AppSpacing.screenPadding)
         .padding(.vertical, 10)
-        .background(theme.backgroundColor)
+        .background(theme.bg0)
         .overlay(
             // Bottom separator line
             Rectangle()
-                .fill(Color(.systemGray5))
+                .fill(theme.borderSoft)
                 .frame(height: 1),
             alignment: .bottom
         )
@@ -435,21 +435,21 @@ struct PremiumAnalyticsDashboard: View {
                 Text(selectedPeriod.shortDisplayName)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
 
                 Image(systemName: "chevron.down")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color(.systemGray6))
+                    .fill(theme.surface2)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color(.systemGray4), lineWidth: 1)
+                    .stroke(theme.borderStrong, lineWidth: 1)
             )
         }
     }
@@ -468,13 +468,13 @@ struct PremiumAnalyticsDashboard: View {
                         Text(period.displayName)
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(selectedPeriod == period ? .white : theme.primaryText)
+                            .foregroundColor(selectedPeriod == period ? .white : theme.textPrimary)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
                             .background(
                                 Capsule()
                                     .fill(selectedPeriod == period ?
-                                          theme.accentColor : theme.chipBackground)
+                                          theme.accentPrimary : theme.accentMuted)
                             )
                     }
                 }
@@ -497,11 +497,11 @@ struct PremiumAnalyticsDashboard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(insight.title)
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text(insight.message)
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .lineLimit(2)
             }
 
@@ -526,7 +526,7 @@ struct PremiumAnalyticsDashboard: View {
                 Text("Momentum")
                     .font(.caption)
                     .fontWeight(.semibold)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 // Info button with explanation
                 Button {
@@ -534,7 +534,7 @@ struct PremiumAnalyticsDashboard: View {
                 } label: {
                     Image(systemName: "info.circle")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .accessibilityLabel("Learn how momentum is calculated")
             }
@@ -543,13 +543,13 @@ struct PremiumAnalyticsDashboard: View {
                 // Gauge
                 ZStack {
                     Circle()
-                        .stroke(theme.accentColor.opacity(0.15), lineWidth: 8)
+                        .stroke(theme.accentPrimary.opacity(0.15), lineWidth: 8)
 
                     Circle()
                         .trim(from: 0, to: momentum.score / 100)
                         .stroke(
                             LinearGradient(
-                                colors: [theme.accentColor, momentum.trend.color],
+                                colors: [theme.accentPrimary, momentum.trend.color],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             ),
@@ -560,7 +560,7 @@ struct PremiumAnalyticsDashboard: View {
                     VStack(spacing: 2) {
                         Text("\(Int(momentum.score))")
                             .font(.system(size: 26, weight: .bold, design: .rounded))
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         HStack(spacing: 2) {
                             Image(systemName: momentum.trend.icon)
@@ -576,7 +576,7 @@ struct PremiumAnalyticsDashboard: View {
                 // Explanation text
                 Text("Based on recent wins")
                     .font(.system(size: 9))
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             } else {
                 ProgressView()
                     .frame(width: 90, height: 90)
@@ -584,9 +584,9 @@ struct PremiumAnalyticsDashboard: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     // MARK: - Balance Card
@@ -601,7 +601,7 @@ struct PremiumAnalyticsDashboard: View {
             Text("Balance")
                 .font(.caption)
                 .fontWeight(.semibold)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             if let balance = balance {
                 VStack(spacing: 10) {
@@ -655,9 +655,9 @@ struct PremiumAnalyticsDashboard: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     private func balanceLegendRow(color: Color, label: String, value: Double) -> some View {
@@ -668,13 +668,13 @@ struct PremiumAnalyticsDashboard: View {
 
             Text(label)
                 .font(.system(size: 10))
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             Spacer()
 
             Text("\(Int(value * 100))%")
                 .font(.system(size: 10, weight: .semibold))
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
         }
     }
 
@@ -689,7 +689,7 @@ struct PremiumAnalyticsDashboard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Week Over Week")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
                     Text(trajectory.percentChange >= 0 ? "+" : "")
@@ -709,12 +709,12 @@ struct PremiumAnalyticsDashboard: View {
                 Text("Last week: \(trajectory.lastWeekPoints) pts")
                     .font(.caption)
             }
-            .foregroundColor(theme.secondaryText)
+            .foregroundColor(theme.textSecondary)
         }
         .padding()
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     // MARK: - Activity Summary Section (replaces complex heatmap)
@@ -723,7 +723,7 @@ struct PremiumAnalyticsDashboard: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Activity Patterns")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             VStack(spacing: 16) {
                 // Wins by Day - Simple bar chart
@@ -736,9 +736,9 @@ struct PremiumAnalyticsDashboard: View {
                 activityInsights
             }
             .padding()
-            .background(theme.cardBackground)
+            .background(theme.surface1)
             .cornerRadius(theme.cornerRadius)
-            .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         }
     }
 
@@ -747,12 +747,12 @@ struct PremiumAnalyticsDashboard: View {
             HStack(spacing: 6) {
                 Image(systemName: "chart.bar.fill")
                     .font(.caption)
-                    .foregroundColor(theme.positiveColor)
+                    .foregroundColor(theme.success)
 
                 Text("Wins by Day")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
             }
 
             // Simple horizontal bars for each day
@@ -765,7 +765,7 @@ struct PremiumAnalyticsDashboard: View {
                         Text(stat.dayShort)
                             .font(.caption)
                             .fontWeight(.medium)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                             .frame(width: 30, alignment: .leading)
 
                         GeometryReader { geometry in
@@ -773,13 +773,13 @@ struct PremiumAnalyticsDashboard: View {
 
                             ZStack(alignment: .leading) {
                                 RoundedRectangle(cornerRadius: 4)
-                                    .fill(theme.positiveColor.opacity(0.15))
+                                    .fill(theme.success.opacity(0.15))
                                     .frame(height: 16)
 
                                 RoundedRectangle(cornerRadius: 4)
                                     .fill(
                                         LinearGradient(
-                                            colors: [theme.positiveColor, theme.positiveColor.opacity(0.7)],
+                                            colors: [theme.success, theme.success.opacity(0.7)],
                                             startPoint: .leading,
                                             endPoint: .trailing
                                         )
@@ -792,7 +792,7 @@ struct PremiumAnalyticsDashboard: View {
                         Text("\(stat.count)")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(stat.count > 0 ? theme.primaryText : theme.secondaryText)
+                            .foregroundColor(stat.count > 0 ? theme.textPrimary : theme.textSecondary)
                             .frame(width: 24, alignment: .trailing)
                     }
                 }
@@ -810,7 +810,7 @@ struct PremiumAnalyticsDashboard: View {
                 Text("Quick Insights")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
             }
 
             let insights = generateActivityInsights()
@@ -819,11 +819,11 @@ struct PremiumAnalyticsDashboard: View {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.caption)
-                        .foregroundColor(theme.positiveColor)
+                        .foregroundColor(theme.success)
 
                     Text(insight)
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -907,7 +907,7 @@ struct PremiumAnalyticsDashboard: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Best Times for Wins")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
@@ -916,30 +916,30 @@ struct PremiumAnalyticsDashboard: View {
                             Text(peak.dayName)
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(theme.primaryText)
+                                .foregroundColor(theme.textPrimary)
 
                             ZStack {
                                 Circle()
-                                    .fill(theme.positiveColor.opacity(peak.intensity))
+                                    .fill(theme.success.opacity(peak.intensity))
                                     .frame(width: 50, height: 50)
 
                                 Text(peak.timeString)
                                     .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(peak.intensity > 0.5 ? .white : theme.primaryText)
+                                    .foregroundColor(peak.intensity > 0.5 ? .white : theme.textPrimary)
                             }
 
                             Text("\(peak.eventCount) wins")
                                 .font(.caption2)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .padding(.vertical, 8)
                     }
                 }
             }
             .padding()
-            .background(theme.cardBackground)
+            .background(theme.surface1)
             .cornerRadius(theme.cornerRadius)
-            .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         }
     }
 
@@ -949,7 +949,7 @@ struct PremiumAnalyticsDashboard: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("All Insights")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             ForEach(insights.dropFirst()) { insight in
                 insightRow(insight)
@@ -970,18 +970,18 @@ struct PremiumAnalyticsDashboard: View {
                 Text(insight.title)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text(insight.message)
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .lineLimit(2)
             }
 
             Spacer()
         }
         .padding()
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(12)
     }
 
@@ -1045,5 +1045,5 @@ struct PremiumAnalyticsDashboard: View {
         PremiumAnalyticsDashboard(child: Child.preview)
     }
     .environmentObject(Repository.preview)
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

@@ -287,6 +287,8 @@ struct GoalPresetButton: View {
     let childColor: Color
     let action: () -> Void
 
+    @Environment(\.theme) private var theme
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 4) {
@@ -302,7 +304,7 @@ struct GoalPresetButton: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? childColor : Color(.systemGray6))
+                    .fill(isSelected ? childColor : theme.surface2)
             )
             .foregroundColor(isSelected ? .white : .primary)
             .overlay(

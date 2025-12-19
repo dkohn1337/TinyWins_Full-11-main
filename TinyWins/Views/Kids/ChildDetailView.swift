@@ -14,6 +14,7 @@ struct ChildDetailView: View {
     @EnvironmentObject private var progressionStore: ProgressionStore
     @EnvironmentObject private var celebrationStore: CelebrationStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     private var logBehaviorUseCase: LogBehaviorUseCase {
         LogBehaviorUseCase(
@@ -64,7 +65,7 @@ struct ChildDetailView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
-        .background(Color(.systemGroupedBackground))
+        .background(theme.bg1)
         .navigationTitle(currentChild.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -179,7 +180,7 @@ struct ChildDetailView: View {
                     if let age = currentChild.age {
                         Text("\(age) \(age == 1 ? "year" : "years") old")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 
@@ -197,7 +198,7 @@ struct ChildDetailView: View {
             .padding(.horizontal)
         }
         .padding(.vertical, 12)
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
     }
     
     // MARK: - Overview Tab
@@ -257,7 +258,7 @@ struct ChildDetailView: View {
                  "Review your plan together so you're both on the same page." :
                  "Your goals have changed. Take a moment to check in together.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             Button(action: { selectedTab = .agreement }) {
                 Text("View Our Plan")
@@ -290,10 +291,11 @@ struct ChildDetailView: View {
                             .font(.headline)
                         
                         Spacer()
-                        
+
+
                         Text("\(badges.count)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     
                     // Show badges in a horizontal scroll
@@ -307,7 +309,7 @@ struct ChildDetailView: View {
                     }
                 }
                 .padding()
-                .background(Color(.systemBackground))
+                .background(theme.surface1)
                 .cornerRadius(12)
             }
         }
@@ -328,7 +330,7 @@ struct ChildDetailView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Current Balance")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     
                     Text("\(currentChild.totalPoints)")
                         .font(.system(size: 36, weight: .bold, design: .rounded))
@@ -342,7 +344,7 @@ struct ChildDetailView: View {
                     .foregroundColor(.yellow.opacity(0.8))
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(12)
             
             // All Active Rewards
@@ -369,7 +371,7 @@ struct ChildDetailView: View {
                                 .font(.headline)
                             Text("Pick something exciting to work toward")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         
                         Spacer()
@@ -413,20 +415,20 @@ struct ChildDetailView: View {
                 if let reward = starTargetReward {
                     Image(systemName: "star.fill")
                         .font(.caption2)
-                        .foregroundColor(.yellow)
+                        .foregroundColor(theme.star)
                     Text("New stars go toward:")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Text(reward.name)
                         .font(.caption.weight(.medium))
                         .foregroundColor(currentChild.colorTag.color)
                 } else {
                     Image(systemName: "star")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Text("Stars aren't linked to a goal yet")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
         }
@@ -445,10 +447,10 @@ struct ChildDetailView: View {
             if events.isEmpty {
                 Text("Nothing logged yet. Add a moment!")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 24)
-                    .background(Color(.systemBackground))
+                    .background(theme.surface1)
                     .cornerRadius(12)
             } else {
                 VStack(spacing: 1) {
@@ -456,7 +458,7 @@ struct ChildDetailView: View {
                         ChildEventRow(event: event)
                     }
                 }
-                .background(Color(.systemBackground))
+                .background(theme.surface1)
                 .cornerRadius(12)
             }
         }
@@ -599,25 +601,27 @@ struct ChildDetailView: View {
 // MARK: - Quick Action Button
 
 struct QuickActionButton: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let title: String
     let color: Color
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.title2)
                     .foregroundColor(color)
-                
+
+
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(12)
         }
         .buttonStyle(.plain)
@@ -628,7 +632,7 @@ struct QuickActionButton: View {
 
 struct RewardProgressCard: View {
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     let reward: Reward
     let colorTag: ColorTag
     var showActiveLabel: Bool = false
@@ -675,7 +679,7 @@ struct RewardProgressCard: View {
                         .foregroundColor(headerColor)
                     Text(reward.name)
                         .font(.headline)
-                        .foregroundColor(rewardStatus == .completed ? .secondary : .primary)
+                        .foregroundColor(rewardStatus == .completed ? theme.textSecondary : theme.textPrimary)
                 }
 
                 Spacer()
@@ -696,7 +700,7 @@ struct RewardProgressCard: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(.systemGray5))
+                            .fill(theme.borderSoft)
                             .frame(height: 8)
 
                         RoundedRectangle(cornerRadius: 4)
@@ -734,17 +738,18 @@ struct RewardProgressCard: View {
         case .active, .activeWithDeadline: return isPrimary ? "Working toward" : "Queued"
         }
     }
-    
+
+
     private var headerColor: Color {
         // Use secondary for all states - badge indicates ready state
-        return .secondary
+        return theme.textSecondary
     }
 
     private var iconColor: Color {
         switch rewardStatus {
         case .readyToRedeem: return colorTag.color // Keep child identity
-        case .completed: return .secondary
-        case .expired: return themeProvider.challengeColor.opacity(0.6)
+        case .completed: return theme.textSecondary
+        case .expired: return theme.danger.opacity(0.6)
         case .active, .activeWithDeadline: return colorTag.color
         }
     }
@@ -752,8 +757,8 @@ struct RewardProgressCard: View {
     private var progressBarColor: Color {
         switch rewardStatus {
         case .readyToRedeem: return colorTag.color // Keep child identity
-        case .completed: return .gray.opacity(0.5)
-        case .expired: return themeProvider.challengeColor.opacity(0.5)
+        case .completed: return theme.textDisabled
+        case .expired: return theme.danger.opacity(0.5)
         case .active, .activeWithDeadline: return colorTag.color
         }
     }
@@ -761,7 +766,7 @@ struct RewardProgressCard: View {
     private var percentColor: Color {
         switch rewardStatus {
         case .readyToRedeem: return colorTag.color // Keep child identity
-        case .completed, .expired: return .secondary
+        case .completed, .expired: return theme.textSecondary
         case .active, .activeWithDeadline: return colorTag.color
         }
     }
@@ -769,10 +774,10 @@ struct RewardProgressCard: View {
     private var cardBackgroundColor: Color {
         // Neutral backgrounds - ready state indicated by badge only
         switch rewardStatus {
-        case .readyToRedeem: return themeProvider.resolved.cardBackground
-        case .completed: return themeProvider.resolved.cardBackground.opacity(0.7)
-        case .expired: return themeProvider.challengeColor.opacity(0.03)
-        case .active, .activeWithDeadline: return themeProvider.resolved.cardBackground
+        case .readyToRedeem: return theme.surface1
+        case .completed: return theme.surface1.opacity(0.7)
+        case .expired: return theme.danger.opacity(0.03)
+        case .active, .activeWithDeadline: return theme.surface1
         }
     }
     
@@ -782,25 +787,25 @@ struct RewardProgressCard: View {
         case .readyToRedeem:
             Text("When you give it, mark it as given in Rewards.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         case .completed:
             if let dateString = reward.redeemedDateString {
                 Text("Given on \(dateString)")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             } else {
                 Text("\(pointsEarned) / \(reward.targetPoints) points")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         case .expired:
             Text("Goal not reached")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         case .active, .activeWithDeadline:
             Text("\(pointsEarned) / \(reward.targetPoints) points")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
     }
     
@@ -881,6 +886,7 @@ struct RewardProgressCard: View {
 
 struct ChildEventRow: View {
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
+    @Environment(\.theme) private var theme
     let event: BehaviorEvent
 
     var body: some View {
@@ -889,10 +895,10 @@ struct ChildEventRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(dateString)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                 Text(timeString)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .frame(width: 60, alignment: .leading)
 
@@ -944,8 +950,9 @@ struct ChildEventRow: View {
 // MARK: - Skill Badge View
 
 struct SkillBadgeView: View {
+    @Environment(\.theme) private var theme
     let badge: SkillBadge
-    
+
     private var badgeColor: Color {
         switch badge.type.color {
         case "purple": return .purple
@@ -984,10 +991,11 @@ struct SkillBadgeView: View {
                         .offset(x: 18, y: -18)
                 }
             }
-            
+
+
             Text(badge.type.rawValue)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .lineLimit(1)
                 .frame(width: 70)
         }

@@ -143,7 +143,7 @@ struct InsightsView: View {
  @EnvironmentObject private var insightsStore: InsightsStore
  @EnvironmentObject private var progressionStore: ProgressionStore
  @EnvironmentObject private var subscriptionManager: SubscriptionManager
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
  @State private var selectedChild: Child?
  @State private var selectedPeriod: InsightPeriod = .thisWeek
  @State private var showingPaywall = false
@@ -215,7 +215,7 @@ struct InsightsView: View {
  .padding()
 .tabBarBottomPadding()
  }
- .background(themeProvider.backgroundColor)
+ .background(theme.bg0)
  }
  
  // MARK: - Parent Coach Level (Deprecated)
@@ -279,11 +279,11 @@ struct InsightsView: View {
  .padding(.vertical, 8)
  .background(
  selectedPeriod == period ? AppColors.primary :
- isLocked ? Color.purple.opacity(0.15) : themeProvider.streakInactiveColor
+ isLocked ? Color.purple.opacity(0.15) : theme.accentMuted
  )
  .foregroundColor(
  selectedPeriod == period ? .white :
- isLocked ? .purple : themeProvider.primaryText
+ isLocked ? .purple : theme.textPrimary
  )
  .cornerRadius(20)
  }
@@ -335,21 +335,21 @@ struct InsightsView: View {
  
  private func emptyInsightsState(childName: String) -> some View {
  VStack(spacing: 16) {
- StyledIcon(systemName:"sparkles", color: Color.secondary, size: 32, backgroundSize: 64, isCircle: true)
- 
+ StyledIcon(systemName:"sparkles", color: theme.textSecondary, size: 32, backgroundSize: 64, isCircle: true)
+
  Text("Insights will appear here")
  .font(.headline)
- 
+
  Text("As you log moments, you will start to see patterns: what is working, what is improving, and how far you have come together.")
  .font(.subheadline)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  .multilineTextAlignment(.center)
  .fixedSize(horizontal: false, vertical: true)
  }
  .frame(maxWidth: .infinity)
  .padding(.vertical, 40)
  .padding(.horizontal)
- .background(themeProvider.cardBackground)
+ .background(theme.surface1)
  .cornerRadius(AppStyles.cardCornerRadius)
  }
  
@@ -658,7 +658,7 @@ struct InsightsView: View {
 // MARK: - Child Filter Chip
 
 struct ChildFilterChip: View {
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
  let title: String
  var color: Color = .primary
  let isSelected: Bool
@@ -678,8 +678,8 @@ struct ChildFilterChip: View {
  }
  .padding(.horizontal, 16)
  .padding(.vertical, 8)
- .background(isSelected ? color.opacity(0.15) : themeProvider.streakInactiveColor)
- .foregroundColor(isSelected ? color : themeProvider.primaryText)
+ .background(isSelected ? color.opacity(0.15) : theme.accentMuted)
+ .foregroundColor(isSelected ? color : theme.textPrimary)
  .cornerRadius(20)
  }
  }
@@ -688,7 +688,7 @@ struct ChildFilterChip: View {
 // MARK: - Legacy Insight Card View
 
 struct LegacyInsightCardView: View {
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
  let card: LegacyInsightCard
 
  // Cards that require Plus subscription
@@ -721,22 +721,22 @@ struct LegacyInsightCardView: View {
  // Line 1 - Data sentence
  Text(card.line1)
  .font(.subheadline)
- .foregroundColor(.primary)
+ .foregroundColor(theme.textPrimary)
  .fixedSize(horizontal: false, vertical: true)
  .multilineTextAlignment(.leading)
- 
+
  // Line 2 - Suggestion
  Text(card.line2)
  .font(.subheadline)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  .fixedSize(horizontal: false, vertical: true)
  .multilineTextAlignment(.leading)
  }
  .frame(maxWidth: .infinity, alignment: .leading)
  .padding()
- .background(themeProvider.cardBackground)
+ .background(theme.surface1)
  .cornerRadius(AppStyles.cardCornerRadius)
- .shadow(color: themeProvider.cardShadow, radius: themeProvider.cardShadowRadius, y: 2)
+ .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
  }
  .buttonStyle(.plain)
  }
@@ -808,7 +808,7 @@ struct LegacyInsightCardView: View {
  VStack(spacing: 4) {
  ZStack(alignment: .bottom) {
  RoundedRectangle(cornerRadius: 2)
- .fill(themeProvider.streakInactiveColor)
+ .fill(theme.accentMuted)
  .frame(width: 24, height: 40)
 
  RoundedRectangle(cornerRadius: 2)
@@ -817,7 +817,7 @@ struct LegacyInsightCardView: View {
  }
  Text(label)
  .font(.caption2)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  }
  }
  Spacer()
@@ -828,7 +828,7 @@ struct LegacyInsightCardView: View {
  GeometryReader { geometry in
  ZStack(alignment: .leading) {
  RoundedRectangle(cornerRadius: 6)
- .fill(themeProvider.streakInactiveColor)
+ .fill(theme.accentMuted)
 
  RoundedRectangle(cornerRadius: 6)
  .fill(color)
@@ -860,22 +860,22 @@ struct LegacyInsightCardView: View {
  VStack(spacing: 4) {
  ZStack(alignment: .bottom) {
  RoundedRectangle(cornerRadius: 4)
- .fill(themeProvider.streakInactiveColor)
+ .fill(theme.accentMuted)
  .frame(width: 40, height: 50)
 
  RoundedRectangle(cornerRadius: 4)
- .fill(themeProvider.secondaryText)
+ .fill(theme.textSecondary)
  .frame(width: 40, height: CGFloat(before / maxVal) * 50)
  }
  Text("Before")
  .font(.caption2)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  }
 
  VStack(spacing: 4) {
  ZStack(alignment: .bottom) {
  RoundedRectangle(cornerRadius: 4)
- .fill(themeProvider.streakInactiveColor)
+ .fill(theme.accentMuted)
  .frame(width: 40, height: 50)
 
  RoundedRectangle(cornerRadius: 4)
@@ -884,7 +884,7 @@ struct LegacyInsightCardView: View {
  }
  Text("Now")
  .font(.caption2)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  }
 
  Spacer()
@@ -900,7 +900,7 @@ struct LegacyInsightCardView: View {
  .frame(width: 6, height: 6)
  Text(item)
  .font(.caption)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  }
  }
  }
@@ -911,7 +911,7 @@ struct LegacyInsightCardView: View {
 
 struct ChildInsightSummaryCard: View {
  @EnvironmentObject private var behaviorsStore: BehaviorsStore
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
  let child: Child
  let period: InsightPeriod
  let onTap: () -> Void
@@ -933,8 +933,8 @@ struct ChildInsightSummaryCard: View {
  VStack(alignment: .leading, spacing: 4) {
  Text(child.name)
  .font(.headline)
- .foregroundColor(.primary)
- 
+ .foregroundColor(theme.textPrimary)
+
  let positive = periodEvents.filter { $0.pointsApplied > 0 }.count
  let challenges = periodEvents.filter { $0.pointsApplied < 0 }.count
  
@@ -950,15 +950,15 @@ struct ChildInsightSummaryCard: View {
  }
  
  Spacer()
- 
+
  Image(systemName:"chevron.right")
  .font(.subheadline)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  }
  .padding()
- .background(themeProvider.cardBackground)
+ .background(theme.surface1)
  .cornerRadius(AppStyles.cardCornerRadius)
- .shadow(color: themeProvider.cardShadow, radius: themeProvider.cardShadowRadius, y: 2)
+ .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
  }
  .buttonStyle(.plain)
  }
@@ -967,7 +967,7 @@ struct ChildInsightSummaryCard: View {
 // MARK: - Suggestion Card (used in ChildDetailView)
 
 struct SuggestionCard: View {
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
  let suggestion: ImprovementSuggestion
  var buttonLabel: String? = nil  // Custom button label, nil uses default
  var isDisabled: Bool = false    // Show as already tracked
@@ -990,11 +990,11 @@ struct SuggestionCard: View {
  
  Text(suggestion.message)
  .font(.subheadline)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  .fixedSize(horizontal: false, vertical: true)
  .multilineTextAlignment(.leading)
  }
- 
+
  Spacer()
  }
  
@@ -1010,8 +1010,8 @@ struct SuggestionCard: View {
  .fontWeight(.medium)
  .frame(maxWidth: .infinity)
  .padding(.vertical, 8)
- .background(themeProvider.streakInactiveColor)
- .foregroundColor(themeProvider.secondaryText)
+ .background(theme.accentMuted)
+ .foregroundColor(theme.textSecondary)
  .cornerRadius(8)
  } else {
  Button(action: { onAction?() }) {
@@ -1055,7 +1055,7 @@ struct SuggestionCard: View {
 // MARK: - Yearly Summary Card
 
 struct YearlySummaryCard: View {
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
  let summary: YearlySummary
  let childName: String
  let color: Color
@@ -1076,15 +1076,15 @@ struct YearlySummaryCard: View {
  }
  Text(childName)
  .font(.subheadline)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  }
- 
+
  Spacer()
  }
  
  // Stats Row
  HStack(spacing: 20) {
- StatBubble(value:"\(summary.totalPositiveMoments)", label:"Moments", icon:"star.fill", color: themeProvider.starColor)
+ StatBubble(value:"\(summary.totalPositiveMoments)", label:"Moments", icon:"star.fill", color: theme.star)
  StatBubble(value:"\(summary.goalsCompleted)", label:"Goals", icon:"gift.fill", color: .purple)
  if summary.specialMomentsCount > 0 {
  StatBubble(value:"\(summary.specialMomentsCount)", label:"Special", icon:"heart.fill", color: .pink)
@@ -1115,22 +1115,23 @@ struct YearlySummaryCard: View {
  // Narrative Summary
  Text(summary.summaryText)
  .font(.subheadline)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  .fixedSize(horizontal: false, vertical: true)
  }
  .padding()
- .background(themeProvider.cardBackground)
+ .background(theme.surface1)
  .cornerRadius(AppStyles.cardCornerRadius)
- .shadow(color: themeProvider.cardShadow, radius: themeProvider.cardShadowRadius, y: 2)
+ .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
  }
 }
 
 struct StatBubble: View {
+ @Environment(\.theme) private var theme
  let value: String
  let label: String
  let icon: String
  let color: Color
- 
+
  var body: some View {
  VStack(spacing: 4) {
  HStack(spacing: 4) {
@@ -1142,7 +1143,7 @@ struct StatBubble: View {
  }
  Text(label)
  .font(.caption2)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  }
  }
 }
@@ -1150,7 +1151,7 @@ struct StatBubble: View {
 // MARK: - Special Moments Timeline
 
 struct SpecialMomentsTimeline: View {
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
  let moments: [SpecialMoment]
 
  var body: some View {
@@ -1165,7 +1166,7 @@ struct SpecialMomentsTimeline: View {
 
  Text("\(moments.count)")
  .font(.caption)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  }
 
  // Timeline scroll
@@ -1178,14 +1179,14 @@ struct SpecialMomentsTimeline: View {
  }
  }
  .padding()
- .background(themeProvider.cardBackground)
+ .background(theme.surface1)
  .cornerRadius(AppStyles.cardCornerRadius)
  }
 }
 
 struct SpecialMomentCard: View {
  @EnvironmentObject private var behaviorsStore: BehaviorsStore
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
  let moment: SpecialMoment
 
  private var event: BehaviorEvent? {
@@ -1202,27 +1203,27 @@ struct SpecialMomentCard: View {
  // Date
  Text(formatDate(moment.markedDate))
  .font(.caption2)
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
 
  // Icon or thumbnail
  if let event = event, !event.mediaAttachments.isEmpty {
  // Show thumbnail if available
  RoundedRectangle(cornerRadius: 8)
- .fill(themeProvider.streakInactiveColor)
+ .fill(theme.accentMuted)
  .frame(width: 80, height: 60)
  .overlay(
  Image(systemName:"photo.fill")
- .foregroundColor(.secondary)
+ .foregroundColor(theme.textSecondary)
  )
  } else if let behavior = behavior {
  ZStack {
  RoundedRectangle(cornerRadius: 8)
- .fill(behavior.defaultPoints > 0 ? themeProvider.positiveColor.opacity(0.2) : themeProvider.challengeColor.opacity(0.2))
+ .fill(behavior.defaultPoints > 0 ? theme.success.opacity(0.2) : theme.danger.opacity(0.2))
  .frame(width: 80, height: 60)
 
  Image(systemName: behavior.iconName)
  .font(.title2)
- .foregroundColor(behavior.defaultPoints > 0 ? themeProvider.positiveColor : themeProvider.challengeColor)
+ .foregroundColor(behavior.defaultPoints > 0 ? theme.success : theme.danger)
  }
  }
  

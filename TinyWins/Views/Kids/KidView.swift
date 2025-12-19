@@ -9,7 +9,7 @@ struct KidView: View {
     @EnvironmentObject private var rewardsStore: RewardsStore
     @EnvironmentObject private var progressionStore: ProgressionStore
     @EnvironmentObject private var prefs: UserPreferencesStore
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let child: Child
@@ -31,35 +31,50 @@ struct KidView: View {
         activeReward ?? rewardsStore.activeReward(forChild: child.id)
     }
     
+    /// Theme gradient for KidView background - uses design primitives
     private var themeGradient: LinearGradient {
+        let avatarTokens = theme.avatarTokens(for: child.colorTag)
+
         switch selectedTheme {
         case .classic:
+            // Use child's avatar color with theme-aware opacity
             return LinearGradient(
-                colors: [child.colorTag.color.opacity(0.3), child.colorTag.color.opacity(0.1)],
+                colors: [avatarTokens.badgeBackground, avatarTokens.badgeBackground.opacity(0.5)],
                 startPoint: .top,
                 endPoint: .bottom
             )
         case .space:
+            // Use midnight theme colors
             return LinearGradient(
-                colors: [Color.indigo.opacity(0.6), Color.black.opacity(0.8)],
+                colors: [Primitives.Midnight.primary.opacity(0.6), Primitives.Neutral.gray950.opacity(0.8)],
                 startPoint: .top,
                 endPoint: .bottom
             )
         case .ocean:
+            // Use ocean theme colors
             return LinearGradient(
-                colors: [Color.cyan.opacity(0.4), Color.blue.opacity(0.3)],
+                colors: [Primitives.Ocean.primaryLight.opacity(0.4), Primitives.Ocean.primary.opacity(0.3)],
                 startPoint: .top,
                 endPoint: .bottom
             )
         case .forest:
+            // Use forest theme colors
             return LinearGradient(
-                colors: [Color.green.opacity(0.3), Color.mint.opacity(0.2)],
+                colors: [Primitives.Forest.primaryLight.opacity(0.3), Primitives.Mint.primaryLight.opacity(0.2)],
                 startPoint: .top,
                 endPoint: .bottom
             )
         case .rainbow:
+            // Rainbow uses multiple semantic colors
             return LinearGradient(
-                colors: [Color.red.opacity(0.2), Color.orange.opacity(0.2), Color.yellow.opacity(0.2), Color.green.opacity(0.2), Color.blue.opacity(0.2), Color.purple.opacity(0.2)],
+                colors: [
+                    Primitives.Semantic.error500.opacity(0.2),
+                    Primitives.Sunset.primary.opacity(0.2),
+                    Primitives.Semantic.starPrimary.opacity(0.2),
+                    Primitives.Forest.primary.opacity(0.2),
+                    Primitives.Ocean.primary.opacity(0.2),
+                    Primitives.Lavender.primary.opacity(0.2)
+                ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -81,40 +96,42 @@ struct KidView: View {
                             Button(action: { showingThemePicker = true }) {
                                 Image(systemName: selectedTheme.icon)
                                     .font(.system(size: 24))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                             .frame(width: 44, height: 44)
                             .contentShape(Rectangle())
                         }
-                        
+
                         Spacer()
-                        
+
                         Button(action: { dismiss() }) {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 32))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .frame(width: 44, height: 44) // Larger tap area
                         .contentShape(Rectangle())
                     }
                     .padding(.horizontal)
-                    
-                    // Big avatar and name
+
+                    // Big avatar and name - using avatar tokens for contrast-safe colors
                     VStack(spacing: 16) {
+                        let avatarTokens = theme.avatarTokens(for: child.colorTag)
                         ZStack {
                             Circle()
-                                .fill(child.colorTag.color)
+                                .fill(avatarTokens.circleFill)
                                 .frame(width: 120, height: 120)
-                                .shadow(color: child.colorTag.color.opacity(0.5), radius: 20)
-                            
+                                .shadow(color: avatarTokens.glowEffect, radius: 20)
+
                             Text(child.initials)
                                 .font(.system(size: 48, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(avatarTokens.initialsText)
                         }
-                        
+
                         Text(child.name)
                             .font(.largeTitle)
                             .fontWeight(.bold)
+                            .foregroundColor(theme.textPrimary)
                     }
                     
                     // Reward progress
@@ -205,7 +222,7 @@ struct KidView: View {
                 Circle()
                     .fill(
                         RadialGradient(
-                            colors: [themeProvider.starColor.opacity(0.3), themeProvider.starColor.opacity(0.1), Color.clear],
+                            colors: [theme.star.opacity(0.3), theme.star.opacity(0.1), Color.clear],
                             center: .center,
                             startRadius: 40,
                             endRadius: 70
@@ -217,7 +234,7 @@ struct KidView: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [themeProvider.starColor.opacity(0.3), themeProvider.starColor.opacity(0.15)],
+                            colors: [theme.star.opacity(0.3), theme.star.opacity(0.15)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -226,20 +243,20 @@ struct KidView: View {
 
                 Image(systemName: reward.imageName ?? "gift.fill")
                     .font(.system(size: 52, weight: .bold))
-                    .foregroundColor(themeProvider.starColor)
-                    .shadow(color: themeProvider.starColor.opacity(0.5), radius: 16)
+                    .foregroundColor(theme.star)
+                    .shadow(color: theme.star.opacity(0.5), radius: 16)
             }
             .padding(.top, AppSpacing.md)
 
             VStack(spacing: AppSpacing.xxs) {
                 Text("Working toward:")
                     .font(AppTypography.label)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 Text(reward.name)
                     .font(AppTypography.displayLarge)
                     .fontWeight(.black)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
                     .multilineTextAlignment(.center)
             }
         }
@@ -265,21 +282,21 @@ struct KidView: View {
 
                     Text("/")
                         .font(.system(size: 36, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     Text("\(reward.targetPoints)")
                         .font(.system(size: 36, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 // Label with star icon - use theme star color
                 HStack(spacing: AppSpacing.xxs) {
                     Image(systemName: "star.fill")
                         .font(AppTypography.title3)
-                        .foregroundColor(themeProvider.starColor)
+                        .foregroundColor(theme.star)
                     Text("stars")
                         .font(AppTypography.title3)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fontWeight(.semibold)
                 }
             }
@@ -298,7 +315,7 @@ struct KidView: View {
                     .fontWeight(.semibold)
             }
             .font(AppTypography.bodyLarge)
-            .foregroundColor(.secondary)
+            .foregroundColor(theme.textSecondary)
             .padding(.top, AppSpacing.xxs)
         }
     }
@@ -310,17 +327,17 @@ struct KidView: View {
         // Trophy celebration
         ZStack {
             Circle()
-                .fill(themeProvider.positiveColor.opacity(0.15))
+                .fill(theme.success.opacity(0.15))
                 .frame(width: 120, height: 120)
 
             Circle()
-                .fill(themeProvider.positiveColor.opacity(0.25))
+                .fill(theme.success.opacity(0.25))
                 .frame(width: 90, height: 90)
 
             Image(systemName: "trophy.fill")
                 .font(.system(size: 50))
-                .foregroundColor(themeProvider.starColor)
-                .shadow(color: themeProvider.starColor.opacity(0.5), radius: 10)
+                .foregroundColor(theme.star)
+                .shadow(color: theme.star.opacity(0.5), radius: 10)
         }
         .onAppear {
             showingFireworks = true
@@ -332,7 +349,7 @@ struct KidView: View {
         // "You earned:" label
         Text("You earned:")
             .font(.headline)
-            .foregroundColor(themeProvider.positiveColor)
+            .foregroundColor(theme.success)
 
         Text(reward.name)
             .font(.largeTitle)
@@ -343,15 +360,15 @@ struct KidView: View {
             Text("Amazing job!")
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundColor(themeProvider.positiveColor)
+                .foregroundColor(theme.success)
             
             Text("You collected all \(reward.targetPoints) stars!")
                 .font(.body)
-                .foregroundColor(.secondary)
-            
+                .foregroundColor(theme.textSecondary)
+
             Text("Ask your parent to give you your reward!")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 4)
         }
@@ -365,30 +382,30 @@ struct KidView: View {
         // Checkmark with reward icon
         ZStack {
             Circle()
-                .fill(themeProvider.streakInactiveColor)
+                .fill(theme.textDisabled)
                 .frame(width: 100, height: 100)
 
             Image(systemName: reward.imageName ?? "gift.fill")
                 .font(.system(size: 40))
-                .foregroundColor(themeProvider.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             // Checkmark badge
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 32))
-                .foregroundColor(themeProvider.positiveColor)
-                .background(themeProvider.cardBackground.clipShape(Circle()))
+                .foregroundColor(theme.success)
+                .background(theme.surface1.clipShape(Circle()))
                 .offset(x: 35, y: 35)
         }
         
         // "You got:" label
         Text("You got:")
             .font(.headline)
-            .foregroundColor(.secondary)
-        
+            .foregroundColor(theme.textSecondary)
+
         Text(reward.name)
             .font(.title)
             .fontWeight(.bold)
-            .foregroundColor(.secondary)
+            .foregroundColor(theme.textSecondary)
         
         // Completion info
         VStack(spacing: 8) {
@@ -399,12 +416,12 @@ struct KidView: View {
             if let dateString = reward.redeemedDateString {
                 Text("Given on \(dateString)")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
-            
+
             Text("You collected \(earned) stars for this reward!")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .padding(.top, 4)
         }
         .padding(.top, 8)
@@ -417,32 +434,32 @@ struct KidView: View {
         // Soft expired icon
         ZStack {
             Circle()
-                .fill(themeProvider.streakInactiveColor)
+                .fill(theme.textDisabled)
                 .frame(width: 100, height: 100)
 
             Image(systemName: "clock.badge.xmark")
                 .font(.system(size: 44))
-                .foregroundColor(themeProvider.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         
         Text(reward.name)
             .font(.title2)
             .fontWeight(.bold)
-            .foregroundColor(.secondary)
-        
+            .foregroundColor(theme.textSecondary)
+
         // Gentle message
         VStack(spacing: 8) {
             Text("This goal has finished")
                 .font(.headline)
-                .foregroundColor(.secondary)
-            
+                .foregroundColor(theme.textSecondary)
+
             Text("You collected \(earned) of \(reward.targetPoints) stars")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
-            
+                .foregroundColor(theme.textSecondary)
+
             Text("You can pick a new goal together!")
                 .font(.body)
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
                 .padding(.top, 8)
         }
         .multilineTextAlignment(.center)
@@ -459,7 +476,7 @@ struct KidView: View {
                     .foregroundColor(.orange)
                 Text("You're getting so close!")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         } else if progress >= 0.5 {
             VStack(spacing: 4) {
@@ -468,25 +485,25 @@ struct KidView: View {
                     .foregroundColor(.blue)
                 Text("Great job, keep going!")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         } else if progress >= 0.25 {
             VStack(spacing: 4) {
                 Text("Nice progress!")
                     .font(.headline)
-                    .foregroundColor(themeProvider.positiveColor)
+                    .foregroundColor(theme.success)
                 Text("You're on your way!")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         } else if progress > 0 {
             VStack(spacing: 4) {
                 Text("Good start!")
                     .font(.headline)
-                    .foregroundColor(themeProvider.positiveColor)
+                    .foregroundColor(theme.success)
                 Text("You can do it!")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         }
     }
@@ -498,7 +515,7 @@ struct KidView: View {
             VStack(spacing: AppSpacing.md) {
                 Image(systemName: "star.circle")
                     .font(.system(size: 60))
-                    .foregroundColor(themeProvider.starColor)
+                    .foregroundColor(theme.star)
 
                 Text("Keep being awesome!")
                     .font(.title2)
@@ -668,10 +685,10 @@ struct KidView: View {
                                 HStack(spacing: AppSpacing.xxs) {
                                     Image(systemName: "star.fill")
                                         .font(AppTypography.title2)
-                                        .foregroundColor(themeProvider.starColor)
+                                        .foregroundColor(theme.star)
                                     Text("\(todayPositive.count) earned today")
                                         .font(AppTypography.bodyLarge)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                         .fontWeight(.semibold)
                                 }
                             }
@@ -683,7 +700,7 @@ struct KidView: View {
                                 Circle()
                                     .fill(
                                         LinearGradient(
-                                            colors: [themeProvider.starColor.opacity(0.3), themeProvider.starColor.opacity(0.15)],
+                                            colors: [theme.star.opacity(0.3), theme.star.opacity(0.15)],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         )
@@ -692,7 +709,7 @@ struct KidView: View {
 
                                 Text("\(todayPositive.count)")
                                     .font(.system(size: 32, weight: .black, design: .rounded))
-                                    .foregroundColor(themeProvider.starColor)
+                                    .foregroundColor(theme.star)
                             }
                         }
 
@@ -706,7 +723,7 @@ struct KidView: View {
                                             RoundedRectangle(cornerRadius: 12)
                                                 .fill(
                                                     LinearGradient(
-                                                        colors: [themeProvider.starColor.opacity(0.2), themeProvider.starColor.opacity(0.1)],
+                                                        colors: [theme.star.opacity(0.2), theme.star.opacity(0.1)],
                                                         startPoint: .topLeading,
                                                         endPoint: .bottomTrailing
                                                     )
@@ -715,29 +732,29 @@ struct KidView: View {
 
                                             Image(systemName: behavior.iconName)
                                                 .font(.system(size: 24, weight: .semibold))
-                                                .foregroundColor(themeProvider.starColor)
+                                                .foregroundColor(theme.star)
                                         }
 
                                         Text(behavior.name)
                                             .font(AppTypography.bodyLarge)
                                             .fontWeight(.semibold)
-                                            .foregroundColor(.primary)
+                                            .foregroundColor(theme.textPrimary)
 
                                         Spacer()
 
                                         // Points badge
                                         Text("+\(event.pointsApplied)")
                                             .font(.system(size: 20, weight: .bold, design: .rounded))
-                                            .foregroundColor(themeProvider.positiveColor)
+                                            .foregroundColor(theme.success)
                                             .padding(.horizontal, AppSpacing.sm)
                                             .padding(.vertical, AppSpacing.xxs)
-                                            .background(themeProvider.bannerPositiveBackground)
+                                            .background(theme.successBg)
                                             .cornerRadius(8)
                                     }
                                     .padding(AppSpacing.md)
-                                    .background(themeProvider.cardBackground)
+                                    .background(theme.surface1)
                                     .cornerRadius(16)
-                                    .shadow(color: themeProvider.cardShadow, radius: 4, y: 2)
+                                    .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
                                 }
                             }
                         }
@@ -747,7 +764,7 @@ struct KidView: View {
                     RoundedRectangle(cornerRadius: 24)
                         .fill(
                             LinearGradient(
-                                colors: [themeProvider.starColor.opacity(0.08), themeProvider.starColor.opacity(0.03)],
+                                colors: [theme.star.opacity(0.08), theme.star.opacity(0.03)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -872,6 +889,7 @@ struct KidView: View {
 // MARK: - Badge View - Enhanced with animations and gradients
 
 struct BadgeView: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let title: String
     let subtitle: String
@@ -933,14 +951,14 @@ struct BadgeView: View {
             VStack(spacing: 2) {
                 Text(title)
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
 
                 Text(subtitle)
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .frame(width: 90, height: 120)
@@ -1036,7 +1054,7 @@ struct FireworksView: View {
 
 struct SkillBadgeCard: View {
     let badge: SkillBadge
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     private var badgeColor: Color {
         switch badge.type.color {
@@ -1071,7 +1089,7 @@ struct SkillBadgeCard: View {
                         ForEach(0..<badge.level, id: \.self) { _ in
                             Image(systemName: "star.fill")
                                 .font(.system(size: 8))
-                                .foregroundColor(themeProvider.starColor)
+                                .foregroundColor(theme.star)
                         }
                     }
                     .offset(y: 35)
@@ -1085,13 +1103,13 @@ struct SkillBadgeCard: View {
             
             Text("Level \(badge.level)")
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(width: 90)
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.secondarySystemBackground))
+                .fill(theme.surface2)
                 .shadow(color: Color.black.opacity(0.05), radius: 5)
         )
     }
@@ -1101,6 +1119,7 @@ struct SkillBadgeCard: View {
 
 struct ThemePickerSheet: View {
     @EnvironmentObject private var prefs: UserPreferencesStore
+    @Environment(\.theme) private var theme
     let child: Child
     let unlockedThemes: [KidViewTheme]
     let totalGoalsCompleted: Int
@@ -1119,47 +1138,47 @@ struct ThemePickerSheet: View {
         NavigationStack {
             List {
                 Section {
-                    ForEach(KidViewTheme.allCases) { theme in
-                        let isUnlocked = unlockedThemes.contains(theme)
+                    ForEach(KidViewTheme.allCases, id: \.self) { kidTheme in
+                        let isUnlocked = unlockedThemes.contains(kidTheme)
 
                         Button(action: {
                             if isUnlocked {
-                                prefs.setKidViewTheme(theme.rawValue, forChildId: child.id)
+                                prefs.setKidViewTheme(kidTheme.rawValue, forChildId: child.id)
                                 dismiss()
                             }
                         }) {
                             HStack(spacing: 16) {
-                                Image(systemName: theme.icon)
+                                Image(systemName: kidTheme.icon)
                                     .font(.title2)
-                                    .foregroundColor(isUnlocked ? themeColor(theme) : .secondary)
+                                    .foregroundColor(isUnlocked ? themeColor(kidTheme) : theme.textSecondary)
                                     .frame(width: 40)
-                                
+
                                 VStack(alignment: .leading, spacing: 4) {
                                     HStack(spacing: 6) {
-                                        Text(theme.rawValue)
+                                        Text(kidTheme.rawValue)
                                             .font(.headline)
-                                            .foregroundColor(isUnlocked ? .primary : .secondary)
-                                        
-                                        if isPlusTheme(theme) {
+                                            .foregroundColor(isUnlocked ? theme.textPrimary : theme.textSecondary)
+
+                                        if isPlusTheme(kidTheme) {
                                             PlusBadge()
                                         }
                                     }
-                                    
+
                                     if !isUnlocked {
-                                        Text(unlockRequirement(theme))
+                                        Text(unlockRequirement(kidTheme))
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(theme.textSecondary)
                                     }
                                 }
-                                
+
                                 Spacer()
-                                
-                                if selectedTheme == theme.rawValue {
+
+                                if selectedTheme == kidTheme.rawValue {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundColor(.green)
                                 } else if !isUnlocked {
                                     Image(systemName: "lock.fill")
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                 }
                             }
                         }
@@ -1208,7 +1227,7 @@ struct ThemePickerSheet: View {
 /// Presented as big, tappable cards organized by category with horizontal scrolling
 struct KidGoalSelectionView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     enum Context {
         case afterReward    // Shown after completing a goal
@@ -1320,11 +1339,11 @@ struct KidGoalSelectionView: View {
             Button(action: { dismiss() }) {
                 ZStack {
                     Circle()
-                        .fill(.ultraThinMaterial)
+                        .fill(theme.surface1)
                         .frame(width: 36, height: 36)
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
             .padding(20)
@@ -1345,7 +1364,7 @@ struct KidGoalSelectionView: View {
                 // Glow rings (smaller) - use theme star color
                 ForEach(0..<2) { i in
                     Circle()
-                        .stroke(themeProvider.starColor.opacity(0.15 - Double(i) * 0.05), lineWidth: 2)
+                        .stroke(theme.star.opacity(0.15 - Double(i) * 0.05), lineWidth: 2)
                         .frame(width: 50 + CGFloat(i) * 15, height: 50 + CGFloat(i) * 15)
                         .scaleEffect(starPulse ? 1.1 : 1.0)
                         .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true).delay(Double(i) * 0.2), value: starPulse)
@@ -1354,8 +1373,8 @@ struct KidGoalSelectionView: View {
                 // Main star (smaller) - use theme star color
                 Image(systemName: "star.fill")
                     .font(.system(size: 36))
-                    .foregroundStyle(LinearGradient(colors: [themeProvider.starColor, themeProvider.starColor.opacity(0.7)], startPoint: .top, endPoint: .bottom))
-                    .shadow(color: themeProvider.starColor.opacity(0.5), radius: 8, y: 3)
+                    .foregroundStyle(LinearGradient(colors: [theme.star, theme.star.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+                    .shadow(color: theme.star.opacity(0.5), radius: 8, y: 3)
                     .scaleEffect(starPulse ? 1.05 : 1.0)
                     .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: starPulse)
             }
@@ -1363,12 +1382,12 @@ struct KidGoalSelectionView: View {
 
             Text(context.title)
                 .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
                 .multilineTextAlignment(.center)
 
             Text(context.subtitle)
                 .font(.system(size: 15, weight: .medium, design: .rounded))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
     }
 
@@ -1418,7 +1437,7 @@ struct KidGoalSelectionView: View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 16))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             TextField("Search goals...", text: $searchText)
                 .font(.system(size: 16, design: .rounded))
@@ -1428,7 +1447,7 @@ struct KidGoalSelectionView: View {
                 Button(action: { searchText = "" }) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 16))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
         }
@@ -1436,7 +1455,7 @@ struct KidGoalSelectionView: View {
         .padding(.vertical, 10)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(.ultraThinMaterial)
+                .fill(theme.surface1)
         )
         .opacity(showContent ? 1 : 0)
     }
@@ -1452,7 +1471,7 @@ struct KidGoalSelectionView: View {
                 .foregroundColor(.green)
             Text("Showing all \(suggestions.count) goals for \(ageText)")
                 .font(.system(size: 12, weight: .medium, design: .rounded))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(.horizontal, 20)
     }
@@ -1469,16 +1488,16 @@ struct KidGoalSelectionView: View {
 
                 Text("Recently Used")
                     .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
                 Text("\(recentGoals.count)")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color(.systemGray5))
+                    .background(theme.borderSoft)
                     .cornerRadius(10)
             }
             .padding(.horizontal, 20)
@@ -1534,16 +1553,16 @@ struct KidGoalSelectionView: View {
 
                         Text(item.category.rawValue)
                             .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
 
                         Spacer()
 
                         Text("\(item.options.count)")
                             .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(Color(.systemGray5))
+                            .background(theme.borderSoft)
                             .cornerRadius(10)
                     }
                     .padding(.horizontal, 20)
@@ -1677,6 +1696,7 @@ struct KidGoalSelectionView: View {
 // MARK: - Category Chip
 
 private struct CategoryChip: View {
+    @Environment(\.theme) private var theme
     let title: String
     let icon: String
     let color: Color
@@ -1697,15 +1717,15 @@ private struct CategoryChip: View {
                     .font(.system(size: 11, weight: .medium))
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)
-                    .background(isSelected ? Color.white.opacity(0.3) : Color(.systemGray5))
+                    .background(isSelected ? Color.white.opacity(0.3) : theme.borderSoft)
                     .cornerRadius(8)
             }
-            .foregroundColor(isSelected ? .white : .primary)
+            .foregroundColor(isSelected ? .white : theme.textPrimary)
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .background(
                 Capsule()
-                    .fill(isSelected ? color : Color(.systemGray6))
+                    .fill(isSelected ? color : theme.surface2)
             )
             .overlay(
                 Capsule()
@@ -1724,7 +1744,7 @@ private struct CompactGoalCard: View {
     let isSelected: Bool
     let categoryColor: Color
     let onTap: () -> Void
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     var body: some View {
         Button(action: onTap) {
@@ -1767,7 +1787,7 @@ private struct CompactGoalCard: View {
                 // Name
                 Text(option.name)
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .frame(height: 36)
@@ -1776,26 +1796,26 @@ private struct CompactGoalCard: View {
                 HStack(spacing: 4) {
                     Image(systemName: "star.fill")
                         .font(.system(size: 10))
-                        .foregroundColor(themeProvider.starColor)
+                        .foregroundColor(theme.star)
                     Text("\(option.stars)")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     Text("•")
-                        .foregroundColor(Color(.systemGray4))
+                        .foregroundColor(theme.borderStrong)
 
                     Image(systemName: "calendar")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Text("\(option.days)d")
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
             .frame(width: 110)
             .padding(.vertical, 14)
             .padding(.horizontal, 10)
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -1814,9 +1834,10 @@ private struct AnimatedMeshBackground: View {
     let baseColor: Color
     @State private var animate = false
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.theme) private var theme
 
     private var bgColor: Color {
-        colorScheme == .dark ? Color(white: 0.1) : Color(.systemBackground)
+        theme.bg1
     }
 
     var body: some View {
@@ -1840,8 +1861,8 @@ private struct AnimatedMeshBackground: View {
                         .fill(
                             RadialGradient(
                                 colors: [
-                                    [baseColor, .purple, .blue, .pink][i % 4].opacity(colorScheme == .dark ? 0.3 : 0.2),
-                                    [baseColor, .purple, .blue, .pink][i % 4].opacity(colorScheme == .dark ? 0.1 : 0.05)
+                                    [baseColor, .purple, .blue, .pink][i % 4].opacity(theme.isDark ? 0.3 : 0.2),
+                                    [baseColor, .purple, .blue, .pink][i % 4].opacity(theme.isDark ? 0.1 : 0.05)
                                 ],
                                 center: .center,
                                 startRadius: 0,
@@ -1875,7 +1896,7 @@ struct KidGoalOptionCard: View {
     let childColor: Color
     let iconGradient: [Color]
     let onTap: () -> Void
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     @State private var isPressed = false
     @State private var iconBounce = false
@@ -1942,7 +1963,7 @@ struct KidGoalOptionCard: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(option.name)
                         .font(.system(size: 19, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
                         .lineLimit(2)
 
                     HStack(spacing: 12) {
@@ -1952,20 +1973,20 @@ struct KidGoalOptionCard: View {
                                 .font(.system(size: 13))
                                 .foregroundStyle(
                                     LinearGradient(
-                                        colors: [themeProvider.starColor, themeProvider.starColor.opacity(0.7)],
+                                        colors: [theme.star, theme.star.opacity(0.7)],
                                         startPoint: .top,
                                         endPoint: .bottom
                                     )
                                 )
                             Text("\(option.stars)")
                                 .font(.system(size: 15, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
+                                .foregroundColor(theme.textPrimary)
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .background(
                             Capsule()
-                                .fill(themeProvider.starColor.opacity(0.15))
+                                .fill(theme.star.opacity(0.15))
                         )
 
                         // Days badge
@@ -1975,7 +1996,7 @@ struct KidGoalOptionCard: View {
                             Text("\(option.days) days")
                                 .font(.system(size: 13, weight: .medium, design: .rounded))
                         }
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -1985,7 +2006,7 @@ struct KidGoalOptionCard: View {
                 ZStack {
                     Circle()
                         .stroke(
-                            isSelected ? childColor : (colorScheme == .dark ? Color(white: 0.35) : Color(.systemGray4)),
+                            isSelected ? childColor : theme.borderStrong,
                             lineWidth: isSelected ? 0 : 2
                         )
                         .frame(width: 30, height: 30)
@@ -2011,9 +2032,9 @@ struct KidGoalOptionCard: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 22)
-                    .fill(colorScheme == .dark ? Color(white: 0.15) : Color(.systemBackground))
+                    .fill(theme.surface1)
                     .shadow(
-                        color: isSelected ? childColor.opacity(colorScheme == .dark ? 0.4 : 0.2) : Color.black.opacity(colorScheme == .dark ? 0.3 : 0.06),
+                        color: isSelected ? childColor.opacity(0.3) : theme.shadowColor.opacity(0.1),
                         radius: isSelected ? 16 : 10,
                         y: isSelected ? 8 : 4
                     )
@@ -2106,8 +2127,8 @@ struct AllBadgesView: View {
         .background(
             LinearGradient(
                 colors: [
-                    child.colorTag.color.opacity(colorScheme == .dark ? 0.2 : 0.1),
-                    colorScheme == .dark ? Color(white: 0.1) : Color(.systemGroupedBackground)
+                    child.colorTag.color.opacity(theme.isDark ? 0.2 : 0.1),
+                    theme.bg1
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -2115,6 +2136,8 @@ struct AllBadgesView: View {
             .ignoresSafeArea()
         )
     }
+
+    @Environment(\.theme) private var theme
 }
 
 #Preview("Goal Selection") {

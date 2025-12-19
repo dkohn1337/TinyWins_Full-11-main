@@ -2,6 +2,7 @@ import SwiftUI
 
 /// View showing parent reflection history with calendar and list modes
 struct ReflectionHistoryView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @Environment(\.dismiss) private var dismiss
@@ -59,7 +60,7 @@ struct ReflectionHistoryView: View {
                     listView
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationTitle("Reflection History")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -89,13 +90,13 @@ struct ReflectionHistoryView: View {
                     .font(.headline)
                 Text(reflectionStreak == 0 ? "Start your journey today" : "Keep reflecting daily")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.bg0)
     }
 
     // MARK: - Calendar View
@@ -184,7 +185,7 @@ struct ReflectionHistoryView: View {
                 ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
                     Text(day)
                         .font(.caption.weight(.medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -210,7 +211,7 @@ struct ReflectionHistoryView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.bg0)
         .cornerRadius(16)
     }
 
@@ -257,17 +258,17 @@ struct ReflectionHistoryView: View {
                     .frame(width: 8, height: 8)
                 Text("Reflected")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             if !isPlusSubscriber {
                 HStack(spacing: 6) {
                     Circle()
-                        .fill(Color.gray.opacity(0.3))
+                        .fill(theme.textDisabled.opacity(0.3))
                         .frame(width: 8, height: 8)
                     Text("Plus only")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
         }
@@ -322,17 +323,17 @@ struct ReflectionHistoryView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Unlock Full History")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
                     Text("See all your reflections with TinyWins Plus")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding()
             .background(Color.purple.opacity(0.1))
@@ -345,6 +346,7 @@ struct ReflectionHistoryView: View {
 // MARK: - Calendar Day Cell
 
 private struct CalendarDayCell: View {
+    @Environment(\.theme) private var theme
     let date: Date
     let hasReflection: Bool
     let isAccessible: Bool
@@ -385,9 +387,9 @@ private struct CalendarDayCell: View {
     }
 
     private var textColor: Color {
-        if isFuture { return .secondary.opacity(0.5) }
-        if !isAccessible { return .secondary.opacity(0.5) }
-        return .primary
+        if isFuture { return theme.textDisabled }
+        if !isAccessible { return theme.textDisabled }
+        return theme.textPrimary
     }
 
     private var backgroundColor: Color {
@@ -398,7 +400,7 @@ private struct CalendarDayCell: View {
     }
 
     private var dotColor: Color {
-        if !isAccessible { return .gray.opacity(0.3) }
+        if !isAccessible { return theme.textDisabled.opacity(0.3) }
         return .purple
     }
 }
@@ -410,6 +412,7 @@ private struct ReflectionListDayCard: View {
     let notes: [ParentNote]
     let isAccessible: Bool
     let onTap: () -> Void
+    @Environment(\.theme) private var theme
 
     private var dateString: String {
         let formatter = DateFormatter()
@@ -432,18 +435,18 @@ private struct ReflectionListDayCard: View {
                 HStack {
                     Text(dateString)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(isAccessible ? .primary : .secondary)
+                        .foregroundColor(isAccessible ? theme.textPrimary : theme.textSecondary)
 
                     Spacer()
 
                     if !isAccessible {
                         Image(systemName: "lock.fill")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     } else {
                         Image(systemName: "chevron.right")
                             .font(.caption.weight(.medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -467,30 +470,31 @@ private struct ReflectionListDayCard: View {
                     if let firstReflection = reflections.first {
                         Text(firstReflection.content)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                             .lineLimit(2)
                     } else if let firstWin = parentWins.first {
                         Text(firstWin.content)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                             .lineLimit(2)
                     }
                 } else {
                     // Blurred preview
                     Text("Upgrade to TinyWins Plus to see this reflection")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .italic()
                 }
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(theme.bg0)
             .cornerRadius(12)
             .opacity(isAccessible ? 1 : 0.7)
         }
         .buttonStyle(.plain)
     }
 }
+
 
 // MARK: - Date Extension for Sheet Binding
 

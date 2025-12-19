@@ -19,13 +19,6 @@ final class AppCoordinator: ObservableObject {
     /// Tab state is NOT persisted across sessions - this is intentional.
     @Published var selectedTab: Tab = .today
 
-    // MARK: - Insights Navigation State
-
-    /// Navigation state for the Insights tab.
-    /// Owned by AppCoordinator to ensure stable lifecycle across view recreations.
-    /// Access via coordinator.insightsNavigation in child views.
-    let insightsNavigation = InsightsNavigationState()
-
     // MARK: - Shared Child Selection (synced across tabs)
 
     /// The currently selected child ID, shared across Insights, Goals, and other child-specific views
@@ -131,6 +124,28 @@ final class AppCoordinator: ObservableObject {
             case .goalPrompt(let child): return "goalPrompt-\(child.id)"
             }
         }
+
+        /// Short name for stall tracking (no IDs)
+        var trackingName: String {
+            switch self {
+            case .logBehavior: return "log_behavior"
+            case .addChild: return "add_child"
+            case .editChild: return "edit_child"
+            case .addReward: return "add_reward"
+            case .editReward: return "edit_reward"
+            case .rewardTemplatePicker: return "reward_template"
+            case .behaviorManagement: return "behavior_mgmt"
+            case .feedback: return "feedback"
+            case .settings: return "settings"
+            case .notificationSettings: return "notification_settings"
+            case .appearanceSettings: return "appearance_settings"
+            case .agreementView: return "agreement"
+            case .editMoment: return "edit_moment"
+            case .allowanceView: return "allowance"
+            case .paywall: return "paywall"
+            case .goalPrompt: return "goal_prompt"
+            }
+        }
     }
 
     @Published var presentedSheet: Sheet?
@@ -150,6 +165,16 @@ final class AppCoordinator: ObservableObject {
             case .kidView(let child, _): return "kidView-\(child.id)"
             case .kidGoalSelection(let child): return "kidGoalSelection-\(child.id)"
             case .goalPrompt(let child): return "goalPrompt-\(child.id)"
+            }
+        }
+
+        /// Short name for stall tracking (no IDs)
+        var trackingName: String {
+            switch self {
+            case .onboarding: return "onboarding"
+            case .kidView: return "kid_view"
+            case .kidGoalSelection: return "kid_goal_selection"
+            case .goalPrompt: return "goal_prompt"
             }
         }
     }

@@ -5,6 +5,7 @@ import SwiftUI
 
 /// Countdown timer with pulsing urgency effect
 struct UrgencyTimerView: View {
+    @Environment(\.theme) private var theme
     let targetDate: Date
     let label: String?
 
@@ -31,11 +32,11 @@ struct UrgencyTimerView: View {
                 if let label = label {
                     Text(label)
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 Text(timeRemaining)
                     .font(.system(size: 18, weight: .bold, design: .monospaced))
-                    .foregroundColor(isCritical ? .red : (isUrgent ? .orange : .primary))
+                    .foregroundColor(isCritical ? .red : (isUrgent ? .orange : theme.textPrimary))
             }
         }
         .padding(.horizontal, 16)
@@ -279,6 +280,7 @@ struct DeadlineProximityBadge: View {
 
 /// Inline deadline warning text for compact displays
 struct DeadlineWarningText: View {
+    @Environment(\.theme) private var theme
     let daysRemaining: Int
 
     private var isUrgent: Bool { daysRemaining <= 3 }
@@ -300,7 +302,7 @@ struct DeadlineWarningText: View {
             }
         }
         .font(.system(size: 11, weight: isUrgent ? .semibold : .regular))
-        .foregroundColor(isCritical ? .red : (isUrgent ? .orange : .secondary))
+        .foregroundColor(isCritical ? .red : (isUrgent ? .orange : theme.textSecondary))
     }
 }
 

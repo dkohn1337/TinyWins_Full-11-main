@@ -50,6 +50,7 @@ struct CountingNumberView: View {
 
 /// Large animated progress ring with center content
 struct GiantProgressRing: View {
+    @Environment(\.theme) private var theme
     let progress: CGFloat // 0.0 to 1.0
     let current: Int
     let total: Int
@@ -82,7 +83,7 @@ struct GiantProgressRing: View {
         ZStack {
             // Background track
             Circle()
-                .stroke(Color.gray.opacity(0.15), lineWidth: strokeWidth)
+                .stroke(theme.textDisabled.opacity(0.15), lineWidth: strokeWidth)
                 .frame(width: size, height: size)
 
             // Progress ring with gradient
@@ -106,7 +107,7 @@ struct GiantProgressRing: View {
             // Milestone markers
             ForEach([0.25, 0.5, 0.75, 1.0], id: \.self) { milestone in
                 Circle()
-                    .fill(animatedProgress >= milestone ? color : Color.gray.opacity(0.3))
+                    .fill(animatedProgress >= milestone ? color : theme.textDisabled.opacity(0.3))
                     .frame(width: 16, height: 16)
                     .shadow(color: animatedProgress >= milestone ? color.opacity(0.5) : .clear, radius: 8)
                     .offset(y: -size / 2)
@@ -119,7 +120,7 @@ struct GiantProgressRing: View {
 
                 Text("of \(total)")
                     .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 if let message = proximityMessage {
                     Text(message)

@@ -11,6 +11,7 @@ import SwiftUI
 /// - Blooming plants celebrate with sparkles
 /// - Gentle sway animation brings life to the garden
 struct GardenPlantView: View {
+    @Environment(\.theme) private var theme
     let plant: GardenPlant
     let isSelected: Bool
     var onTap: (() -> Void)? = nil
@@ -39,7 +40,7 @@ struct GardenPlantView: View {
                 // Trait name
                 Text(plant.trait.displayName)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(isSelected ? plant.trait.color : .secondary)
+                    .foregroundColor(isSelected ? plant.trait.color : theme.textSecondary)
                     .lineLimit(1)
 
                 // Moments count or encouragement
@@ -440,7 +441,7 @@ struct GardenPlantView: View {
             } else {
                 Text("Ready to grow")
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary.opacity(0.8))
+                    .foregroundColor(theme.textSecondary)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
             }
@@ -527,7 +528,7 @@ struct GardenPlantView: View {
         }
         .padding()
     }
-    .background(Color(.systemGroupedBackground))
+    .background(Theme().bg1)
 }
 
 #Preview("Garden Plant - Kindness Full Bloom") {
@@ -543,5 +544,5 @@ struct GardenPlantView: View {
     )
     .frame(width: 100, height: 200)
     .padding()
-    .background(Color(.systemGroupedBackground))
+    .background(Theme().bg1)
 }

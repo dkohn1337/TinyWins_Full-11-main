@@ -6,7 +6,7 @@ import SwiftUI
 /// - Cloud sync (single user): FREE for all signed-in users
 /// - Co-Parent features (invite partner, partner dashboard): PREMIUM only
 struct CoParentSettingsView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
@@ -110,6 +110,8 @@ struct CoParentSettingsView: View {
                 coParentUpgradeSection
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(theme.bg1)
     }
 
     // MARK: - Co-Parent Upgrade Section (shown to signed-in free users)
@@ -131,11 +133,11 @@ struct CoParentSettingsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Invite Your Partner")
                             .font(.headline)
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         Text("Upgrade to Plus to sync with a co-parent")
                             .font(.caption)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Spacer()
@@ -198,11 +200,11 @@ struct CoParentSettingsView: View {
 
                     Text("Co-Parent Sync")
                         .font(.system(.title2, design: .rounded, weight: .bold))
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("Celebrate your children's wins together")
                         .font(.subheadline)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding(.top, 32)
@@ -234,9 +236,9 @@ struct CoParentSettingsView: View {
                     )
                 }
                 .padding(20)
-                .background(theme.cardBackground)
+                .background(theme.surface1)
                 .cornerRadius(16)
-                .shadow(color: theme.cardShadow, radius: 8, y: 2)
+                .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
                 .padding(.horizontal)
 
                 // Upgrade button
@@ -265,25 +267,25 @@ struct CoParentSettingsView: View {
                 Spacer(minLength: 40)
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(theme.bg1)
     }
 
     private func benefitItem(icon: String, title: String, description: String) -> some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundColor(theme.accentColor)
+                .foregroundColor(theme.accentPrimary)
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text(description)
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -306,11 +308,11 @@ struct CoParentSettingsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(syncStatusTitle)
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text(syncStatusDescription)
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -333,11 +335,11 @@ struct CoParentSettingsView: View {
 
     private var syncStatusColor: Color {
         if repository.appData.hasCoParentSync {
-            return theme.positiveColor
+            return theme.success
         } else if repository.appData.currentParentId != nil {
-            return theme.accentColor
+            return theme.accentPrimary
         } else {
-            return theme.secondaryText
+            return theme.textSecondary
         }
     }
 
@@ -370,12 +372,12 @@ struct CoParentSettingsView: View {
                     Text(partner.avatarEmoji)
                         .font(.system(size: 32))
                         .frame(width: 50, height: 50)
-                        .background(Circle().fill(theme.positiveColor.opacity(0.15)))
+                        .background(Circle().fill(theme.success.opacity(0.15)))
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(partner.displayName)
                             .font(.headline)
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         HStack(spacing: 4) {
                             Circle()
@@ -384,7 +386,7 @@ struct CoParentSettingsView: View {
 
                             Text(partner.isRecentlyActive ? "Active recently" : "Not active recently")
                                 .font(.caption)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
 
@@ -412,10 +414,10 @@ struct CoParentSettingsView: View {
                     Button(action: generateInviteCode) {
                         HStack {
                             Image(systemName: "person.badge.plus")
-                                .foregroundColor(theme.accentColor)
+                                .foregroundColor(theme.accentPrimary)
 
                             Text("Invite Partner")
-                                .foregroundColor(theme.primaryText)
+                                .foregroundColor(theme.textPrimary)
 
                             Spacer()
 
@@ -423,7 +425,7 @@ struct CoParentSettingsView: View {
                                 ProgressView()
                             } else {
                                 Image(systemName: "chevron.right")
-                                    .foregroundColor(theme.secondaryText)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
                     }
@@ -436,10 +438,10 @@ struct CoParentSettingsView: View {
                 } label: {
                     HStack {
                         Image(systemName: "person.badge.plus")
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
 
                         Text("Invite Partner")
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         Spacer()
 
@@ -481,21 +483,21 @@ struct CoParentSettingsView: View {
             HStack {
                 Text("Invite Code")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 Spacer()
 
                 if let expiresAt = repository.appData.family.inviteCodeExpiresAt {
                     Text("Expires \(expiresAt, style: .relative)")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
 
             HStack(spacing: 8) {
                 Text(inviteCode)
                     .font(.system(size: 28, weight: .bold, design: .monospaced))
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
                     .tracking(4)
 
                 Spacer()
@@ -505,7 +507,7 @@ struct CoParentSettingsView: View {
                     copiedToClipboard = true
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .foregroundColor(theme.accentColor)
+                        .foregroundColor(theme.accentPrimary)
                 }
             }
 
@@ -519,17 +521,17 @@ struct CoParentSettingsView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(theme.accentColor)
+                        .background(theme.accentPrimary)
                         .cornerRadius(8)
                 }
 
                 Button(action: generateInviteCode) {
                     Label("New Code", systemImage: "arrow.clockwise")
                         .font(.subheadline)
-                        .foregroundColor(theme.accentColor)
+                        .foregroundColor(theme.accentPrimary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(theme.accentColor.opacity(0.15))
+                        .background(theme.accentPrimary.opacity(0.15))
                         .cornerRadius(8)
                 }
             }
@@ -547,17 +549,17 @@ struct CoParentSettingsView: View {
                     Text(currentParent.avatarEmoji)
                         .font(.system(size: 28))
                         .frame(width: 44, height: 44)
-                        .background(Circle().fill(theme.accentColor.opacity(0.15)))
+                        .background(Circle().fill(theme.accentPrimary.opacity(0.15)))
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(currentParent.displayName)
                             .font(.headline)
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         if let email = currentParent.email {
                             Text(email)
                                 .font(.caption)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
 
@@ -581,15 +583,15 @@ struct CoParentSettingsView: View {
                 } label: {
                     HStack {
                         Image(systemName: "person.crop.circle.badge.plus")
-                            .foregroundColor(theme.accentColor)
+                            .foregroundColor(theme.accentPrimary)
 
                         Text("Sign In to Enable Sync")
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         Spacer()
 
                         Image(systemName: "chevron.right")
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }
@@ -607,7 +609,7 @@ struct CoParentSettingsView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "person.2.fill")
                         .font(.system(size: 48))
-                        .foregroundColor(theme.accentColor)
+                        .foregroundColor(theme.accentPrimary)
 
                     Text("Invite Your Partner")
                         .font(.title2)
@@ -620,14 +622,14 @@ struct CoParentSettingsView: View {
                     VStack(spacing: 8) {
                         Text("Share this code:")
                             .font(.subheadline)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
 
                         Text(code)
                             .font(.system(size: 36, weight: .bold, design: .monospaced))
                             .tracking(6)
                     }
                     .padding(24)
-                    .background(Color(.systemGray6))
+                    .background(theme.surface2)
                     .cornerRadius(16)
                 }
 
@@ -643,7 +645,7 @@ struct CoParentSettingsView: View {
                     shareButton(
                         icon: "envelope.fill",
                         title: "Share via Email",
-                        color: theme.accentColor,
+                        color: theme.accentPrimary,
                         action: shareViaEmail
                     )
 
@@ -679,15 +681,15 @@ struct CoParentSettingsView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 Text(title)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding()
-            .background(theme.cardBackground)
+            .background(theme.surface1)
             .cornerRadius(12)
         }
     }
@@ -833,5 +835,5 @@ struct CoParentSettingsView: View {
     }
     .environmentObject(Repository.preview)
     .environmentObject(SubscriptionManager())
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

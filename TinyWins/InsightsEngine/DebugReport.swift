@@ -516,7 +516,7 @@ private struct DebugStatBox: View {
         }
         .frame(maxWidth: .infinity)
         .padding(12)
-        .background(Color(.systemGray6))
+        .background(Theme().surface2)
         .cornerRadius(8)
     }
 }
@@ -553,7 +553,7 @@ private struct SignalRow: View {
             }
         }
         .padding(8)
-        .background(isTriggered ? Color.green.opacity(0.1) : Color(.systemGray6))
+        .background(isTriggered ? Color.green.opacity(0.1) : Theme().surface2)
         .cornerRadius(8)
     }
 }

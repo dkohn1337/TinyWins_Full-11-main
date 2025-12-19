@@ -10,7 +10,7 @@ import SwiftUI
 /// - Warm & encouraging: celebrates the journey
 /// - Accessible: full VoiceOver support
 struct EvidenceSheetView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var repository: Repository
 
@@ -36,7 +36,7 @@ struct EvidenceSheetView: View {
                 LinearGradient(
                     colors: [
                         Color.yellow.opacity(0.03),
-                        theme.backgroundColor
+                        theme.bg0
                     ],
                     startPoint: .top,
                     endPoint: .center
@@ -50,7 +50,7 @@ struct EvidenceSheetView: View {
                     Button(action: { dismiss() }) {
                         Text("Done", tableName: "Common")
                             .fontWeight(.medium)
-                            .foregroundColor(theme.accentColor)
+                            .foregroundColor(theme.accentPrimary)
                     }
                     .accessibilityIdentifier(InsightsAccessibilityIdentifiers.evidenceSheetDoneButton)
                 }
@@ -87,12 +87,12 @@ struct EvidenceSheetView: View {
                 // Card title
                 Text(card.title)
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 // Card one-liner
                 Text(card.oneLiner)
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding(16)
@@ -100,7 +100,7 @@ struct EvidenceSheetView: View {
         .background(
             ZStack {
                 RoundedRectangle(cornerRadius: theme.cornerRadius)
-                    .fill(theme.cardBackground)
+                    .fill(theme.surface1)
 
                 RoundedRectangle(cornerRadius: theme.cornerRadius)
                     .fill(
@@ -129,7 +129,7 @@ struct EvidenceSheetView: View {
                 Text("What We Noticed", tableName: "Insights")
                     .font(.caption)
                     .fontWeight(.semibold)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
             }
 
             HStack(spacing: 12) {
@@ -173,20 +173,20 @@ struct EvidenceSheetView: View {
 
             Text(value)
                 .font(.system(size: 14, weight: .bold, design: .rounded))
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
 
             Text(label)
                 .font(.caption2)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
         .padding(.horizontal, 8)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(color.opacity(0.03))
@@ -205,12 +205,12 @@ struct EvidenceSheetView: View {
             HStack(spacing: 6) {
                 Image(systemName: "list.star")
                     .font(.caption)
-                    .foregroundColor(theme.positiveColor)
+                    .foregroundColor(theme.success)
 
                 Text("Moments That Show This", tableName: "Insights")
                     .font(.caption)
                     .fontWeight(.semibold)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
             }
 
             if evidenceEvents.isEmpty {
@@ -239,11 +239,11 @@ struct EvidenceSheetView: View {
                 Text("Moments archived", tableName: "Insights")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text("The specific moments have been cleaned up, but the pattern was real!", tableName: "Insights")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
@@ -251,7 +251,7 @@ struct EvidenceSheetView: View {
         .padding(24)
         .background(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .overlay(
                     RoundedRectangle(cornerRadius: theme.cornerRadius)
                         .fill(Color.yellow.opacity(0.03))
@@ -282,7 +282,7 @@ struct EvidenceSheetView: View {
 // MARK: - Evidence Event Row
 
 private struct EvidenceEventRow: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
 
     let event: BehaviorEvent
@@ -292,7 +292,7 @@ private struct EvidenceEventRow: View {
     }
 
     private var rowColor: Color {
-        isPositive ? theme.positiveColor : theme.challengeColor
+        isPositive ? theme.success : theme.danger
     }
 
     var body: some View {
@@ -305,25 +305,25 @@ private struct EvidenceEventRow: View {
                 Text(behaviorName)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 HStack(spacing: 8) {
                     // Date
                     Text(event.timestamp, style: .date)
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
 
                     // Time
                     Text(event.timestamp, style: .time)
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText.opacity(0.7))
+                        .foregroundColor(theme.textSecondary.opacity(0.7))
                 }
 
                 // Note (if any)
                 if let note = event.note, !note.isEmpty {
                     Text(note)
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                         .lineLimit(2)
                         .padding(.top, 2)
                 }
@@ -337,7 +337,7 @@ private struct EvidenceEventRow: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .overlay(
                     RoundedRectangle(cornerRadius: theme.cornerRadius)
                         .fill(
@@ -431,5 +431,5 @@ private struct EvidenceEventRow: View {
 
     EvidenceSheetView(card: sampleCard)
         .environmentObject(repository)
-        .withThemeProvider(ThemeProvider())
+        .withTheme(Theme())
 }

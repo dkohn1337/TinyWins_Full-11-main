@@ -11,7 +11,7 @@ import SwiftUI
 /// - Warm, encouraging colors
 /// - Drives engagement (parents want to log more to see moments featured)
 struct WeekHighlightsCard: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
 
     let child: Child
@@ -118,12 +118,12 @@ struct WeekHighlightsCard: View {
 
                     Text("This Week's Highlights")
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
                 }
 
                 Text("\(child.name)'s best moments")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -136,11 +136,11 @@ struct WeekHighlightsCard: View {
 
                 Text("\(totalWinsThisWeek)")
                     .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text("wins")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
@@ -178,14 +178,14 @@ struct WeekHighlightsCard: View {
                 Text(moment.behaviorName)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
                     .lineLimit(1)
 
                 HStack(spacing: 8) {
                     // Day
                     Text(dayString(moment.timestamp))
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
 
                     // Trait tag if available
                     if let trait = moment.trait {
@@ -212,7 +212,7 @@ struct WeekHighlightsCard: View {
             HStack(spacing: 2) {
                 Text("+\(moment.points)")
                     .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(theme.positiveColor)
+                    .foregroundColor(theme.success)
 
                 Image(systemName: "star.fill")
                     .font(.system(size: 10))
@@ -222,7 +222,7 @@ struct WeekHighlightsCard: View {
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(
@@ -256,11 +256,11 @@ struct WeekHighlightsCard: View {
 
             Text("No moments yet this week")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             Text("Log some wins to see them celebrated here!")
                 .font(.caption)
-                .foregroundColor(theme.secondaryText.opacity(0.8))
+                .foregroundColor(theme.textSecondary.opacity(0.8))
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -281,16 +281,16 @@ struct WeekHighlightsCard: View {
                 Image(systemName: "arrow.right")
                     .font(.system(size: 12, weight: .bold))
             }
-            .foregroundColor(theme.accentColor)
+            .foregroundColor(theme.accentPrimary)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(theme.accentColor.opacity(0.12))
+                    .fill(theme.accentPrimary.opacity(0.12))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(theme.accentColor.opacity(0.2), lineWidth: 1)
+                    .stroke(theme.accentPrimary.opacity(0.2), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -302,7 +302,7 @@ struct WeekHighlightsCard: View {
     private var cardBackground: some View {
         ZStack {
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
 
             // Subtle warm gradient at top
             RoundedRectangle(cornerRadius: theme.cornerRadius)
@@ -384,6 +384,6 @@ struct HighlightMoment: Identifiable {
         }
         .padding()
     }
-    .background(Color(.systemGroupedBackground))
-    .withThemeProvider(ThemeProvider())
+    .background(Theme().bg1)
+    .withTheme(Theme())
 }

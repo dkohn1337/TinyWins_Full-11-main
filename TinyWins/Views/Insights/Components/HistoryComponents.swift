@@ -4,7 +4,7 @@ import SwiftUI
 
 /// Premium dropdown filter button - clean, warm, no text wrapping
 struct FilterDropdownLabel: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let text: String
     var icon: String? = nil  // Optional - icons removed for cleaner look
@@ -20,20 +20,20 @@ struct FilterDropdownLabel: View {
 
             Image(systemName: "chevron.down")
                 .font(.system(size: 10, weight: .semibold))
-                .foregroundColor(theme.secondaryText.opacity(0.7))
+                .foregroundColor(theme.textSecondary.opacity(0.7))
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .frame(minWidth: 70)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(accentColor?.opacity(0.08) ?? theme.cardBackground)
+                .fill(accentColor?.opacity(0.08) ?? theme.surface1)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(accentColor ?? theme.borderSubtle, lineWidth: 1)
+                .stroke(accentColor ?? theme.borderSoft, lineWidth: 1)
         )
-        .foregroundColor(accentColor ?? theme.primaryText)
+        .foregroundColor(accentColor ?? theme.textPrimary)
         .shadow(color: Color.black.opacity(0.04), radius: 2, y: 1)
         .animation(nil, value: accentColor)  // Disable animation on color changes
     }
@@ -52,6 +52,7 @@ extension FilterDropdownLabel {
 
 /// Chip button for selecting filter options
 struct FilterChip: View {
+    @Environment(\.theme) private var theme
     let label: String
     let isSelected: Bool
     let color: Color
@@ -71,7 +72,7 @@ struct FilterChip: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(isSelected ? color : Color(.systemGray5))
+            .background(isSelected ? color : theme.borderSoft)
             .foregroundColor(isSelected ? .white : .primary)
             .cornerRadius(16)
         }
@@ -86,6 +87,7 @@ struct FilterChip: View {
 
 /// Compact stat display for summary bar
 struct SummaryPill: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let value: String
     let label: String
@@ -103,7 +105,7 @@ struct SummaryPill: View {
 
             Text(label)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -113,6 +115,7 @@ struct SummaryPill: View {
 
 /// Row showing a label-value pair with icon
 struct DetailRow: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let label: String
     let value: String
@@ -127,7 +130,7 @@ struct DetailRow: View {
 
             Text(label)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             Spacer()
 
@@ -141,6 +144,7 @@ struct DetailRow: View {
 
 /// Button for filtering by child
 struct ChildFilterButton: View {
+    @Environment(\.theme) private var theme
     let title: String
     var color: Color = .accentColor
     let isSelected: Bool
@@ -153,8 +157,8 @@ struct ChildFilterButton: View {
                 .fontWeight(isSelected ? .semibold : .regular)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(isSelected ? color : Color(.systemGray5))
-                .foregroundColor(isSelected ? .white : .primary)
+                .background(isSelected ? color : theme.borderSoft)
+                .foregroundColor(isSelected ? .white : theme.textPrimary)
                 .cornerRadius(16)
         }
         .buttonStyle(.plain)
@@ -165,6 +169,8 @@ struct ChildFilterButton: View {
 
 /// Three-row filter section for time, child, and type
 struct HistoryFilterSection: View {
+    @Environment(\.theme) private var theme
+
     @Binding var selectedPeriod: TimePeriod
     @Binding var selectedChildId: UUID?
     @Binding var selectedTypeFilter: HistoryTypeFilter
@@ -230,7 +236,7 @@ struct HistoryFilterSection: View {
             }
         }
         .padding(.vertical, 12)
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
     }
 
     private func typeFilterColor(for filter: HistoryTypeFilter) -> Color {
@@ -247,6 +253,8 @@ struct HistoryFilterSection: View {
 
 /// Summary bar showing positive/challenge/net star counts
 struct HistorySummaryBar: View {
+    @Environment(\.theme) private var theme
+
     let positiveCount: Int
     let challengeCount: Int
     let netStars: Int
@@ -281,7 +289,7 @@ struct HistorySummaryBar: View {
             )
         }
         .padding(.vertical, 12)
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
     }
 }
 
@@ -289,13 +297,14 @@ struct HistorySummaryBar: View {
 
 /// Empty state for history view
 struct HistoryEmptyState: View {
+    @Environment(\.theme) private var theme
     let hasAnyData: Bool
     let onResetFilters: () -> Void
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                StyledIcon(systemName: "clock.badge.checkmark", color: .secondary, size: 32, backgroundSize: 64, isCircle: true)
+                StyledIcon(systemName: "clock.badge.checkmark", color: theme.textSecondary, size: 32, backgroundSize: 64, isCircle: true)
 
                 if !hasAnyData {
                     Text("Your timeline will grow here")
@@ -304,7 +313,7 @@ struct HistoryEmptyState: View {
 
                     Text("Every moment you log becomes part of your family's story.")
                         .font(.body)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal)
@@ -315,7 +324,7 @@ struct HistoryEmptyState: View {
 
                     Text("Try widening your filters to see more moments.")
                         .font(.body)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal)

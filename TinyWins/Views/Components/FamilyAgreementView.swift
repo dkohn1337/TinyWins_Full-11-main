@@ -8,6 +8,7 @@ struct FamilyAgreementView: View {
     @EnvironmentObject private var rewardsStore: RewardsStore
     @EnvironmentObject private var agreementsStore: AgreementsStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     let child: Child
     
@@ -157,13 +158,13 @@ struct FamilyAgreementView: View {
                 // Title
                 Text("\(currentChild.name)'s Family Plan")
                     .font(AppStyles.childFriendlyFont)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
                 
                 // Last signed date (if applicable)
                 if let signedDate = lastSignedDate {
                     Text(signedDateText(signedDate))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 
                 // Status pill
@@ -172,12 +173,12 @@ struct FamilyAgreementView: View {
                 // Subtext
                 Text(coverageStatus.subtext)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
             .padding()
             .frame(maxWidth: .infinity)
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(AppStyles.cardCornerRadius)
             .shadow(color: AppStyles.cardShadow, radius: AppStyles.cardShadowRadius, y: 2)
         }
@@ -237,14 +238,14 @@ struct FamilyAgreementView: View {
         return VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    StyledIcon(systemName: "star.fill", color: Color.secondary, size: 16, backgroundSize: 32, isCircle: true)
+                    StyledIcon(systemName: "star.fill", color: theme.textSecondary, size: 16, backgroundSize: 32, isCircle: true)
                     Text("I Earn Stars By...")
                         .font(.headline)
                 }
-                
+
                 Text("These are the moments we're noticing together")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .padding(.leading, 40)
             }
             
@@ -266,7 +267,7 @@ struct FamilyAgreementView: View {
                             Image(systemName: showAllBehaviors ? "chevron.up" : "chevron.down")
                         }
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 4)
@@ -274,16 +275,16 @@ struct FamilyAgreementView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(AppStyles.cardCornerRadius)
         .shadow(color: AppStyles.cardShadow, radius: AppStyles.cardShadowRadius, y: 2)
     }
-    
+
     private var emptyBehaviorsState: some View {
         VStack(spacing: 8) {
             Text("Set a few ways to earn stars")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
             
             NavigationLink(destination: BehaviorManagementView()) {
                 HStack {
@@ -318,7 +319,7 @@ struct FamilyAgreementView: View {
                     .foregroundColor(isPositive ? AppColors.positive : .red)
                 Image(systemName: "star.fill")
                     .font(.caption)
-                    .foregroundColor(Color.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding(.vertical, 8)
@@ -343,20 +344,20 @@ struct FamilyAgreementView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(AppStyles.cardCornerRadius)
         .shadow(color: AppStyles.cardShadow, radius: AppStyles.cardShadowRadius, y: 2)
     }
-    
+
     private var emptyGoalsState: some View {
         VStack(spacing: 8) {
             Text("No goals yet")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
-            
+                .foregroundColor(theme.textSecondary)
+
             Text("Pick something fun to work toward together.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -419,7 +420,7 @@ struct FamilyAgreementView: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(.systemGray5))
+                            .fill(theme.borderSoft)
                             .frame(height: 8)
                         
                         RoundedRectangle(cornerRadius: 4)
@@ -432,7 +433,7 @@ struct FamilyAgreementView: View {
                 HStack {
                     Text("\(earned) of \(reward.targetPoints) stars")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     
                     Spacer()
                     
@@ -449,7 +450,7 @@ struct FamilyAgreementView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Talk about this goal together, then sign your agreement.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     
                     Button(action: {
                         withAnimation {
@@ -468,7 +469,7 @@ struct FamilyAgreementView: View {
             }
         }
         .padding()
-        .background(needsAgreement ? Color.orange.opacity(0.05) : Color(.systemGray6))
+        .background(needsAgreement ? Color.orange.opacity(0.05) : theme.surface2)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -489,7 +490,7 @@ struct FamilyAgreementView: View {
             // Different copy based on status
             Text(signatureSubtext)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
             
             // Out of date warning banner
             if coverageStatus == .signedOutOfDate {
@@ -516,7 +517,7 @@ struct FamilyAgreementView: View {
             if coverageStatus == .neverSigned {
                 Text("Draw something fun together to celebrate making your family plan!")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .frame(maxWidth: .infinity)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -540,7 +541,7 @@ struct FamilyAgreementView: View {
         }
         .padding()
         .background(
-            Color(.systemBackground)
+            theme.surface1
                 .overlay(
                     highlightSignatures ?
                     Color.yellow.opacity(0.15) : Color.clear
@@ -568,7 +569,7 @@ struct FamilyAgreementView: View {
                 .foregroundColor(.orange)
             Text("Goals have changed! Talk about the new plan and do a new family handshake.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(12)
@@ -600,7 +601,7 @@ struct FamilyAgreementView: View {
                         .frame(height: 60)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Color(.systemGray6))
+                                .fill(theme.surface2)
                         )
                     
                     if isSigned, let data = signatureData, let uiImage = UIImage(data: data) {
@@ -613,7 +614,7 @@ struct FamilyAgreementView: View {
                         // Placeholder text for unsigned
                         Text("Tap to draw")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 
@@ -632,12 +633,12 @@ struct FamilyAgreementView: View {
                         if let date = signedDate {
                             Text(participationDateLabel(date))
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     } else {
                         Text(isChild ? "\(currentChild.name)'s turn to draw" : "Parent's turn to draw")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }
@@ -648,7 +649,7 @@ struct FamilyAgreementView: View {
     
     private func signatureStrokeColor(isSigned: Bool) -> Color {
         if !isSigned {
-            return Color(.systemGray4)
+            return Theme().borderStrong
         }
         switch coverageStatus {
         case .signedCurrent:
@@ -721,6 +722,7 @@ struct ParticipationSheet: View {
     let onComplete: (Data) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @State private var paths: [Path] = []
     @State private var currentPath = Path()
 
@@ -730,7 +732,7 @@ struct ParticipationSheet: View {
                 // Instructions
                 Text(instructionText)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
 
@@ -743,7 +745,7 @@ struct ParticipationSheet: View {
                         context.stroke(currentPath, with: .color(.primary), lineWidth: 3)
                     }
                     .frame(height: 150)
-                    .background(Color(.systemGray6))
+                    .background(Theme().surface2)
                     .cornerRadius(12)
                     .gesture(
                         DragGesture(minimumDistance: 0)
@@ -762,21 +764,21 @@ struct ParticipationSheet: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(.systemGray4), lineWidth: 1)
+                            .stroke(Theme().borderStrong, lineWidth: 1)
                     )
 
                     HStack {
                         Button(action: clearDrawing) {
                             Label("Clear", systemImage: "arrow.counterclockwise")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
 
                         Spacer()
 
                         Text("Draw with your finger")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(.horizontal)
@@ -789,7 +791,7 @@ struct ParticipationSheet: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(paths.isEmpty ? Color(.systemGray4) : AppColors.positive)
+                        .background(paths.isEmpty ? theme.borderStrong : AppColors.positive)
                         .foregroundColor(.white)
                         .cornerRadius(AppStyles.buttonCornerRadius)
                 }

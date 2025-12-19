@@ -16,6 +16,7 @@ struct GiantGoalProgressCard: View {
     let onCelebrate: () -> Void
     let onShowKidView: () -> Void
 
+    @Environment(\.theme) private var theme
     @State private var pulseScale: CGFloat = 1.0
     @State private var glowOpacity: CGFloat = 0.3
 
@@ -64,7 +65,7 @@ struct GiantGoalProgressCard: View {
 
                     Text("Working toward a goal")
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -80,7 +81,7 @@ struct GiantGoalProgressCard: View {
             ZStack {
                 // Background ring
                 Circle()
-                    .stroke(Color.gray.opacity(0.15), lineWidth: 28)
+                    .stroke(theme.textDisabled.opacity(0.15), lineWidth: 28)
                     .frame(width: 260, height: 260)
 
                 // Progress ring with gradient
@@ -105,7 +106,7 @@ struct GiantGoalProgressCard: View {
                 // Milestone markers
                 ForEach([0.25, 0.5, 0.75, 1.0], id: \.self) { milestone in
                     Circle()
-                        .fill(progress >= milestone ? child.colorTag.color : Color.gray.opacity(0.3))
+                        .fill(progress >= milestone ? child.colorTag.color : theme.textDisabled.opacity(0.3))
                         .frame(width: 16, height: 16)
                         .shadow(color: progress >= milestone ? child.colorTag.color.opacity(0.5) : .clear, radius: 8)
                         .offset(y: -130)
@@ -133,7 +134,7 @@ struct GiantGoalProgressCard: View {
 
                         Text("of \(targetStars) stars")
                             .font(.system(size: 24, weight: .semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         if let message = proximityMessage {
                             Text(message)
@@ -179,12 +180,12 @@ struct GiantGoalProgressCard: View {
                     if let category = reward.category {
                         Text(category)
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 4)
                             .background(
                                 Capsule()
-                                    .fill(Color(.systemGray6))
+                                    .fill(theme.surface2)
                             )
                     }
                 }
@@ -194,7 +195,7 @@ struct GiantGoalProgressCard: View {
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
                     .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
             )
             .padding(.horizontal, 24)
@@ -255,7 +256,7 @@ struct GiantGoalProgressCard: View {
                     LinearGradient(
                         colors: [
                             child.colorTag.color.opacity(0.08),
-                            Color(.systemBackground)
+                            theme.surface1
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -285,6 +286,7 @@ struct CompactGoalCard: View {
     let onTap: () -> Void
     let onMakePrimary: () -> Void
 
+    @Environment(\.theme) private var theme
     @State private var isPressed = false
 
     private var progress: CGFloat {
@@ -298,7 +300,7 @@ struct CompactGoalCard: View {
                 // Mini progress ring
                 ZStack {
                     Circle()
-                        .stroke(Color.gray.opacity(0.15), lineWidth: 6)
+                        .stroke(theme.textDisabled.opacity(0.15), lineWidth: 6)
                         .frame(width: 60, height: 60)
 
                     Circle()
@@ -328,13 +330,13 @@ struct CompactGoalCard: View {
 
                     Text("\(currentStars) of \(reward.targetPoints) stars")
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     // Progress bar
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(.systemGray5))
+                                .fill(theme.borderSoft)
                                 .frame(height: 6)
 
                             RoundedRectangle(cornerRadius: 4)
@@ -357,7 +359,7 @@ struct CompactGoalCard: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
                     .shadow(color: .black.opacity(isPressed ? 0.12 : 0.06), radius: isPressed ? 8 : 12, y: isPressed ? 4 : 6)
             )
             .scaleEffect(isPressed ? 0.98 : 1.0)
@@ -380,6 +382,8 @@ struct EnhancedChildSwitcher: View {
     let childSummary: (Child) -> String
     let hasReadyReward: (Child) -> Bool
     let onSelect: (Child) -> Void
+
+    @Environment(\.theme) private var theme
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -408,6 +412,7 @@ struct EnhancedChildPill: View {
     let hasReadyReward: Bool
     let onTap: () -> Void
 
+    @Environment(\.theme) private var theme
     @State private var readyPulse: CGFloat = 1.0
 
     var body: some View {
@@ -438,11 +443,11 @@ struct EnhancedChildPill: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(child.name)
                         .font(.system(size: 16, weight: isSelected ? .bold : .semibold))
-                        .foregroundColor(isSelected ? .white : .primary)
+                        .foregroundColor(isSelected ? .white : theme.textPrimary)
 
                     Text(summary)
                         .font(.system(size: 12))
-                        .foregroundColor(isSelected ? .white.opacity(0.8) : .secondary)
+                        .foregroundColor(isSelected ? .white.opacity(0.8) : theme.textSecondary)
                 }
 
                 // Ready indicator
@@ -471,14 +476,14 @@ struct EnhancedChildPill: View {
                     .fill(
                         isSelected ?
                         LinearGradient(colors: [child.colorTag.color, child.colorTag.color.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                        LinearGradient(colors: [Color(.systemBackground)], startPoint: .top, endPoint: .bottom)
+                        LinearGradient(colors: [theme.surface1], startPoint: .top, endPoint: .bottom)
                     )
                     .shadow(color: isSelected ? child.colorTag.color.opacity(0.4) : .black.opacity(0.06), radius: isSelected ? 12 : 8, y: isSelected ? 6 : 4)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 24)
                     .strokeBorder(
-                        isSelected ? Color.clear : Color(.systemGray5),
+                        isSelected ? Color.clear : theme.borderSoft,
                         lineWidth: 1
                     )
             )
@@ -494,6 +499,7 @@ struct NoGoalsEmptyStateView: View {
     let children: [Child]
     let onAddGoal: (Child) -> Void
 
+    @Environment(\.theme) private var theme
     @State private var rotation: Double = 0
 
     var body: some View {
@@ -536,7 +542,7 @@ struct NoGoalsEmptyStateView: View {
 
                 Text("Goals turn everyday moments into exciting achievements your child can see and celebrate.")
                     .font(.system(size: 18))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
             }
@@ -588,6 +594,8 @@ struct AddGoalPromptView: View {
     let hasCompletedGoals: Bool
     let onTap: () -> Void
 
+    @Environment(\.theme) private var theme
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 16) {
@@ -610,11 +618,11 @@ struct AddGoalPromptView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(hasCompletedGoals ? "Set Another Goal" : "Add a Goal")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
 
                     Text(hasCompletedGoals ? "Keep the momentum going!" : "Pick something exciting to work toward")
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -626,7 +634,7 @@ struct AddGoalPromptView: View {
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
                     .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
             )
         }
@@ -640,6 +648,8 @@ struct AddGoalPromptView: View {
 struct CompletedGoalsSection: View {
     let rewards: [Reward]
     let childColor: Color
+
+    @Environment(\.theme) private var theme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -655,7 +665,7 @@ struct CompletedGoalsSection: View {
 
                 Text("\(rewards.count) completed")
                     .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             ForEach(rewards.prefix(3)) { reward in
@@ -671,7 +681,7 @@ struct CompletedGoalsSection: View {
                         if let date = reward.redeemedDate {
                             Text("Earned \(formattedDate(date))")
                                 .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
 
@@ -687,21 +697,21 @@ struct CompletedGoalsSection: View {
                 .padding(12)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(.systemGray6))
+                        .fill(theme.surface2)
                 )
             }
 
             if rewards.count > 3 {
                 Text("+ \(rewards.count - 3) more completed goals")
                     .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .padding(.top, 4)
             }
         }
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.04), radius: 8, y: 4)
         )
     }

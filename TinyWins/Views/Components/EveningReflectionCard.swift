@@ -5,7 +5,7 @@ import SwiftUI
 struct EveningReflectionCard: View {
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     let onTap: () -> Void
 
@@ -66,11 +66,11 @@ struct EveningReflectionCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("End Your Day Mindfully")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(themeProvider.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text(messageText)
                         .font(.caption)
-                        .foregroundColor(themeProvider.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                         .lineLimit(2)
 
                     // Reflection count badge (no streak framing)
@@ -92,12 +92,12 @@ struct EveningReflectionCard: View {
                 // Arrow
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(themeProvider.cardBackground)
+                    .fill(theme.surface1)
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(
@@ -144,10 +144,10 @@ extension EveningReflectionCard {
         EveningReflectionCard(onTap: {})
             .environmentObject(Repository.preview)
             .environmentObject(BehaviorsStore(repository: Repository.preview))
-            .environmentObject(ThemeProvider())
     }
     .padding()
-    .background(Color(.systemGroupedBackground))
+    .background(Theme().bg1)
+    .withTheme(Theme())
 }
 
 #Preview("With Streak") {
@@ -155,8 +155,8 @@ extension EveningReflectionCard {
         EveningReflectionCard(onTap: {})
             .environmentObject(Repository.preview)
             .environmentObject(BehaviorsStore(repository: Repository.preview))
-            .environmentObject(ThemeProvider())
     }
     .padding()
-    .background(Color(.systemGroupedBackground))
+    .background(Theme().bg1)
+    .withTheme(Theme())
 }

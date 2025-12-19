@@ -11,7 +11,7 @@ import SwiftUI
 /// - Insight callout: Forward-looking, actionable intelligence
 /// - Premium feel: Gauges, gradients, sophisticated typography
 struct HabitsFormingCard: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
 
     let cards: [CoachCard]
@@ -112,7 +112,7 @@ struct HabitsFormingCard: View {
             ctaButton
         }
         .background(cardBackground)
-        .shadow(color: theme.accentColor.opacity(0.1), radius: 16, x: 0, y: 6)
+        .shadow(color: theme.accentPrimary.opacity(0.1), radius: 16, x: 0, y: 6)
     }
 
     // MARK: - Header with Momentum Ring
@@ -123,7 +123,7 @@ struct HabitsFormingCard: View {
             ZStack {
                 // Background ring
                 Circle()
-                    .stroke(theme.accentColor.opacity(0.15), lineWidth: 8)
+                    .stroke(theme.accentPrimary.opacity(0.15), lineWidth: 8)
                     .frame(width: 72, height: 72)
 
                 // Progress ring
@@ -144,7 +144,7 @@ struct HabitsFormingCard: View {
                 VStack(spacing: 1) {
                     Text("\(Int(momentumScore))")
                         .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     HStack(spacing: 2) {
                         Image(systemName: momentumTrend.icon)
@@ -160,11 +160,11 @@ struct HabitsFormingCard: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Habit Momentum")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text("\(cards.count) habits forming this week")
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 // Week-over-week badge
                 weekOverWeekBadge
@@ -195,14 +195,14 @@ struct HabitsFormingCard: View {
             }
             Text("vs last week")
                 .font(.system(size: 10))
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
-        .foregroundColor(weekOverWeekChange > 0 ? .green : weekOverWeekChange < 0 ? .orange : theme.secondaryText)
+        .foregroundColor(weekOverWeekChange > 0 ? .green : weekOverWeekChange < 0 ? .orange : theme.textSecondary)
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
         .background(
             Capsule()
-                .fill(weekOverWeekChange > 0 ? Color.green.opacity(0.12) : weekOverWeekChange < 0 ? Color.orange.opacity(0.12) : theme.cardBackground)
+                .fill(weekOverWeekChange > 0 ? Color.green.opacity(0.12) : weekOverWeekChange < 0 ? Color.orange.opacity(0.12) : theme.surface1)
         )
     }
 
@@ -244,12 +244,12 @@ struct HabitsFormingCard: View {
                 Text(extractBehaviorName(from: card.title))
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
                     .lineLimit(1)
 
                 Text("\(thisWeekCount)x this week")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -270,7 +270,7 @@ struct HabitsFormingCard: View {
         case 1: return Color(red: 1.0, green: 0.75, blue: 0.0) // Gold
         case 2: return Color(red: 0.75, green: 0.75, blue: 0.8) // Silver
         case 3: return Color(red: 0.8, green: 0.5, blue: 0.2) // Bronze
-        default: return theme.secondaryText.opacity(0.5)
+        default: return theme.textSecondary.opacity(0.5)
         }
     }
 
@@ -291,7 +291,7 @@ struct HabitsFormingCard: View {
                     .font(.system(size: 13, weight: .medium))
             }
         }
-        .foregroundColor(change > 0 ? .green : change < 0 ? .orange : theme.secondaryText)
+        .foregroundColor(change > 0 ? .green : change < 0 ? .orange : theme.textSecondary)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .background(
@@ -310,7 +310,7 @@ struct HabitsFormingCard: View {
 
             Text(insight)
                 .font(.subheadline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
                 .lineLimit(2)
         }
         .padding(14)
@@ -348,7 +348,7 @@ struct HabitsFormingCard: View {
             .padding(.vertical, 14)
             .background(
                 LinearGradient(
-                    colors: [theme.accentColor, theme.accentColor.opacity(0.85)],
+                    colors: [theme.accentPrimary, theme.accentPrimary.opacity(0.85)],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
@@ -364,16 +364,16 @@ struct HabitsFormingCard: View {
     private var cardBackground: some View {
         ZStack {
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
 
             // Premium gradient tint
             RoundedRectangle(cornerRadius: theme.cornerRadius)
                 .fill(
                     LinearGradient(
                         colors: [
-                            theme.accentColor.opacity(0.04),
+                            theme.accentPrimary.opacity(0.04),
                             Color.clear,
-                            theme.positiveColor.opacity(0.02)
+                            theme.success.opacity(0.02)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -381,7 +381,7 @@ struct HabitsFormingCard: View {
                 )
 
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .stroke(theme.accentColor.opacity(0.12), lineWidth: 1)
+                .stroke(theme.accentPrimary.opacity(0.12), lineWidth: 1)
         }
     }
 
@@ -487,5 +487,5 @@ struct HabitsFormingCard: View {
         .padding()
     }
     .environmentObject(repository)
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

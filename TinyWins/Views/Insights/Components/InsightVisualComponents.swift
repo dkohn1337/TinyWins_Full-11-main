@@ -5,7 +5,7 @@ import SwiftUI
 /// 7-day horizontal row showing daily activity intensity.
 /// Used in free tier to give visual proof of logging activity.
 struct WeekActivityDots: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let dailyData: [InsightGenerationUseCase.DailyActivityData]
     var accentColor: Color = .green
@@ -61,7 +61,7 @@ struct WeekActivityDots: View {
                     // Day label
                     Text(dayLabels[index])
                         .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
         }
@@ -77,7 +77,7 @@ struct WeekActivityDots: View {
             // Background/outline
             Circle()
                 .stroke(
-                    total == 0 ? theme.secondaryText.opacity(0.3) : Color.clear,
+                    total == 0 ? theme.textSecondary.opacity(0.3) : Color.clear,
                     lineWidth: 1.5
                 )
                 .frame(width: 14, height: 14)
@@ -92,7 +92,7 @@ struct WeekActivityDots: View {
             // Today highlight ring
             if isToday {
                 Circle()
-                    .stroke(theme.accentColor, lineWidth: 2)
+                    .stroke(theme.accentPrimary, lineWidth: 2)
                     .frame(width: 18, height: 18)
             }
         }
@@ -101,9 +101,9 @@ struct WeekActivityDots: View {
 
     private func dotColor(positive: Int, negative: Int) -> Color {
         if positive > negative {
-            return theme.positiveColor
+            return theme.success
         } else if negative > positive {
-            return theme.challengeColor
+            return theme.danger
         } else {
             return accentColor
         }
@@ -119,7 +119,7 @@ struct WeekActivityDots: View {
 
 /// Compact trend indicator with arrow and optional percentage.
 struct TrendArrowBadge: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     enum Trend {
         case up
@@ -211,7 +211,7 @@ struct TrendArrowBadge: View {
 
 /// Horizontal scrollable list of top behaviors as pills.
 struct BehaviorPillStack: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     struct BehaviorItem: Identifiable {
         let id = UUID()
@@ -249,7 +249,7 @@ struct BehaviorPillStack: View {
     }
 
     private func behaviorPill(_ behavior: BehaviorItem) -> some View {
-        let color = behavior.isPositive ? theme.positiveColor : theme.challengeColor
+        let color = behavior.isPositive ? theme.success : theme.danger
 
         return HStack(spacing: 4) {
             Image(systemName: behavior.isPositive ? "star.fill" : "exclamationmark.triangle.fill")
@@ -258,7 +258,7 @@ struct BehaviorPillStack: View {
 
             Text(behavior.name)
                 .font(.system(size: 12, weight: .medium))
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
                 .lineLimit(1)
 
             Text("\(behavior.count)")
@@ -277,16 +277,16 @@ struct BehaviorPillStack: View {
         HStack(spacing: 2) {
             Text("+\(behaviors.count - maxVisible)")
                 .font(.system(size: 11, weight: .medium))
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
             Image(systemName: "ellipsis")
                 .font(.system(size: 10))
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background(
             Capsule()
-                .fill(theme.secondaryText.opacity(0.1))
+                .fill(theme.textSecondary.opacity(0.1))
         )
     }
 
@@ -300,7 +300,7 @@ struct BehaviorPillStack: View {
 
 /// Compact 4-week trend visualization showing relative activity levels.
 struct MiniBarChart: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let weeklyTotals: [Int]
     var accentColor: Color = .green
@@ -350,7 +350,7 @@ struct MiniBarChart: View {
 
 /// Shows the correlation between parent reflection and child positive moments.
 struct ReflectionCorrelationCard: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let percentageMorePositive: Double
     let daysAnalyzed: Int
@@ -370,15 +370,15 @@ struct ReflectionCorrelationCard: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("On days you reflect, kids have")
                     .font(.system(size: 12))
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 HStack(spacing: 4) {
                     Text("\(Int(percentageMorePositive))%")
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(theme.positiveColor)
+                        .foregroundColor(theme.success)
                     Text("more positive moments")
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
                 }
             }
 
@@ -398,7 +398,7 @@ struct ReflectionCorrelationCard: View {
 
 /// Enhanced version of the micro hint chip with optional trend indicator.
 struct EnhancedMicroHintChip: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let icon: String
     let label: String
@@ -417,7 +417,7 @@ struct EnhancedMicroHintChip: View {
                 HStack(spacing: 6) {
                     Text(label)
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     if let trend = trend {
                         TrendArrowBadge(
@@ -431,7 +431,7 @@ struct EnhancedMicroHintChip: View {
 
                 Text(sublabel)
                     .font(.system(size: 10))
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding(.horizontal, 12)
@@ -462,7 +462,7 @@ struct EnhancedMicroHintChip: View {
         WeekActivityDots(dailyData: sampleData, accentColor: .purple)
     }
     .padding()
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Trend Arrow Badge") {
@@ -474,7 +474,7 @@ struct EnhancedMicroHintChip: View {
         TrendArrowBadge(percentChange: 45, compact: true)
     }
     .padding()
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Behavior Pill Stack") {
@@ -491,7 +491,7 @@ struct EnhancedMicroHintChip: View {
         BehaviorPillStack(behaviors: behaviors, maxVisible: 5, showTruncationHint: false)
     }
     .padding()
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Mini Bar Chart") {
@@ -501,13 +501,13 @@ struct EnhancedMicroHintChip: View {
         MiniBarChart(weeklyTotals: [20, 15, 10, 5], accentColor: .orange)
     }
     .padding()
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Reflection Correlation Card") {
     ReflectionCorrelationCard(percentageMorePositive: 23, daysAnalyzed: 30)
         .padding()
-        .withThemeProvider(ThemeProvider())
+        .withTheme(Theme())
 }
 
 #Preview("Enhanced Micro Hint Chip") {
@@ -529,5 +529,5 @@ struct EnhancedMicroHintChip: View {
         )
     }
     .padding()
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

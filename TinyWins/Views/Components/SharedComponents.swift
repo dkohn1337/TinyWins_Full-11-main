@@ -1,5 +1,53 @@
 import SwiftUI
 
+// MARK: - DeferredBuild (Performance)
+
+/// PERFORMANCE: Defers building heavy view content until after sheet presentation animation completes.
+/// This prevents the main thread from blocking during sheet presentation, reducing hitches.
+///
+/// Usage:
+/// ```swift
+/// .sheet(isPresented: $showingSheet) {
+///     DeferredBuild {
+///         HeavyView()
+///     }
+/// }
+/// ```
+struct DeferredBuild<Content: View>: View {
+    let content: () -> Content
+
+    @State private var shouldBuildContent = false
+
+    init(@ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+    }
+
+    var body: some View {
+        Group {
+            if shouldBuildContent {
+                #if DEBUG
+                let _ = FrameStallMonitor.shared.markBlockReason(.sheetBuild)
+                #endif
+                content()
+                    #if DEBUG
+                    .onAppear {
+                        FrameStallMonitor.shared.clearBlockReason()
+                    }
+                    #endif
+            } else {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .onAppear {
+            // Build content after presentation animation starts (50ms delay)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                shouldBuildContent = true
+            }
+        }
+    }
+}
+
 // MARK: - Reusable Progress Ring
 
 /// A configurable circular progress ring that preserves all existing visual patterns.
@@ -16,7 +64,7 @@ struct ProgressRingView: View {
     let showMilestoneGlow: Bool
     let animateOnAppear: Bool
 
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @State private var animatedProgress: CGFloat = 0
 
     /// Standard progress ring initializer
@@ -44,7 +92,7 @@ struct ProgressRingView: View {
 
     /// Background ring color - uses a light tint of the progress color for theme consistency
     private var backgroundRingColor: Color {
-        if themeProvider.isDarkMode {
+        if theme.isDark {
             return color.opacity(0.15)
         } else {
             // Use a subtle tint of the progress color for themed appearance
@@ -81,11 +129,11 @@ struct ProgressRingView: View {
                     let reached = current >= milestone
 
                     Circle()
-                        .fill(reached ? color : Color(.systemGray5))
+                        .fill(reached ? color : theme.borderSoft)
                         .frame(width: strokeWidth, height: strokeWidth)
                         .overlay(
                             Circle()
-                                .stroke(reached ? color.opacity(0.6) : Color(.systemGray4), lineWidth: 2)
+                                .stroke(reached ? color.opacity(0.6) : theme.borderStrong, lineWidth: 2)
                         )
                         .shadow(color: (reached && showMilestoneGlow) ? color.opacity(0.4) : .clear, radius: 4)
                         .offset(y: -size / 2)
@@ -129,11 +177,11 @@ struct LargeProgressRingView: View {
     let targetPoints: Int
     let currentPoints: Int
 
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     /// Background ring color - uses a light tint of the progress color
     private var backgroundRingColor: Color {
-        if themeProvider.isDarkMode {
+        if theme.isDark {
             return color.opacity(0.15)
         } else {
             return color.opacity(0.12)
@@ -183,11 +231,11 @@ struct LargeProgressRingView: View {
                     }
 
                     Circle()
-                        .fill(isReached ? color : Color(.systemGray5))
+                        .fill(isReached ? color : theme.borderSoft)
                         .frame(width: 16, height: 16)
                         .overlay(
                             Circle()
-                                .stroke(isReached ? color.opacity(0.6) : Color(.systemGray4), lineWidth: 2)
+                                .stroke(isReached ? color.opacity(0.6) : theme.borderStrong, lineWidth: 2)
                         )
                 }
                 .offset(y: -130)
@@ -275,6 +323,7 @@ struct GlowingIconView: View {
 
 /// Reusable empty state view that matches existing visual patterns
 struct EmptyStateView: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let title: String
     let message: String
@@ -369,7 +418,7 @@ struct EmptyStateView: View {
 
                     Text(message)
                         .font(.system(size: 15))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -408,7 +457,7 @@ struct EmptyStateView: View {
             .padding()
             .padding(.bottom, 120) // Space for floating tab bar
         }
-        .background(Color(.systemGroupedBackground))
+        .background(theme.bg1)
         .onAppear {
             if showAnimatedGlow {
                 withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
@@ -423,6 +472,7 @@ struct EmptyStateView: View {
 
 /// Simpler empty state for in-context use (not full screen)
 struct SimpleEmptyStateView: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let title: String
     let message: String
@@ -459,7 +509,7 @@ struct SimpleEmptyStateView: View {
 
             Text(message)
                 .font(.body)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal)
@@ -478,6 +528,7 @@ struct SimpleEmptyStateView: View {
         strokeWidth: 10
     )
     .padding()
+    .withTheme(Theme())
 }
 
 // MARK: - Offline Banner
@@ -522,6 +573,7 @@ struct OfflineBanner: View {
         currentPoints: 13
     )
     .padding()
+    .withTheme(Theme())
 }
 
 #Preview("Large Progress Ring") {
@@ -533,6 +585,7 @@ struct OfflineBanner: View {
         currentPoints: 15
     )
     .padding()
+    .withTheme(Theme())
 }
 
 #Preview("Glowing Icon") {

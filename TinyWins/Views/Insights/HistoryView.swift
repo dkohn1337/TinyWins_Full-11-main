@@ -36,6 +36,7 @@ private enum HistoryDateFormatterCache {
 // MARK: - History View with Enhanced Filtering
 
 struct HistoryView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var rewardsStore: RewardsStore
@@ -164,7 +165,7 @@ struct HistoryView: View {
                     timelineView
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationTitle("History")
             .sheet(item: $selectedBehaviorEvent) { event in
                 EventDetailSheet(event: event)
@@ -246,9 +247,9 @@ struct HistoryView: View {
             }
         }
         .padding(.vertical, 12)
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
     }
-    
+
     private func typeFilterColor(for filter: HistoryTypeFilter) -> Color {
         switch filter {
         case .allMoments: return .gray
@@ -335,7 +336,7 @@ struct HistoryView: View {
         }
         .padding(.horizontal, AppSpacing.screenPadding)
         .padding(.vertical, 12)
-        .background(Color(.systemGroupedBackground))
+        .background(theme.bg1)
     }
 
     /// Accent color for selected child (uses child's color tag)
@@ -361,22 +362,22 @@ struct HistoryView: View {
         Button(action: { showingFilterSheet = true }) {
             HStack(spacing: 6) {
                 Text("Showing:")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 Text(filterSummaryText)
                     .fontWeight(.medium)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
                 Image(systemName: "slider.horizontal.3")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .font(.caption)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-            .background(Color(.systemGray6))
+            .background(theme.surface2)
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
@@ -426,9 +427,9 @@ struct HistoryView: View {
             )
         }
         .padding(.vertical, 12)
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
     }
-    
+
     // MARK: - Guidance Text
     
     private var guidanceText: some View {
@@ -436,7 +437,7 @@ struct HistoryView: View {
             if positiveCount > 0 || challengeCount > 0 {
                 Text(guidanceMessage)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 8)
@@ -486,7 +487,7 @@ struct HistoryView: View {
     private var emptyState: some View {
         ScrollView {
             VStack(spacing: 16) {
-                StyledIcon(systemName: "clock.badge.checkmark", color: .secondary, size: 32, backgroundSize: 64, isCircle: true)
+                StyledIcon(systemName: "clock.badge.checkmark", color: theme.textSecondary, size: 32, backgroundSize: 64, isCircle: true)
 
                 if behaviorsStore.behaviorEvents.isEmpty && rewardsStore.rewardHistoryEvents.isEmpty {
                     Text("Your timeline will grow here")
@@ -495,7 +496,7 @@ struct HistoryView: View {
 
                     Text("Every moment you log becomes part of your family's story.")
                         .font(.body)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal)
@@ -506,7 +507,7 @@ struct HistoryView: View {
 
                     Text("Try widening your filters to see more moments.")
                         .font(.body)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal)

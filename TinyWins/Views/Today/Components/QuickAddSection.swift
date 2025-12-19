@@ -5,7 +5,7 @@ import SwiftUI
 /// The primary action area on Today: child picker + big Add Moment button.
 /// Designed to minimize time-to-first-log.
 struct QuickAddSection: View {
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var rewardsStore: RewardsStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
@@ -58,8 +58,8 @@ struct QuickAddSection: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(themeProvider.cardBackground)
-                .shadow(color: themeProvider.cardShadow, radius: 8, y: 4)
+                .fill(theme.surface1)
+                .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 4)
         )
     }
 
@@ -106,7 +106,7 @@ struct QuickAddSection: View {
         HStack(spacing: 6) {
             Text("Adding for")
                 .font(.system(size: 13))
-                .foregroundColor(themeProvider.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             Text(child.name)
                 .font(.system(size: 13, weight: .semibold))
@@ -114,24 +114,24 @@ struct QuickAddSection: View {
 
             if let progress = goalProgress {
                 Text("·")
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 HStack(spacing: 3) {
                     Text("\(progress.earned)/\(progress.target)")
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(themeProvider.secondaryText)
+                        .foregroundColor(theme.textSecondary)
 
                     Image(systemName: "star.fill")
                         .font(.system(size: 10))
-                        .foregroundColor(themeProvider.starColor)
+                        .foregroundColor(theme.star)
                 }
             } else {
                 Text("·")
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 Text("No goal yet")
                     .font(.system(size: 13))
-                    .foregroundColor(themeProvider.secondaryText.opacity(0.7))
+                    .foregroundColor(theme.textSecondary.opacity(0.7))
             }
         }
     }
@@ -142,11 +142,11 @@ struct QuickAddSection: View {
         VStack(spacing: 12) {
             Image(systemName: "figure.2.and.child.holdinghands")
                 .font(.system(size: 36))
-                .foregroundColor(themeProvider.secondaryText.opacity(0.5))
+                .foregroundColor(theme.textSecondary.opacity(0.5))
 
             Text("Add your first child to get started")
                 .font(.system(size: 15))
-                .foregroundColor(themeProvider.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)

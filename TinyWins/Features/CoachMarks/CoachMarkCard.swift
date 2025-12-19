@@ -16,6 +16,7 @@ struct CoachMarkCard: View {
     let onSkipAll: () -> Void
 
     @State private var appear = false
+    @Environment(\.theme) private var theme
 
     // Warm accent color that matches the app's positive/family tone
     private let accentColor = Color(red: 0.35, green: 0.65, blue: 0.55) // Soft teal-green
@@ -49,13 +50,13 @@ struct CoachMarkCard: View {
                         // Clear "X of Y" text
                         Text("\(stepIndex + 1) of \(totalSteps)")
                             .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(Color.gray)
+                            .foregroundStyle(theme.textSecondary)
 
                         // Subtle progress dots
                         HStack(spacing: 6) {
                             ForEach(0..<totalSteps, id: \.self) { index in
                                 Circle()
-                                    .fill(index <= stepIndex ? accentColor : Color.gray.opacity(0.25))
+                                    .fill(index <= stepIndex ? accentColor : theme.textDisabled.opacity(0.25))
                                     .frame(width: 7, height: 7)
                             }
                         }
@@ -66,12 +67,12 @@ struct CoachMarkCard: View {
             // Title - warm and conversational
             Text(step.title)
                 .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundStyle(.primary)
+                .foregroundStyle(theme.textPrimary)
 
             // Message - friendly and supportive
             Text(step.message)
                 .font(.system(size: 15))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(theme.textSecondary)
                 .lineSpacing(2)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -81,7 +82,7 @@ struct CoachMarkCard: View {
                 Button(action: onSkip) {
                     Text("Skip")
                         .font(.system(size: 15))
-                        .foregroundStyle(Color.gray)
+                        .foregroundStyle(theme.textSecondary)
                         .frame(minWidth: 44, minHeight: 44)
                         .contentShape(Rectangle())
                 }
@@ -114,7 +115,7 @@ struct CoachMarkCard: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.15), radius: 24, x: 0, y: 12)
         )
         .frame(maxWidth: 300)

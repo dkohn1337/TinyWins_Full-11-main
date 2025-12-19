@@ -12,6 +12,7 @@ struct InsightsHeroCard: View {
     let currentStreak: Int
     let goalsCompleted: Int
 
+    @Environment(\.theme) private var theme
     private var emotionalMessage: String {
         if totalMoments == 0 {
             return "Start logging moments to see your impact unfold."
@@ -52,7 +53,7 @@ struct InsightsHeroCard: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Your Parenting Impact")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     Text("\(totalMoments) Moments Captured")
                         .font(.system(size: 28, weight: .black))
@@ -64,7 +65,7 @@ struct InsightsHeroCard: View {
             // Emotional message
             Text(emotionalMessage)
                 .font(.system(size: 17))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .italic()
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
@@ -101,7 +102,7 @@ struct InsightsHeroCard: View {
                 colors: [
                     Color.pink.opacity(0.1),
                     Color.purple.opacity(0.05),
-                    Color(.systemBackground)
+                    theme.surface1
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -118,6 +119,8 @@ struct QuickStatItem: View {
     let label: String
     let icon: String
     let color: Color
+
+    @Environment(\.theme) private var theme
 
     var body: some View {
         VStack(spacing: 8) {
@@ -136,7 +139,7 @@ struct QuickStatItem: View {
 
             Text(label)
                 .font(.system(size: 12))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -148,6 +151,8 @@ struct QuickStatItem: View {
 struct PatternDiscoveryCard: View {
     let pattern: DiscoveredPattern
     @State private var isRevealed = false
+
+    @Environment(\.theme) private var theme
 
     struct DiscoveredPattern: Identifiable {
         let id = UUID()
@@ -184,7 +189,7 @@ struct PatternDiscoveryCard: View {
                         .font(.system(size: 18, weight: .bold))
                     Text(pattern.category)
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -211,7 +216,7 @@ struct PatternDiscoveryCard: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(pattern.insight)
                         .font(.system(size: 16))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
                         .transition(.opacity.combined(with: .move(edge: .top)))
 
                     if let suggestion = pattern.suggestion {
@@ -223,7 +228,7 @@ struct PatternDiscoveryCard: View {
                             Text(suggestion)
                                 .font(.system(size: 15))
                                 .italic()
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .padding(14)
                         .background(Color.yellow.opacity(0.1))
@@ -251,6 +256,7 @@ struct AnimatedWeeklyChart: View {
     let data: [DayData]
     @State private var animatedValues: [CGFloat]
 
+    @Environment(\.theme) private var theme
     struct DayData: Identifiable {
         let id = UUID()
         let shortName: String
@@ -307,7 +313,7 @@ struct AnimatedWeeklyChart: View {
                             // Empty placeholder if no data
                             if day.positive == 0 && day.challenges == 0 {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color(.systemGray5))
+                                    .fill(theme.borderSoft)
                                     .frame(height: 8)
                             }
                         }
@@ -316,7 +322,7 @@ struct AnimatedWeeklyChart: View {
                         // Day label
                         Text(day.shortName)
                             .font(.system(size: 12, weight: day.isToday ? .bold : .medium))
-                            .foregroundColor(day.isToday ? .primary : .secondary)
+                            .foregroundColor(day.isToday ? theme.textPrimary : theme.textSecondary)
 
                         // Today indicator
                         if day.isToday {
@@ -337,7 +343,7 @@ struct AnimatedWeeklyChart: View {
                         .frame(width: 10, height: 10)
                     Text("Positive")
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 HStack(spacing: 6) {
@@ -346,14 +352,14 @@ struct AnimatedWeeklyChart: View {
                         .frame(width: 10, height: 10)
                     Text("Challenges")
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
         }
         .padding(24)
         .background(
             RoundedRectangle(cornerRadius: 24)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.06), radius: 16, y: 8)
         )
         .onAppear {
@@ -378,6 +384,7 @@ struct StreakCalendarView: View {
     let streakDays: [Date]
     let currentStreak: Int
 
+    @Environment(\.theme) private var theme
     private let calendar = Calendar.current
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
 
@@ -402,7 +409,7 @@ struct StreakCalendarView: View {
 
                     Text(streakMessage)
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -416,7 +423,7 @@ struct StreakCalendarView: View {
 
                     ZStack {
                         RoundedRectangle(cornerRadius: 6)
-                            .fill(isStreak ? Color.orange : Color(.systemGray6))
+                            .fill(isStreak ? Color.orange : theme.surface2)
                             .frame(height: 32)
 
                         if isStreak {
@@ -426,7 +433,7 @@ struct StreakCalendarView: View {
                         } else {
                             Text("\(calendar.component(.day, from: date))")
                                 .font(.system(size: 10))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
 
                         if isToday {
@@ -447,7 +454,7 @@ struct StreakCalendarView: View {
         .padding(24)
         .background(
             LinearGradient(
-                colors: [.orange.opacity(0.1), .yellow.opacity(0.05), Color(.systemBackground)],
+                colors: [.orange.opacity(0.1), .yellow.opacity(0.05), theme.surface1],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -474,11 +481,13 @@ struct StreakMilestone: View {
     let achieved: Bool
     let label: String
 
+    @Environment(\.theme) private var theme
+
     var body: some View {
         VStack(spacing: 6) {
             ZStack {
                 Circle()
-                    .fill(achieved ? Color.orange : Color(.systemGray5))
+                    .fill(achieved ? Color.orange : theme.borderSoft)
                     .frame(width: 44, height: 44)
 
                 if achieved {
@@ -488,13 +497,13 @@ struct StreakMilestone: View {
                 } else {
                     Text("\(days)")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
 
             Text(label)
                 .font(.system(size: 11))
-                .foregroundColor(achieved ? .orange : .secondary)
+                .foregroundColor(achieved ? .orange : theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -506,6 +515,7 @@ struct StreakMilestone: View {
 struct EmotionalTimelineView: View {
     let moments: [MomentData]
 
+    @Environment(\.theme) private var theme
     struct MomentData: Identifiable {
         let id = UUID()
         let childName: String
@@ -548,7 +558,7 @@ struct EmotionalTimelineView: View {
 
                         if moment.id != moments.prefix(5).last?.id {
                             Rectangle()
-                                .fill(Color(.systemGray4))
+                                .fill(theme.borderStrong)
                                 .frame(width: 2, height: 60)
                         }
                     }
@@ -567,7 +577,7 @@ struct EmotionalTimelineView: View {
 
                             Text(timeAgoString(from: moment.time))
                                 .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
 
                         HStack(spacing: 8) {
@@ -577,7 +587,7 @@ struct EmotionalTimelineView: View {
 
                             Text(moment.description)
                                 .font(.system(size: 15))
-                                .foregroundColor(.primary)
+                                .foregroundColor(theme.textPrimary)
                         }
                     }
                     .padding(14)
@@ -591,7 +601,7 @@ struct EmotionalTimelineView: View {
         .padding(24)
         .background(
             RoundedRectangle(cornerRadius: 24)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.06), radius: 16, y: 8)
         )
     }
@@ -620,6 +630,7 @@ struct EmotionalTimelineView: View {
 struct ChildComparisonCard: View {
     let children: [ChildInsightData]
 
+    @Environment(\.theme) private var theme
     struct ChildInsightData: Identifiable {
         let id = UUID()
         let name: String
@@ -656,7 +667,7 @@ struct ChildComparisonCard: View {
 
                         Text("\(child.totalMoments) moments")
                             .font(.system(size: 13))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Spacer()
@@ -669,7 +680,7 @@ struct ChildComparisonCard: View {
 
                         Text("positive")
                             .font(.system(size: 11))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(12)
@@ -682,7 +693,7 @@ struct ChildComparisonCard: View {
         .padding(24)
         .background(
             RoundedRectangle(cornerRadius: 24)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.06), radius: 16, y: 8)
         )
     }

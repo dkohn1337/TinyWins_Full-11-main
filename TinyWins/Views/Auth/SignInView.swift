@@ -6,7 +6,7 @@ import AuthenticationServices
 /// Sign-in screen with Apple, Google, and Email/Password options.
 /// Supports co-parent sync and cross-platform (iOS/Android) compatibility.
 struct SignInView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let authService: any AuthService
@@ -38,7 +38,7 @@ struct SignInView: View {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 32)
             }
-            .background(theme.backgroundColor.ignoresSafeArea())
+            .background(theme.bg0.ignoresSafeArea())
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -72,7 +72,7 @@ struct SignInView: View {
             // Parent avatars illustration
             HStack(spacing: -20) {
                 Circle()
-                    .fill(theme.accentColor.opacity(0.2))
+                    .fill(theme.accentPrimary.opacity(0.2))
                     .frame(width: 80, height: 80)
                     .overlay(
                         Text("👨")
@@ -80,7 +80,7 @@ struct SignInView: View {
                     )
 
                 Circle()
-                    .fill(theme.positiveColor.opacity(0.2))
+                    .fill(theme.success.opacity(0.2))
                     .frame(width: 80, height: 80)
                     .overlay(
                         Text("👩")
@@ -90,11 +90,11 @@ struct SignInView: View {
 
             Text("Better Together")
                 .font(.system(.title, design: .rounded, weight: .bold))
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("Sign in to sync with your partner and celebrate your children's wins together")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
         }
@@ -123,27 +123,27 @@ struct SignInView: View {
             )
         }
         .padding(20)
-        .background(theme.cardBackground)
-        .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .background(theme.surface1)
+        .cornerRadius(12)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     private func benefitRow(icon: String, title: String, description: String) -> some View {
         HStack(alignment: .top, spacing: 16) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundColor(theme.accentColor)
+                .foregroundColor(theme.accentPrimary)
                 .frame(width: 32)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text(description)
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -166,7 +166,7 @@ struct SignInView: View {
                 .frame(height: 54)
                 .foregroundColor(.white)
                 .background(Color.black)
-                .cornerRadius(theme.cornerRadius)
+                .cornerRadius(12)
             }
             .disabled(isLoading)
 
@@ -193,12 +193,12 @@ struct SignInView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
-                .foregroundColor(theme.primaryText)
-                .background(theme.cardBackground)
-                .cornerRadius(theme.cornerRadius)
+                .foregroundColor(theme.textPrimary)
+                .background(theme.surface1)
+                .cornerRadius(12)
                 .overlay(
-                    RoundedRectangle(cornerRadius: theme.cornerRadius)
-                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(theme.textDisabled.opacity(0.3), lineWidth: 1)
                 )
             }
             .disabled(isLoading)
@@ -206,13 +206,13 @@ struct SignInView: View {
             // "Or" Separator
             HStack {
                 Rectangle()
-                    .fill(Color.gray.opacity(0.3))
+                    .fill(theme.textDisabled.opacity(0.3))
                     .frame(height: 1)
                 Text("or")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                 Rectangle()
-                    .fill(Color.gray.opacity(0.3))
+                    .fill(theme.textDisabled.opacity(0.3))
                     .frame(height: 1)
             }
             .padding(.vertical, 8)
@@ -227,12 +227,12 @@ struct SignInView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
-                .foregroundColor(theme.primaryText)
-                .background(theme.cardBackground)
-                .cornerRadius(theme.cornerRadius)
+                .foregroundColor(theme.textPrimary)
+                .background(theme.surface1)
+                .cornerRadius(12)
                 .overlay(
-                    RoundedRectangle(cornerRadius: theme.cornerRadius)
-                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(theme.textDisabled.opacity(0.3), lineWidth: 1)
                 )
             }
             .disabled(isLoading)
@@ -249,7 +249,7 @@ struct SignInView: View {
         Button(action: action) {
             Text("Continue without signing in")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(.top, 8)
     }
@@ -340,7 +340,7 @@ struct SignInView: View {
 
 /// Handles email/password sign-in and account creation
 struct EmailSignInView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
 
     let authService: any AuthService
@@ -400,17 +400,17 @@ struct EmailSignInView: View {
                     VStack(spacing: 8) {
                         Image(systemName: "envelope.circle.fill")
                             .font(.system(size: 60))
-                            .foregroundColor(theme.accentColor)
+                            .foregroundColor(theme.accentPrimary)
 
                         Text(isSignUp ? "Create Account" : "Welcome Back")
                             .font(.system(.title2, design: .rounded, weight: .bold))
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         Text(isSignUp
                             ? "Enter your details to get started"
                             : "Sign in with your email and password")
                             .font(.subheadline)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding(.top, 20)
@@ -423,18 +423,18 @@ struct EmailSignInView: View {
                                 Text("Name")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
-                                    .foregroundColor(theme.secondaryText)
+                                    .foregroundColor(theme.textSecondary)
 
                                 TextField("Your name", text: $displayName)
                                     .textContentType(.name)
                                     .autocapitalization(.words)
                                     .focused($focusedField, equals: .displayName)
                                     .padding()
-                                    .background(theme.cardBackground)
-                                    .cornerRadius(theme.cornerRadius)
+                                    .background(theme.surface1)
+                                    .cornerRadius(12)
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: theme.cornerRadius)
-                                            .stroke(focusedField == .displayName ? theme.accentColor : Color.gray.opacity(0.3), lineWidth: 1)
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(focusedField == .displayName ? theme.accentPrimary : theme.textDisabled.opacity(0.3), lineWidth: 1)
                                     )
                             }
                         }
@@ -444,7 +444,7 @@ struct EmailSignInView: View {
                             Text("Email")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
 
                             TextField("your@email.com", text: $email)
                                 .textContentType(.emailAddress)
@@ -453,11 +453,11 @@ struct EmailSignInView: View {
                                 .autocorrectionDisabled()
                                 .focused($focusedField, equals: .email)
                                 .padding()
-                                .background(theme.cardBackground)
-                                .cornerRadius(theme.cornerRadius)
+                                .background(theme.surface1)
+                                .cornerRadius(12)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: theme.cornerRadius)
-                                        .stroke(focusedField == .email ? theme.accentColor : Color.gray.opacity(0.3), lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(focusedField == .email ? theme.accentPrimary : theme.textDisabled.opacity(0.3), lineWidth: 1)
                                 )
                         }
 
@@ -466,17 +466,17 @@ struct EmailSignInView: View {
                             Text("Password")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
 
                             SecureField(isSignUp ? "Create a strong password" : "Enter your password", text: $password)
                                 .textContentType(.oneTimeCode)  // Prevents strong password autofill overlay
                                 .focused($focusedField, equals: .password)
                                 .padding()
-                                .background(theme.cardBackground)
-                                .cornerRadius(theme.cornerRadius)
+                                .background(theme.surface1)
+                                .cornerRadius(12)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: theme.cornerRadius)
-                                        .stroke(focusedField == .password ? theme.accentColor : Color.gray.opacity(0.3), lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(focusedField == .password ? theme.accentPrimary : theme.textDisabled.opacity(0.3), lineWidth: 1)
                                 )
 
                             // Password requirements (sign up only)
@@ -514,7 +514,7 @@ struct EmailSignInView: View {
                                         showResetPassword = true
                                     }
                                     .font(.caption)
-                                    .foregroundColor(theme.accentColor)
+                                    .foregroundColor(theme.accentPrimary)
                                 }
                             }
                         }
@@ -533,7 +533,7 @@ struct EmailSignInView: View {
                         .padding(12)
                         .frame(maxWidth: .infinity)
                         .background(Color.red.opacity(0.1))
-                        .cornerRadius(theme.cornerRadius)
+                        .cornerRadius(12)
                     }
 
                     // Submit button with clear state indication
@@ -544,16 +544,16 @@ struct EmailSignInView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .frame(height: 54)
-                        .foregroundColor(isFormValid ? .white : theme.secondaryText)
+                        .foregroundColor(isFormValid ? .white : theme.textSecondary)
                         .background(
-                            RoundedRectangle(cornerRadius: theme.cornerRadius)
-                                .fill(isFormValid ? theme.accentColor : Color.gray.opacity(0.3))
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(isFormValid ? theme.accentPrimary : theme.textDisabled.opacity(0.3))
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: theme.cornerRadius)
-                                .stroke(isFormValid ? theme.accentColor : Color.gray.opacity(0.5), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(isFormValid ? theme.accentPrimary : theme.textDisabled.opacity(0.5), lineWidth: 1)
                         )
-                        .shadow(color: isFormValid ? theme.accentColor.opacity(0.3) : .clear, radius: 8, y: 4)
+                        .shadow(color: isFormValid ? theme.accentPrimary.opacity(0.3) : .clear, radius: 8, y: 4)
                     }
                     .disabled(!isFormValid || isLoading)
                     .animation(.easeInOut(duration: 0.2), value: isFormValid)
@@ -562,7 +562,7 @@ struct EmailSignInView: View {
                     HStack(spacing: 4) {
                         Text(isSignUp ? "Already have an account?" : "Don't have an account?")
                             .font(.subheadline)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
 
                         Button(isSignUp ? "Sign In" : "Sign Up") {
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -572,14 +572,14 @@ struct EmailSignInView: View {
                         }
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(theme.accentColor)
+                        .foregroundColor(theme.accentPrimary)
                     }
                     .padding(.top, 8)
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
             }
-            .background(theme.backgroundColor.ignoresSafeArea())
+            .background(theme.bg0.ignoresSafeArea())
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -617,18 +617,18 @@ struct EmailSignInView: View {
                         VStack(spacing: 20) {
                             ProgressView()
                                 .scaleEffect(1.5)
-                                .tint(theme.accentColor)
+                                .tint(theme.accentPrimary)
 
                             Text(isSignUp ? "Creating your account..." : "Signing you in...")
                                 .font(.headline)
-                                .foregroundColor(theme.primaryText)
+                                .foregroundColor(theme.textPrimary)
 
                             Text(isSignUp ? "Setting up your family space" : "Welcome back!")
                                 .font(.subheadline)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .padding(32)
-                        .background(theme.cardBackground)
+                        .background(theme.surface1)
                         .cornerRadius(20)
                         .shadow(color: .black.opacity(0.2), radius: 20)
                     }
@@ -722,6 +722,7 @@ struct EmailSignInView: View {
 
 /// Individual password requirement indicator with checkmark animation
 private struct PasswordRequirementRow: View {
+    @Environment(\.theme) private var theme
     let text: String
     let isMet: Bool
     let isTyping: Bool
@@ -747,7 +748,7 @@ private struct PasswordRequirementRow: View {
         } else if isTyping {
             return .orange.opacity(0.6)
         } else {
-            return .gray.opacity(0.5)
+            return theme.textDisabled.opacity(0.5)
         }
     }
 
@@ -755,9 +756,9 @@ private struct PasswordRequirementRow: View {
         if isMet {
             return .green
         } else if isTyping {
-            return .primary.opacity(0.8)
+            return theme.textPrimary.opacity(0.8)
         } else {
-            return .secondary.opacity(0.7)
+            return theme.textSecondary.opacity(0.7)
         }
     }
 }
@@ -774,7 +775,7 @@ private struct PasswordRequirementRow: View {
             print("Skipped sign in")
         }
     )
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Email Sign In") {
@@ -784,7 +785,7 @@ private struct PasswordRequirementRow: View {
             print("Signed in: \(user.id)")
         }
     )
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 // MARK: - Sign In Success View
@@ -792,6 +793,7 @@ private struct PasswordRequirementRow: View {
 /// Animated success screen shown after successful sign-in.
 /// Provides visual confirmation and shows sync status before dismissing.
 struct SignInSuccessView: View {
+    @Environment(\.theme) private var theme
     let email: String
     let displayName: String?
     let isNewAccount: Bool
@@ -819,11 +821,12 @@ struct SignInSuccessView: View {
             VStack(spacing: 10) {
                 Text(headline)
                     .font(.system(.title2, design: .rounded, weight: .bold))
+                    .foregroundColor(theme.textPrimary)
                     .multilineTextAlignment(.center)
 
                 Text(subheadline)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
             .opacity(showDetails ? 1 : 0)
@@ -852,7 +855,7 @@ struct SignInSuccessView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
         }
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .onAppear {
             startAnimationSequence()
             scheduleAutoDismiss()
@@ -1012,6 +1015,7 @@ struct ProtectedFamilyBadge: View {
 
 /// Shows a friendly loading state during sync
 struct SyncStatusPill: View {
+    @Environment(\.theme) private var theme
     let count: Int
     let isSyncing: Bool
 
@@ -1044,11 +1048,11 @@ struct SyncStatusPill: View {
             // Status text
             Text(statusText)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Color(.systemGray6))
+        .background(theme.surface2)
         .cornerRadius(20)
     }
 
@@ -1067,6 +1071,7 @@ struct SyncStatusPill: View {
 
 /// Contextual loading view shown during authentication
 struct SignInLoadingView: View {
+    @Environment(\.theme) private var theme
     let provider: SignInProviderType
     let isCreatingAccount: Bool
 
@@ -1095,14 +1100,15 @@ struct SignInLoadingView: View {
                 VStack(spacing: 6) {
                     Text(loadingTitle)
                         .font(.headline)
+                        .foregroundColor(theme.textPrimary)
 
                     Text(loadingSubtitle)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
             .padding(32)
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(20)
             .shadow(color: .black.opacity(0.15), radius: 20)
         }
@@ -1143,6 +1149,7 @@ struct SignInLoadingView: View {
 
 /// Friendly error view with contextual messaging
 struct SignInErrorView: View {
+    @Environment(\.theme) private var theme
     let error: SignInErrorInfo
     let onRetry: () -> Void
     let onAlternative: (() -> Void)?
@@ -1166,11 +1173,12 @@ struct SignInErrorView: View {
             VStack(spacing: 12) {
                 Text(error.title)
                     .font(.title3.weight(.bold))
+                    .foregroundColor(theme.textPrimary)
                     .multilineTextAlignment(.center)
 
                 Text(error.message)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
@@ -1184,7 +1192,7 @@ struct SignInErrorView: View {
 
                     Text(suggestion)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.leading)
                 }
                 .padding(12)
@@ -1221,7 +1229,7 @@ struct SignInErrorView: View {
                 Button(action: onDismiss) {
                     Text(error.canRetry ? "Cancel" : "OK")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
             .padding(.horizontal, 24)

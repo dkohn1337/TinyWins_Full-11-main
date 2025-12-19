@@ -6,7 +6,7 @@ import SwiftUI
 /// Shows Family, all children, and You options with rich previews.
 struct ScopeSelectorSheet: View {
     @Environment(\.insightsContext) private var context
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var childrenStore: ChildrenStore
 
@@ -40,7 +40,7 @@ struct ScopeSelectorSheet: View {
                 }
                 .padding(.vertical, 20)
             }
-            .background(theme.backgroundColor.ignoresSafeArea())
+            .background(theme.bg0.ignoresSafeArea())
             .navigationTitle(Text("select_scope_title", tableName: "Insights"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -61,7 +61,7 @@ struct ScopeSelectorSheet: View {
                 .font(.system(size: 40))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [theme.accentColor, theme.positiveColor],
+                        colors: [theme.accentPrimary, theme.success],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -69,11 +69,11 @@ struct ScopeSelectorSheet: View {
 
             Text("scope_selector_header", tableName: "Insights")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("scope_selector_description", tableName: "Insights")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
         }
@@ -91,23 +91,23 @@ struct ScopeSelectorSheet: View {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(theme.accentColor.opacity(0.15))
+                        .fill(theme.accentPrimary.opacity(0.15))
                         .frame(width: 48, height: 48)
 
                     Image(systemName: "house.fill")
                         .font(.system(size: 20))
-                        .foregroundColor(theme.accentColor)
+                        .foregroundColor(theme.accentPrimary)
                 }
 
                 // Label
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Family", tableName: "Insights")
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("family_scope_description", tableName: "Insights")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -116,17 +116,17 @@ struct ScopeSelectorSheet: View {
                 if context.scope == .family {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
-                        .foregroundColor(theme.accentColor)
+                        .foregroundColor(theme.accentPrimary)
                 }
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(context.scope == .family ? theme.accentColor.opacity(0.08) : theme.cardBackground)
+                    .fill(context.scope == .family ? theme.accentPrimary.opacity(0.08) : theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(context.scope == .family ? theme.accentColor.opacity(0.3) : theme.borderSubtle, lineWidth: 1)
+                    .stroke(context.scope == .family ? theme.accentPrimary.opacity(0.3) : theme.borderSoft, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -157,11 +157,11 @@ struct ScopeSelectorSheet: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(child.name)
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("child_scope_description", tableName: "Insights")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -176,11 +176,11 @@ struct ScopeSelectorSheet: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? child.colorTag.color.opacity(0.08) : theme.cardBackground)
+                    .fill(isSelected ? child.colorTag.color.opacity(0.08) : theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? child.colorTag.color.opacity(0.3) : theme.borderSubtle, lineWidth: 1)
+                    .stroke(isSelected ? child.colorTag.color.opacity(0.3) : theme.borderSoft, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -199,23 +199,23 @@ struct ScopeSelectorSheet: View {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(theme.positiveColor.opacity(0.15))
+                        .fill(theme.success.opacity(0.15))
                         .frame(width: 48, height: 48)
 
                     Image(systemName: "person.fill")
                         .font(.system(size: 20))
-                        .foregroundColor(theme.positiveColor)
+                        .foregroundColor(theme.success)
                 }
 
                 // Label
                 VStack(alignment: .leading, spacing: 2) {
                     Text("You", tableName: "Insights")
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("you_scope_description", tableName: "Insights")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -224,17 +224,17 @@ struct ScopeSelectorSheet: View {
                 if context.scope == .you {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
-                        .foregroundColor(theme.positiveColor)
+                        .foregroundColor(theme.success)
                 }
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(context.scope == .you ? theme.positiveColor.opacity(0.08) : theme.cardBackground)
+                    .fill(context.scope == .you ? theme.success.opacity(0.08) : theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(context.scope == .you ? theme.positiveColor.opacity(0.3) : theme.borderSubtle, lineWidth: 1)
+                    .stroke(context.scope == .you ? theme.success.opacity(0.3) : theme.borderSoft, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -246,17 +246,17 @@ struct ScopeSelectorSheet: View {
     private func scopeDivider(label: String) -> some View {
         HStack(spacing: 12) {
             Rectangle()
-                .fill(theme.borderSubtle)
+                .fill(theme.borderSoft)
                 .frame(height: 1)
 
             Text(label)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .textCase(.uppercase)
 
             Rectangle()
-                .fill(theme.borderSubtle)
+                .fill(theme.borderSoft)
                 .frame(height: 1)
         }
         .padding(.vertical, 8)
@@ -268,7 +268,7 @@ struct ScopeSelectorSheet: View {
 /// Compact horizontal child switcher for inline use
 struct QuickChildSwitcher: View {
     @Environment(\.insightsContext) private var context
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
 
     let onShowAll: () -> Void
@@ -287,12 +287,12 @@ struct QuickChildSwitcher: View {
                     } label: {
                         Text("more_children", tableName: "Insights")
                             .font(.caption)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
                             .background(
                                 Capsule()
-                                    .stroke(theme.borderSubtle, lineWidth: 1)
+                                    .stroke(theme.borderSoft, lineWidth: 1)
                             )
                     }
                 }
@@ -322,13 +322,13 @@ struct QuickChildSwitcher: View {
                 Text(child.name)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(isSelected ? .white : theme.primaryText)
+                    .foregroundColor(isSelected ? .white : theme.textPrimary)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(
                 Capsule()
-                    .fill(isSelected ? child.colorTag.color : theme.chipBackground)
+                    .fill(isSelected ? child.colorTag.color : theme.accentMuted)
             )
         }
         .buttonStyle(.plain)
@@ -344,7 +344,7 @@ struct QuickChildSwitcher: View {
     ScopeSelectorSheet()
         .withInsightsContext(context)
         .environmentObject(ChildrenStore(repository: repository))
-        .withThemeProvider(ThemeProvider())
+        .withTheme(Theme())
 }
 
 #Preview("Quick Child Switcher") {
@@ -354,5 +354,5 @@ struct QuickChildSwitcher: View {
     QuickChildSwitcher(onShowAll: {})
         .withInsightsContext(context)
         .environmentObject(ChildrenStore(repository: repository))
-        .withThemeProvider(ThemeProvider())
+        .withTheme(Theme())
 }

@@ -5,6 +5,10 @@ import SwiftUI
 /// Provides theme-aware colors that adapt based on current AppTheme and system color scheme.
 /// This is the single source of truth for all theme-dependent colors in the app.
 /// Supports the "System" theme that automatically follows iOS dark/light mode.
+///
+/// **Migration Note:** This class now bridges to the new DesignTokens system.
+/// For new code, prefer using `@Environment(\.tokens)` directly.
+/// Existing code using ThemeProvider will continue to work.
 @MainActor
 final class ThemeProvider: ObservableObject {
     @Published var currentTheme: AppTheme
@@ -24,78 +28,105 @@ final class ThemeProvider: ObservableObject {
         resolved.isDark
     }
 
-    // MARK: - Core Theme Tokens (using resolved theme)
+    // MARK: - New Token System Bridge
+
+    /// Current appearance derived from color scheme
+    var appearance: Appearance {
+        Appearance(from: colorScheme)
+    }
+
+    /// Current theme pack derived from AppTheme
+    var themePack: ThemePack {
+        ThemePack(rawValue: currentTheme.rawValue) ?? .classic
+    }
+
+    /// Semantic tokens resolved for current state
+    var tokens: SemanticTokens {
+        SemanticTokens(appearance: appearance, themePack: themePack)
+    }
+
+    /// Get avatar tokens for a child's color
+    func avatarTokens(for childColor: Color) -> AvatarTokens {
+        AvatarTokens(childColor: childColor, appearance: appearance)
+    }
+
+    /// Get avatar tokens from a ColorTag
+    func avatarTokens(for colorTag: ColorTag) -> AvatarTokens {
+        AvatarTokens(childColor: colorTag.color, appearance: appearance)
+    }
+
+    // MARK: - Core Theme Tokens (bridged to new token system)
 
     /// Primary accent color used for buttons, highlights, selected states
     var accentColor: Color {
-        resolved.primaryColor
+        tokens.accentPrimary
     }
 
     /// Background color for main content areas
     var backgroundColor: Color {
-        resolved.backgroundColor
+        tokens.bgApp
     }
 
     /// Card background color
     var cardBackground: Color {
-        resolved.cardBackground
+        tokens.bgSurface
     }
 
     /// Primary text color
     var primaryText: Color {
-        resolved.primaryTextColor
+        tokens.textPrimary
     }
 
     /// Secondary text color (subtitles, captions)
     var secondaryText: Color {
-        resolved.secondaryTextColor
+        tokens.textSecondary
     }
 
     /// Chip/pill background color
     var chipBackground: Color {
-        resolved.cardBackgroundTinted
+        tokens.accentMuted
     }
 
     /// Chip/pill text color
     var chipForeground: Color {
-        resolved.primaryColor
+        tokens.accentPrimary
     }
 
-    // MARK: - Semantic Colors (behavior tracking)
+    // MARK: - Semantic Colors (bridged to new token system)
 
     /// Positive behavior color (green)
     var positiveColor: Color {
-        resolved.positiveColor
+        tokens.positive
     }
 
     /// Challenge/negative behavior color (orange)
     var challengeColor: Color {
-        resolved.warningColor
+        tokens.challenge
     }
 
-    /// Routine behavior color (blue) - using secondary color
+    /// Routine behavior color (blue/violet)
     var routineColor: Color {
-        resolved.secondaryColor
+        tokens.routine
     }
 
     /// Star/points color (yellow)
     var starColor: Color {
-        resolved.starColor
+        tokens.star
     }
 
     /// Plus tier color (purple)
     var plusColor: Color {
-        Color(red: 0.6, green: 0.4, blue: 0.9)
+        tokens.plus
     }
 
     // MARK: - Card Styling
 
     var cardShadow: Color {
-        resolved.shadowColor.opacity(resolved.shadowIntensity)
+        tokens.shadow.opacity(tokens.shadowIntensity)
     }
 
     var cardShadowRadius: CGFloat {
-        resolved.shadowIntensity > 0.15 ? 10 : 8
+        tokens.shadowIntensity > 0.15 ? 10 : 8
     }
 
     // MARK: - Button Styling
@@ -120,150 +151,129 @@ final class ThemeProvider: ObservableObject {
         }
     }
 
-    // MARK: - Extended Color Tokens
+    // MARK: - Extended Color Tokens (bridged)
 
     /// Elevated surface color (slightly above background)
     var surfaceElevated: Color {
-        resolved.cardBackground
+        tokens.bgSurface
     }
 
     /// Subtle border color for cards and containers
     var borderSubtle: Color {
-        resolved.cardBorderColor
+        tokens.borderSubtle
     }
 
     /// Overlay color for modals and sheets
     var overlay: Color {
-        Color.black.opacity(0.4)
+        tokens.bgOverlay
     }
 
     /// Divider color
     var divider: Color {
-        isDarkMode
-            ? Color.white.opacity(0.1)
-            : Color(.systemGray5)
+        tokens.divider
     }
 
-    // MARK: - Interaction States
+    // MARK: - Interaction States (bridged)
 
     /// Accent color on hover/focus
     var accentHover: Color {
-        accentColor.opacity(0.9)
+        tokens.accentPrimary.opacity(0.9)
     }
 
     /// Accent color when pressed
     var accentPressed: Color {
-        accentColor.opacity(0.8)
+        tokens.accentPrimary.opacity(0.8)
     }
 
     /// Accent color when disabled
     var accentDisabled: Color {
-        Color(.systemGray4)
+        tokens.textDisabled
     }
 
     /// Destructive action color (for delete, remove actions)
     var destructive: Color {
-        isDarkMode
-            ? Color(red: 1.0, green: 0.4, blue: 0.4)
-            : Color(red: 0.95, green: 0.3, blue: 0.3)
+        tokens.error
     }
 
     /// Success color (for confirmations, success states)
     var success: Color {
-        positiveColor
+        tokens.positive
     }
 
     /// Warning color (for caution states)
     var warning: Color {
-        challengeColor
+        tokens.challenge
     }
 
     // MARK: - Child Color Helpers
 
     /// Get dark-mode-aware child color wrapper
+    /// Deprecated: Use avatarTokens(for:) instead for better type safety
     func childColor(_ baseColor: Color) -> DarkModeAwareChildColor {
         DarkModeAwareChildColor(baseColor: baseColor, isDarkMode: isDarkMode)
     }
 
-    // MARK: - Dark Mode Aware Banner/Badge Colors
+    // MARK: - Dark Mode Aware Banner/Badge Colors (bridged)
 
     /// Background color for positive/success banners (adapts to dark mode)
     var bannerPositiveBackground: Color {
-        isDarkMode
-            ? Color.green.opacity(0.25)
-            : Color.green.opacity(0.1)
+        tokens.positiveBg
     }
 
     /// Background color for challenge/warning banners
     var bannerChallengeBackground: Color {
-        isDarkMode
-            ? Color.orange.opacity(0.25)
-            : Color.orange.opacity(0.1)
+        tokens.challengeBg
     }
 
     /// Background color for info/neutral banners
     var bannerInfoBackground: Color {
-        isDarkMode
-            ? Color.blue.opacity(0.25)
-            : Color.blue.opacity(0.1)
+        tokens.infoBg
     }
 
     /// Background color for special/purple banners
     var bannerSpecialBackground: Color {
-        isDarkMode
-            ? Color.purple.opacity(0.25)
-            : Color.purple.opacity(0.1)
+        tokens.accentMuted
     }
 
     /// Background color for pink/heart banners
     var bannerPinkBackground: Color {
-        isDarkMode
-            ? Color.pink.opacity(0.25)
-            : Color.pink.opacity(0.1)
+        appearance == .dark
+            ? Primitives.Rosegold.primary.opacity(0.25)
+            : Primitives.Rosegold.primary.opacity(0.1)
     }
 
     /// Background for focus/yellow cards
     var bannerFocusBackground: Color {
-        isDarkMode
-            ? Color.yellow.opacity(0.15)
-            : Color.yellow.opacity(0.05)
+        tokens.starGlow.opacity(appearance == .dark ? 0.25 : 0.1)
     }
 
-    // MARK: - Streak/Progress Colors
+    // MARK: - Streak/Progress Colors (bridged)
 
     /// Active streak indicator color
     var streakActiveColor: Color {
-        isDarkMode
-            ? Color(red: 0.4, green: 0.9, blue: 0.5)
-            : Color.green
+        tokens.positive
     }
 
     /// Inactive/pending day indicator
     var streakInactiveColor: Color {
-        isDarkMode
-            ? Color(white: 0.25)
-            : Color(.systemGray5)
+        tokens.bgSurfaceSecondary
     }
 
     /// Hot streak color (5+ days)
     var streakHotColor: Color {
-        isDarkMode
-            ? Color(red: 1.0, green: 0.6, blue: 0.3)
-            : Color.orange
+        tokens.challenge
     }
 
-    // MARK: - Text on Colored Backgrounds
+    // MARK: - Text on Colored Backgrounds (bridged)
 
     /// Text color that works on colored badge backgrounds
     var textOnColoredBackground: Color {
-        isDarkMode ? .white : .primary
+        tokens.textPrimary
     }
 
     /// Secondary text visible in dark mode
     var secondaryTextAdaptive: Color {
-        isDarkMode
-            ? Color.white.opacity(0.7)
-            : Color.secondary
+        tokens.textSecondary
     }
 
     // MARK: - Helper Methods
@@ -328,20 +338,18 @@ private struct ThemeColorSchemeSyncModifier: ViewModifier {
 
 extension View {
     /// Apply themed navigation bar appearance
-    func themedNavigationBar(_ themeProvider: ThemeProvider) -> some View {
-        modifier(ThemedNavigationBarModifier(themeProvider: themeProvider))
+    func themedNavigationBar(_ theme: Theme) -> some View {
+        modifier(ThemedNavigationBarModifier(theme: theme))
     }
 }
 
 private struct ThemedNavigationBarModifier: ViewModifier {
-    @ObservedObject var themeProvider: ThemeProvider
+    @ObservedObject var theme: Theme
 
     func body(content: Content) -> some View {
-        let resolved = themeProvider.resolved
-
         content
-            .toolbarBackground(resolved.backgroundColor, for: .navigationBar)
+            .toolbarBackground(theme.navBarBg, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarColorScheme(resolved.isDark ? .dark : .light, for: .navigationBar)
+            .toolbarColorScheme(theme.isDark ? .dark : .light, for: .navigationBar)
     }
 }

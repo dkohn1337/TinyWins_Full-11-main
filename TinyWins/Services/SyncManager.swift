@@ -367,20 +367,25 @@ final class SyncManager: ObservableObject {
 
         isMigrating = true
 
-        Task {
+        // Capture values for use in detached task
+        let capturedLocalBackend = self.localBackend
+
+        // PERFORMANCE: Use Task.detached to run sync operations OFF main thread
+        // The sync methods use DispatchSemaphore which blocks the calling thread
+        Task.detached(priority: .userInitiated) { [weak self] in
             defer {
                 Task { @MainActor in
-                    self.isMigrating = false
+                    self?.isMigrating = false
                 }
             }
 
             await MainActor.run {
-                syncState = .syncing
+                self?.syncState = .syncing
             }
 
             do {
-                // Load current local data
-                let localData = repository.appData
+                // Load current local data (on MainActor since repository is @MainActor)
+                let localData = await MainActor.run { repository.appData }
 
                 // If we don't have a familyId stored, try to look it up from Firebase
                 if AppConfiguration.storedFamilyId == nil {
@@ -431,8 +436,8 @@ final class SyncManager: ObservableObject {
                     if let mergedData = try remoteBackend.loadAppData() {
                         await MainActor.run {
                             repository.updateAppData(mergedData)
-                            try? self.localBackend.saveAppData(mergedData)
                         }
+                        try? capturedLocalBackend.saveAppData(mergedData)
                     }
 
                 } else {
@@ -480,14 +485,14 @@ final class SyncManager: ObservableObject {
                     // Update local
                     await MainActor.run {
                         repository.updateAppData(updatedData)
-                        try? self.localBackend.saveAppData(updatedData)
                     }
+                    try? capturedLocalBackend.saveAppData(updatedData)
                 }
 
-                await MainActor.run {
-                    self.lastSyncDate = Date()
-                    self.syncState = .synced(Date())
-                    self.hasPendingChanges = false
+                await MainActor.run { [weak self] in
+                    self?.lastSyncDate = Date()
+                    self?.syncState = .synced(Date())
+                    self?.hasPendingChanges = false
                 }
 
                 #if DEBUG
@@ -499,8 +504,8 @@ final class SyncManager: ObservableObject {
                 print("[SyncManager] Migration error: \(error)")
                 #endif
 
-                await MainActor.run {
-                    self.syncState = .error(error.localizedDescription)
+                await MainActor.run { [weak self] in
+                    self?.syncState = .error(error.localizedDescription)
                 }
             }
         }
@@ -530,7 +535,14 @@ final class SyncManager: ObservableObject {
     }
 
     /// Internal sync method called by SyncQueue
-    func syncIfNeeded() async {
+    /// PERFORMANCE: This method runs blocking sync operations, so it should be called
+    /// from a background context (Task.detached) to avoid blocking main thread.
+    nonisolated func syncIfNeeded() async {
+        // Capture MainActor-isolated state first
+        let (repository, remoteBackend, localBackend, isConnected, pendingLocalChanges) = await MainActor.run {
+            (self.repository, self.remoteBackend, self.localBackend, self.isConnected, self.pendingLocalChanges)
+        }
+
         guard let repository = repository,
               let remoteBackend = remoteBackend,
               isConnected,
@@ -539,12 +551,14 @@ final class SyncManager: ObservableObject {
         }
 
         await MainActor.run {
-            syncState = .syncing
+            self.syncState = .syncing
         }
 
         do {
-            let localData = repository.appData
+            // Get local data on main actor
+            let localData = await MainActor.run { repository.appData }
 
+            // PERFORMANCE: These blocking calls now run on background thread
             // Push to cloud (SyncQueue handles retries on timeout)
             try remoteBackend.saveAppData(localData)
 

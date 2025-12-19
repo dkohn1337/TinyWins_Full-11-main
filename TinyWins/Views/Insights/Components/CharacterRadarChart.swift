@@ -5,7 +5,7 @@ import SwiftUI
 /// Spider/radar chart displaying 6 character trait scores.
 /// Used in premium tier to visualize a child's character development.
 struct CharacterRadarChart: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let traitScores: [TraitScore]
     var size: CGFloat = 200
@@ -60,7 +60,7 @@ struct CharacterRadarChart: View {
             // Concentric hexagons at 25%, 50%, 75%, 100%
             ForEach([0.25, 0.5, 0.75, 1.0], id: \.self) { scale in
                 hexagonPath(scale: scale)
-                    .stroke(theme.borderSubtle, lineWidth: 0.5)
+                    .stroke(theme.borderSoft, lineWidth: 0.5)
             }
 
             // Radial lines from center to each vertex
@@ -72,7 +72,7 @@ struct CharacterRadarChart: View {
                     path.move(to: center)
                     path.addLine(to: point)
                 }
-                .stroke(theme.borderSubtle.opacity(0.5), lineWidth: 0.5)
+                .stroke(theme.borderSoft.opacity(0.5), lineWidth: 0.5)
             }
         }
     }
@@ -101,7 +101,7 @@ struct CharacterRadarChart: View {
             }
             .fill(
                 LinearGradient(
-                    colors: [theme.accentColor.opacity(fillOpacity), theme.positiveColor.opacity(fillOpacity)],
+                    colors: [theme.accentPrimary.opacity(fillOpacity), theme.success.opacity(fillOpacity)],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -124,7 +124,7 @@ struct CharacterRadarChart: View {
             }
             .stroke(
                 LinearGradient(
-                    colors: [theme.accentColor, theme.positiveColor],
+                    colors: [theme.accentPrimary, theme.success],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 ),
@@ -160,7 +160,7 @@ struct CharacterRadarChart: View {
                 VStack(spacing: 2) {
                     Text(shortLabel(for: trait))
                         .font(.system(size: labelFontSize, weight: .medium))
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("\(score)")
                         .font(.system(size: labelFontSize - 2, weight: .semibold))
@@ -272,7 +272,7 @@ struct CompactRadarChart: View {
 
 /// Full card displaying the character radar chart with title and context.
 struct CharacterProfileCard: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let childName: String
     let traitScores: [TraitScore]
@@ -289,12 +289,12 @@ struct CharacterProfileCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("\(childName)'s Character")
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     if let top = topTrait {
                         Text("Strongest: \(top.trait.displayName)")
                             .font(.caption)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -308,7 +308,7 @@ struct CharacterProfileCard: View {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 10, weight: .semibold))
                         }
-                        .foregroundColor(theme.accentColor)
+                        .foregroundColor(theme.accentPrimary)
                     }
                     .buttonStyle(.plain)
                 }
@@ -321,9 +321,9 @@ struct CharacterProfileCard: View {
             traitLegend
         }
         .padding()
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     private var traitLegend: some View {
@@ -340,7 +340,7 @@ struct CharacterProfileCard: View {
 
                     Text(score.trait.displayName)
                         .font(.system(size: 10))
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                         .lineLimit(1)
                 }
             }
@@ -365,7 +365,7 @@ struct CharacterProfileCard: View {
         CharacterRadarChart(traitScores: sampleScores, size: 150)
     }
     .padding()
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Compact Radar") {
@@ -384,7 +384,7 @@ struct CharacterProfileCard: View {
         CompactRadarChart(traitScores: sampleScores, size: 100)
     }
     .padding()
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Character Profile Card") {
@@ -403,6 +403,6 @@ struct CharacterProfileCard: View {
         onTapGrowthRings: {}
     )
     .padding()
-    .background(Color(.systemGroupedBackground))
-    .withThemeProvider(ThemeProvider())
+    .background(Theme().bg1)
+    .withTheme(Theme())
 }

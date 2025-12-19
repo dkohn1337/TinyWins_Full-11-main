@@ -3,18 +3,33 @@ import Combine
 
 /// Store responsible for managing rewards/goals and reward history.
 /// Extracted from FamilyViewModel to provide focused state management for all reward-related operations.
+///
+/// PERFORMANCE: Uses single Snapshot pattern to batch all state updates into one objectWillChange.
+/// This prevents multiple view invalidations during loadData() which caused tab switch jank.
 @MainActor
 final class RewardsStore: ObservableObject {
+
+    // MARK: - Snapshot (single publish for all state)
+
+    struct Snapshot: Equatable {
+        var rewards: [Reward] = []
+        var rewardHistoryEvents: [RewardHistoryEvent] = []
+        var agreementVersions: [AgreementVersion] = []
+    }
 
     // MARK: - Dependencies
 
     private let repository: RepositoryProtocol
 
-    // MARK: - Published State
+    // MARK: - Published State (single snapshot = single objectWillChange)
 
-    @Published private(set) var rewards: [Reward] = []
-    @Published private(set) var rewardHistoryEvents: [RewardHistoryEvent] = []
-    @Published private(set) var agreementVersions: [AgreementVersion] = []
+    @Published private(set) var snapshot = Snapshot()
+
+    // MARK: - Convenience Accessors (no additional publishes)
+
+    var rewards: [Reward] { snapshot.rewards }
+    var rewardHistoryEvents: [RewardHistoryEvent] { snapshot.rewardHistoryEvents }
+    var agreementVersions: [AgreementVersion] { snapshot.agreementVersions }
 
     // MARK: - Initialization
 
@@ -25,10 +40,18 @@ final class RewardsStore: ObservableObject {
 
     // MARK: - Data Loading
 
+    /// PERFORMANCE: Single snapshot assignment = single objectWillChange notification
     func loadData() {
-        rewards = repository.getRewards()
-        rewardHistoryEvents = repository.getRewardHistoryEvents()
-        agreementVersions = repository.getAgreementVersions()
+        #if DEBUG
+        FrameStallMonitor.shared.markBlockReason(.storeRecompute)
+        defer { FrameStallMonitor.shared.clearBlockReason() }
+        #endif
+
+        snapshot = Snapshot(
+            rewards: repository.getRewards(),
+            rewardHistoryEvents: repository.getRewardHistoryEvents(),
+            agreementVersions: repository.getAgreementVersions()
+        )
     }
 
     // MARK: - Reward Queries
@@ -223,7 +246,8 @@ final class RewardsStore: ObservableObject {
             starsEarnedAtEvent: starsEarned
         )
         repository.addRewardHistoryEvent(event)
-        rewardHistoryEvents = repository.getRewardHistoryEvents()
+        // Update only history in snapshot (single publish)
+        snapshot.rewardHistoryEvents = repository.getRewardHistoryEvents()
     }
 
     /// Get reward history events for a time period and optional child filter
@@ -429,7 +453,8 @@ final class RewardsStore: ObservableObject {
             repository.addAgreementVersion(newAgreement)
         }
 
-        agreementVersions = repository.getAgreementVersions()
+        // Update only agreements in snapshot (single publish)
+        snapshot.agreementVersions = repository.getAgreementVersions()
     }
 
     /// Create a new agreement version (marks old as not current)
@@ -453,6 +478,7 @@ final class RewardsStore: ObservableObject {
         )
 
         repository.addAgreementVersion(newAgreement)
-        agreementVersions = repository.getAgreementVersions()
+        // Update only agreements in snapshot (single publish)
+        snapshot.agreementVersions = repository.getAgreementVersions()
     }
 }

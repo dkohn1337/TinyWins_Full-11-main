@@ -3,18 +3,33 @@ import Combine
 
 /// Store responsible for managing behavior types and behavior events.
 /// Extracted from FamilyViewModel to provide focused state management for all behavior-related operations.
+///
+/// PERFORMANCE: Uses single Snapshot pattern to batch all state updates into one objectWillChange.
+/// This prevents multiple view invalidations during loadData() which caused tab switch jank.
 @MainActor
 final class BehaviorsStore: ObservableObject {
+
+    // MARK: - Snapshot (single publish for all state)
+
+    struct Snapshot: Equatable {
+        var behaviorTypes: [BehaviorType] = []
+        var behaviorEvents: [BehaviorEvent] = []
+        var behaviorStreaks: [BehaviorStreak] = []
+    }
 
     // MARK: - Dependencies
 
     private let repository: RepositoryProtocol
 
-    // MARK: - Published State
+    // MARK: - Published State (single snapshot = single objectWillChange)
 
-    @Published private(set) var behaviorTypes: [BehaviorType] = []
-    @Published private(set) var behaviorEvents: [BehaviorEvent] = []
-    @Published private(set) var behaviorStreaks: [BehaviorStreak] = []
+    @Published private(set) var snapshot = Snapshot()
+
+    // MARK: - Convenience Accessors (no additional publishes)
+
+    var behaviorTypes: [BehaviorType] { snapshot.behaviorTypes }
+    var behaviorEvents: [BehaviorEvent] { snapshot.behaviorEvents }
+    var behaviorStreaks: [BehaviorStreak] { snapshot.behaviorStreaks }
 
     // MARK: - Cached Computed Values (for performance)
 
@@ -88,10 +103,18 @@ final class BehaviorsStore: ObservableObject {
 
     // MARK: - Data Loading
 
+    /// PERFORMANCE: Single snapshot assignment = single objectWillChange notification
     func loadData() {
-        behaviorTypes = repository.getBehaviorTypes()
-        behaviorEvents = repository.getBehaviorEvents()
-        behaviorStreaks = repository.getBehaviorStreaks()
+        #if DEBUG
+        FrameStallMonitor.shared.markBlockReason(.storeRecompute)
+        defer { FrameStallMonitor.shared.clearBlockReason() }
+        #endif
+
+        snapshot = Snapshot(
+            behaviorTypes: repository.getBehaviorTypes(),
+            behaviorEvents: repository.getBehaviorEvents(),
+            behaviorStreaks: repository.getBehaviorStreaks()
+        )
         invalidateTodayCache()
     }
 
@@ -306,7 +329,8 @@ final class BehaviorsStore: ObservableObject {
 
     func updateStreak(childId: UUID, behaviorTypeId: UUID) {
         repository.updateStreak(childId: childId, behaviorTypeId: behaviorTypeId)
-        behaviorStreaks = repository.getBehaviorStreaks()
+        // Update only streaks in snapshot (single publish)
+        snapshot.behaviorStreaks = repository.getBehaviorStreaks()
     }
 
     func streak(forChild childId: UUID, behaviorType behaviorTypeId: UUID) -> BehaviorStreak? {

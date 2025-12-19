@@ -5,7 +5,7 @@ import SwiftUI
 /// Family-level aggregate analytics dashboard showing cross-child patterns.
 /// Premium feature for Plus subscribers.
 struct FamilyAnalyticsDashboard: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var childrenStore: ChildrenStore
 
@@ -45,7 +45,7 @@ struct FamilyAnalyticsDashboard: View {
             }
             .padding()
         }
-        .background(theme.backgroundColor.ignoresSafeArea())
+        .background(theme.bg0.ignoresSafeArea())
         .accessibilityIdentifier(InsightsAccessibilityIdentifiers.familyAnalyticsRoot)
         .navigationTitle("Advanced Insights")
         .navigationBarTitleDisplayMode(.large)
@@ -72,13 +72,13 @@ struct FamilyAnalyticsDashboard: View {
                         Text(period.displayName)
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(selectedPeriod == period ? .white : theme.primaryText)
+                            .foregroundColor(selectedPeriod == period ? .white : theme.textPrimary)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
                             .background(
                                 Capsule()
                                     .fill(selectedPeriod == period ?
-                                          theme.accentColor : theme.chipBackground)
+                                          theme.accentPrimary : theme.accentMuted)
                             )
                     }
                 }
@@ -96,35 +96,35 @@ struct FamilyAnalyticsDashboard: View {
                 .font(.system(size: 32))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [theme.accentColor, theme.positiveColor],
+                        colors: [theme.accentPrimary, theme.success],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
                 .frame(width: 60, height: 60)
-                .background(theme.accentColor.opacity(0.1))
+                .background(theme.accentPrimary.opacity(0.1))
                 .clipShape(Circle())
 
             // Stats
             VStack(spacing: 4) {
                 Text("\(familyTotalMoments)")
                     .font(.system(size: 36, weight: .bold, design: .rounded))
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text("moments logged \(selectedPeriod.displayName.lowercased())")
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 Text("across \(childrenStore.activeChildren.count) \(childrenStore.activeChildren.count == 1 ? "child" : "children")")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             // Insight Message
             if !familyInsight.isEmpty {
                 Text(familyInsight)
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 8)
                     .padding(.top, 4)
@@ -133,9 +133,9 @@ struct FamilyAnalyticsDashboard: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
         .padding(.horizontal, 16)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     // MARK: - Child Activity Section
@@ -144,7 +144,7 @@ struct FamilyAnalyticsDashboard: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Each Child's Activity")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             VStack(spacing: 12) {
                 ForEach(childSummaries) { summary in
@@ -152,9 +152,9 @@ struct FamilyAnalyticsDashboard: View {
                 }
             }
             .padding()
-            .background(theme.cardBackground)
+            .background(theme.surface1)
             .cornerRadius(theme.cornerRadius)
-            .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         }
     }
 
@@ -175,11 +175,11 @@ struct FamilyAnalyticsDashboard: View {
                 Text(summary.name)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text("\(summary.totalMoments) moments")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -189,21 +189,21 @@ struct FamilyAnalyticsDashboard: View {
                 // Positive indicator
                 HStack(spacing: 2) {
                     Circle()
-                        .fill(theme.positiveColor)
+                        .fill(theme.success)
                         .frame(width: 6, height: 6)
                     Text("\(summary.positiveMoments)")
                         .font(.caption2)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 // Challenge indicator
                 HStack(spacing: 2) {
                     Circle()
-                        .fill(theme.challengeColor)
+                        .fill(theme.danger)
                         .frame(width: 6, height: 6)
                     Text("\(summary.challengeMoments)")
                         .font(.caption2)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
         }
@@ -215,11 +215,11 @@ struct FamilyAnalyticsDashboard: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Your Logging Attention")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("How moments are distributed across kids")
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             // Attention bar
             GeometryReader { geometry in
@@ -237,7 +237,7 @@ struct FamilyAnalyticsDashboard: View {
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(theme.borderSubtle, lineWidth: 1)
+                    .stroke(theme.borderSoft, lineWidth: 1)
             )
 
             // Legend
@@ -252,15 +252,15 @@ struct FamilyAnalyticsDashboard: View {
 
                         Text("\(summary.name) \(percentage)%")
                             .font(.caption)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }
         }
         .padding()
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     // MARK: - Family Peak Times Section
@@ -269,11 +269,11 @@ struct FamilyAnalyticsDashboard: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Family's Best Times")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("When positive moments happen most")
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
@@ -282,30 +282,30 @@ struct FamilyAnalyticsDashboard: View {
                             Text(peak.dayName)
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(theme.primaryText)
+                                .foregroundColor(theme.textPrimary)
 
                             ZStack {
                                 Circle()
-                                    .fill(theme.positiveColor.opacity(peak.intensity))
+                                    .fill(theme.success.opacity(peak.intensity))
                                     .frame(width: 50, height: 50)
 
                                 Text(peak.timeString)
                                     .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(peak.intensity > 0.5 ? .white : theme.primaryText)
+                                    .foregroundColor(peak.intensity > 0.5 ? .white : theme.textPrimary)
                             }
 
                             Text("\(peak.eventCount) wins")
                                 .font(.caption2)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .padding(.vertical, 8)
                     }
                 }
             }
             .padding()
-            .background(theme.cardBackground)
+            .background(theme.surface1)
             .cornerRadius(theme.cornerRadius)
-            .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+            .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
         }
     }
 
@@ -315,7 +315,7 @@ struct FamilyAnalyticsDashboard: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("See Individual Patterns")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             VStack(spacing: 8) {
                 ForEach(childrenStore.activeChildren) { child in
@@ -333,16 +333,16 @@ struct FamilyAnalyticsDashboard: View {
 
                             Text("\(child.name)'s Patterns")
                                 .font(.subheadline)
-                                .foregroundColor(theme.primaryText)
+                                .foregroundColor(theme.textPrimary)
 
                             Spacer()
 
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .padding()
-                        .background(theme.cardBackground)
+                        .background(theme.surface1)
                         .cornerRadius(12)
                     }
                     .buttonStyle(.plain)
@@ -482,5 +482,5 @@ struct FamilyPeakTime: Identifiable {
     }
     .environmentObject(repository)
     .environmentObject(ChildrenStore(repository: repository))
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

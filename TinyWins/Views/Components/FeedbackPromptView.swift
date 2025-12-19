@@ -150,6 +150,7 @@ enum PulseResponse: String, CaseIterable {
 
 struct FeedbackPromptView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var feedbackManager: FeedbackManager
 
     @State private var selectedResponse: PulseResponse? = nil
@@ -161,7 +162,7 @@ struct FeedbackPromptView: View {
         VStack(spacing: 20) {
             // Handle / drag indicator
             Capsule()
-                .fill(Color(.systemGray4))
+                .fill(theme.borderStrong)
                 .frame(width: 36, height: 5)
                 .padding(.top, 8)
 
@@ -173,7 +174,7 @@ struct FeedbackPromptView: View {
                 pulseCheckView
             }
         }
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .sheet(isPresented: $showingFeedbackView, onDismiss: {
             dismiss()
         }) {
@@ -199,7 +200,7 @@ struct FeedbackPromptView: View {
 
                     Text("You're building great habits")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding(.bottom, 8)
             }
@@ -231,7 +232,7 @@ struct FeedbackPromptView: View {
             }) {
                 Text("Not now")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(.bottom, 24)
         }
@@ -256,7 +257,7 @@ struct FeedbackPromptView: View {
 
                     Text("Would you like to share what's working well?")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                 } else {
                     Text("Thanks for being honest")
@@ -265,7 +266,7 @@ struct FeedbackPromptView: View {
 
                     Text("We'd love to hear how we can improve")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                 }
             }
@@ -294,7 +295,7 @@ struct FeedbackPromptView: View {
                 }) {
                     Text("Just the emoji is enough")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
             .padding(.horizontal, 24)
@@ -318,7 +319,7 @@ struct FeedbackPromptView: View {
 
             Text("Your feedback helps us improve")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             Spacer()
         }
@@ -350,6 +351,7 @@ private struct PulseButton: View {
     let response: PulseResponse
     let action: () -> Void
 
+    @Environment(\.theme) private var theme
     @State private var isPressed = false
 
     var body: some View {
@@ -360,13 +362,13 @@ private struct PulseButton: View {
 
                 Text(response.label)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.systemGray6))
+                    .fill(theme.surface2)
             )
             .scaleEffect(isPressed ? 0.95 : 1.0)
         }
@@ -439,6 +441,7 @@ struct MicroFeedbackView: View {
     let contextMessage: String
     let onDismiss: () -> Void
 
+    @Environment(\.theme) private var theme
     @StateObject private var manager = MicroFeedbackManager.shared
     @State private var selectedResponse: Bool? = nil
     @State private var showingThankYou = false
@@ -455,7 +458,7 @@ struct MicroFeedbackView: View {
         .padding(.vertical, 16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.15), radius: 12, y: 4)
         )
         .padding(.horizontal, 24)
@@ -485,7 +488,7 @@ struct MicroFeedbackView: View {
 
                         Text("Yes")
                             .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .padding(12)
                     .background(
@@ -511,7 +514,7 @@ struct MicroFeedbackView: View {
 
                         Text("Not quite")
                             .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .padding(12)
                     .background(
@@ -528,7 +531,7 @@ struct MicroFeedbackView: View {
                 onDismiss()
             }
             .font(.system(size: 13))
-            .foregroundColor(.secondary)
+            .foregroundColor(theme.textSecondary)
         }
     }
 

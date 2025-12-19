@@ -8,6 +8,8 @@ struct SocialProofView: View {
     let count: Int
     let message: String
 
+    @Environment(\.theme) private var theme
+
     var body: some View {
         VStack(spacing: 12) {
             // Avatar stack
@@ -29,29 +31,29 @@ struct SocialProofView: View {
                         )
                         .overlay(
                             Circle()
-                                .strokeBorder(Color(.systemBackground), lineWidth: 3)
+                                .strokeBorder(theme.surface1, lineWidth: 3)
                         )
                 }
 
                 if count > 5 {
                     Circle()
-                        .fill(Color(.systemGray4))
+                        .fill(theme.borderStrong)
                         .frame(width: 40, height: 40)
                         .overlay(
                             Text("+\(count - 5)")
                                 .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(theme.textPrimary)
                         )
                         .overlay(
                             Circle()
-                                .strokeBorder(Color(.systemBackground), lineWidth: 3)
+                                .strokeBorder(theme.surface1, lineWidth: 3)
                         )
                 }
             }
 
             Text(message)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
     }
 
@@ -70,6 +72,8 @@ struct TestimonialCardView: View {
     let author: String
     let rating: Int
 
+    @Environment(\.theme) private var theme
+
     var body: some View {
         VStack(spacing: 16) {
             // Stars
@@ -84,19 +88,19 @@ struct TestimonialCardView: View {
             // Quote
             Text("\"\(quote)\"")
                 .font(.system(size: 16))
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
                 .multilineTextAlignment(.center)
                 .italic()
 
             // Author
             Text("- \(author)")
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(24)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
         )
     }
@@ -104,6 +108,7 @@ struct TestimonialCardView: View {
 
 /// Horizontal scrolling badge collection
 struct BadgeShowcaseView: View {
+    @Environment(\.theme) private var theme
     let badges: [BadgeItem]
 
     struct BadgeItem: Identifiable {
@@ -129,7 +134,7 @@ struct BadgeShowcaseView: View {
                                         endPoint: .bottomTrailing
                                     ) :
                                     LinearGradient(
-                                        colors: [Color.gray.opacity(0.3), Color.gray.opacity(0.2)],
+                                        colors: [theme.textDisabled.opacity(0.3), theme.textDisabled.opacity(0.2)],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     )
@@ -144,13 +149,13 @@ struct BadgeShowcaseView: View {
                             } else {
                                 Image(systemName: "lock.fill")
                                     .font(.system(size: 24))
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(theme.textDisabled)
                             }
                         }
 
                         Text(badge.name)
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(badge.isUnlocked ? .primary : .secondary)
+                            .foregroundColor(badge.isUnlocked ? theme.textPrimary : theme.textSecondary)
                             .multilineTextAlignment(.center)
                             .frame(width: 80)
                     }

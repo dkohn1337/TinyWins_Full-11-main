@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Detail view showing all reflections for a specific day
 struct ReflectionDayDetailView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @Environment(\.dismiss) private var dismiss
@@ -55,7 +56,7 @@ struct ReflectionDayDetailView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationTitle(dateString)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -72,15 +73,15 @@ struct ReflectionDayDetailView: View {
         VStack(spacing: 16) {
             Image(systemName: "moon.stars")
                 .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
+                .foregroundColor(theme.textSecondary.opacity(0.5))
 
             Text("No reflection on this day")
                 .font(.headline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             Text("Reflecting daily helps you notice patterns and celebrate your wins as a parent.")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(40)
@@ -104,7 +105,7 @@ struct ReflectionDayDetailView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.bg0)
         .cornerRadius(16)
     }
 
@@ -126,7 +127,7 @@ struct ReflectionDayDetailView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.bg0)
         .cornerRadius(16)
     }
 
@@ -155,7 +156,7 @@ struct ReflectionDayDetailView: View {
                 alignmentInsight(sharedNotes: sharedNotes)
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(theme.bg0)
             .cornerRadius(16)
         }
     }
@@ -174,7 +175,7 @@ struct ReflectionDayDetailView: View {
 
                 Text("You both selected \"\(commonWins.first ?? "")\" today")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(12)
             .background(Color.yellow.opacity(0.1))
@@ -186,6 +187,7 @@ struct ReflectionDayDetailView: View {
 // MARK: - Parent Win Row
 
 private struct ParentWinRow: View {
+    @Environment(\.theme) private var theme
     let note: ParentNote
 
     private var timeString: String {
@@ -206,7 +208,7 @@ private struct ParentWinRow: View {
 
                 Text(timeString)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -220,6 +222,7 @@ private struct ParentWinRow: View {
 // MARK: - Reflection Note Row
 
 private struct ReflectionNoteRow: View {
+    @Environment(\.theme) private var theme
     let note: ParentNote
 
     private var timeString: String {
@@ -248,7 +251,7 @@ private struct ReflectionNoteRow: View {
 
                 Text(timeString)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding(12)
@@ -260,6 +263,7 @@ private struct ReflectionNoteRow: View {
 // MARK: - Partner Note Row
 
 private struct PartnerNoteRow: View {
+    @Environment(\.theme) private var theme
     let note: ParentNote
 
     private var timeString: String {
@@ -295,7 +299,7 @@ private struct PartnerNoteRow: View {
 
                 Text(timeString)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding(12)

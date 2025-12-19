@@ -20,6 +20,7 @@ private enum HistorySheetFormatterCache {
 
 /// Detail sheet for viewing and managing a behavior event
 struct EventDetailSheet: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var rewardsStore: RewardsStore
@@ -50,7 +51,7 @@ struct EventDetailSheet: View {
 
                             HStack(spacing: 4) {
                                 Image(systemName: "star.fill")
-                                    .foregroundColor(Color.secondary)
+                                    .foregroundColor(theme.textSecondary)
                                 Text(event.pointsApplied >= 0 ? "+\(event.pointsApplied)" : "\(event.pointsApplied)")
                                     .font(.title3.weight(.bold))
                                     .foregroundColor(event.pointsApplied >= 0 ? AppColors.positive : AppColors.challenge)
@@ -71,25 +72,25 @@ struct EventDetailSheet: View {
                            let reward = rewardsStore.rewards.first(where: { $0.id == rewardId }) {
                             DetailRow(icon: "gift.fill", label: "Applied to", value: reward.name, color: .purple)
                         } else if event.pointsApplied > 0 {
-                            DetailRow(icon: "gift.fill", label: "Applied to", value: "Primary reward", color: .secondary)
+                            DetailRow(icon: "gift.fill", label: "Applied to", value: "Primary reward", color: theme.textSecondary)
                         }
 
                         // Date & Time
-                        DetailRow(icon: "calendar", label: "Date", value: formatDate(event.timestamp), color: .secondary)
-                        DetailRow(icon: "clock.fill", label: "Time", value: formatTime(event.timestamp), color: .secondary)
+                        DetailRow(icon: "calendar", label: "Date", value: formatDate(event.timestamp), color: theme.textSecondary)
+                        DetailRow(icon: "clock.fill", label: "Time", value: formatTime(event.timestamp), color: theme.textSecondary)
 
                         // Note
                         if let note = event.note, !note.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
                                 Label("Note", systemImage: "note.text")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
 
                                 Text(note)
                                     .font(.body)
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color(.systemGray6))
+                                    .background(theme.surface2)
                                     .cornerRadius(12)
                             }
                         }
@@ -99,7 +100,7 @@ struct EventDetailSheet: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Label("\(event.mediaAttachments.count) Attachment\(event.mediaAttachments.count > 1 ? "s" : "")", systemImage: "photo.fill")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
 
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 12) {
@@ -153,14 +154,14 @@ struct EventDetailSheet: View {
                     .padding()
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationTitle("Moment Details")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(action: toggleSpecial) {
                         Image(systemName: progressionStore.isSpecialMoment(event.id) ? "heart.fill" : "heart")
-                            .foregroundColor(progressionStore.isSpecialMoment(event.id) ? .pink : .secondary)
+                            .foregroundColor(progressionStore.isSpecialMoment(event.id) ? .pink : theme.textSecondary)
                     }
                 }
 
@@ -205,6 +206,7 @@ struct EventDetailSheet: View {
 
 /// Detail sheet for viewing reward history events
 struct RewardEventDetailSheet: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
     @Environment(\.dismiss) private var dismiss
 
@@ -248,11 +250,11 @@ struct RewardEventDetailSheet: View {
                         }
 
                         // Date & Time
-                        DetailRow(icon: "calendar", label: "Date", value: formatDate(event.timestamp), color: .secondary)
-                        DetailRow(icon: "clock.fill", label: "Time", value: formatTime(event.timestamp), color: .secondary)
+                        DetailRow(icon: "calendar", label: "Date", value: formatDate(event.timestamp), color: theme.textSecondary)
+                        DetailRow(icon: "clock.fill", label: "Time", value: formatTime(event.timestamp), color: theme.textSecondary)
 
                         // Stars
-                        DetailRow(icon: "star.fill", label: "Stars Required", value: "\(event.starsRequired)", color: Color.secondary)
+                        DetailRow(icon: "star.fill", label: "Stars Required", value: "\(event.starsRequired)", color: theme.textSecondary)
                         DetailRow(icon: "star.circle.fill", label: "Stars at Event", value: "\(event.starsEarnedAtEvent)", color: eventColor)
 
                         // Additional info based on type
@@ -265,7 +267,7 @@ struct RewardEventDetailSheet: View {
 
                                 Text("The deadline passed before the goal was reached.")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                             .padding()
                             .background(Color.orange.opacity(0.1))
@@ -275,7 +277,7 @@ struct RewardEventDetailSheet: View {
                     .padding()
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationTitle("Reward Details")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -308,11 +310,11 @@ struct RewardEventDetailSheet: View {
 
 /// Bottom sheet for advanced filter options
 struct FilterBottomSheet: View {
+    @Environment(\.theme) private var theme
     @Binding var selectedPeriod: TimePeriod
     @Binding var selectedChildId: UUID?
     @Binding var selectedTypeFilter: HistoryTypeFilter
     let children: [Child]
-
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -331,7 +333,7 @@ struct FilterBottomSheet: View {
                                 }
                             }
                         }
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
                     }
                 }
 
@@ -347,7 +349,7 @@ struct FilterBottomSheet: View {
                             }
                         }
                     }
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
 
                     ForEach(children) { child in
                         Button(action: { selectedChildId = child.id }) {
@@ -363,7 +365,7 @@ struct FilterBottomSheet: View {
                                 }
                             }
                         }
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
                     }
                 }
 
@@ -374,7 +376,7 @@ struct FilterBottomSheet: View {
                             HStack {
                                 if let icon = filter.icon {
                                     Image(systemName: icon)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                 }
                                 Text(filter.rawValue)
                                 Spacer()
@@ -384,7 +386,7 @@ struct FilterBottomSheet: View {
                                 }
                             }
                         }
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
                     }
                 }
             }

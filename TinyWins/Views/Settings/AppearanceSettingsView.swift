@@ -6,8 +6,8 @@ struct AppearanceSettingsView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var prefs: UserPreferencesStore
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
-    @EnvironmentObject private var themeProvider: ThemeProvider
-    @StateObject private var previewTheme = ThemeProvider()
+    @Environment(\.theme) private var theme
+    @State private var previewTheme = Theme()
     @State private var showPaywall = false
     @State private var showAllPlusThemes = false
 
@@ -34,7 +34,7 @@ struct AppearanceSettingsView: View {
 
                         Text("Pick a theme that matches your style. TinyWins Plus adds more personalization options.")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -51,7 +51,7 @@ struct AppearanceSettingsView: View {
                             .padding(.horizontal, 20)
 
                         ThemePreviewCards(
-                            theme: previewTheme.currentTheme,
+                            theme: previewTheme.appTheme,
                             colorScheme: colorScheme
                         )
                     }
@@ -75,7 +75,7 @@ struct AppearanceSettingsView: View {
                                 .foregroundColor(.secondary)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4)
-                                .background(Color(.systemGray6))
+                                .background(theme.surface2)
                                 .cornerRadius(12)
                             }
                         }
@@ -129,7 +129,7 @@ struct AppearanceSettingsView: View {
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
                             }
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                         }
                         .padding(.horizontal, 20)
                         .accessibilityHint("Opens the full list of Plus themes")
@@ -140,14 +140,14 @@ struct AppearanceSettingsView: View {
                         Button(action: { showPaywall = true }) {
                             Text("See what TinyWins Plus includes")
                                 .font(.subheadline)
-                                .foregroundColor(themeProvider.resolved.primaryColor)
+                                .foregroundColor(theme.accentPrimary)
                         }
                         .padding(.top, 8)
                     }
                 }
                 .padding(.vertical, 20)
             }
-            .background(previewTheme.resolved.backgroundColor)
+            .background(previewTheme.bg0)
             .navigationTitle("Appearance")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showAllPlusThemes) {
@@ -155,7 +155,7 @@ struct AppearanceSettingsView: View {
                     isPremiumUser: isPremiumUser,
                     selectedTheme: prefs.appTheme,
                     colorScheme: colorScheme,
-                    accentColor: themeProvider.resolved.primaryColor,
+                    accentColor: theme.accentPrimary,
                     onSelectTheme: { theme in
                         if isPremiumUser {
                             selectTheme(theme)
@@ -175,11 +175,10 @@ struct AppearanceSettingsView: View {
                 }
             }
             .onAppear {
-                previewTheme.currentTheme = prefs.appTheme
-                previewTheme.colorScheme = colorScheme
+                previewTheme = Theme(from: prefs.appTheme, colorScheme: colorScheme)
             }
             .onChange(of: colorScheme) { _, newScheme in
-                previewTheme.colorScheme = newScheme
+                previewTheme = Theme(from: prefs.appTheme, colorScheme: newScheme)
             }
             .sheet(isPresented: $showPaywall) {
                 PlusPaywallView(context: .premiumThemes)
@@ -187,10 +186,10 @@ struct AppearanceSettingsView: View {
         }
     }
 
-    private func selectTheme(_ theme: AppTheme) {
+    private func selectTheme(_ appTheme: AppTheme) {
         withAnimation(.spring(response: 0.3)) {
-            prefs.appTheme = theme
-            previewTheme.currentTheme = theme
+            prefs.appTheme = appTheme
+            previewTheme = Theme(from: appTheme, colorScheme: colorScheme)
         }
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
@@ -198,10 +197,10 @@ struct AppearanceSettingsView: View {
 
     /// M3 FIX: Preview the premium theme briefly before showing paywall
     /// This gives users a taste of the theme before asking them to upgrade
-    private func previewThemeBeforePaywall(_ theme: AppTheme) {
+    private func previewThemeBeforePaywall(_ appTheme: AppTheme) {
         // Show preview immediately
         withAnimation(.spring(response: 0.3)) {
-            previewTheme.currentTheme = theme
+            previewTheme = Theme(from: appTheme, colorScheme: colorScheme)
         }
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
@@ -220,14 +219,14 @@ struct AppearanceSettingsView: View {
             HStack {
                 Text("Quick Pick")
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 Spacer()
 
                 // Show count
                 Text("\(AppTheme.allCases.count) themes")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(.horizontal, 20)
 
@@ -309,11 +308,11 @@ private struct QuickThemeThumbnail: View {
                         // Lock overlay
                         if isLocked {
                             Circle()
-                                .fill(.ultraThinMaterial)
+                                .fill(Color.gray.opacity(0.7))
                                 .frame(width: 36, height: 36)
                             Image(systemName: "lock.fill")
                                 .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.white)
                         }
 
                         // Selection ring
@@ -401,17 +400,11 @@ private struct ThemePreviewCards: View {
                 Button(action: {}) {
                     Text("Log a Moment")
                         .font(.headline)
-                        .foregroundColor(resolved.onPrimaryColor)
+                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
-                        .background(
-                            LinearGradient(
-                                colors: resolved.buttonGradient,
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .cornerRadius(resolved.cornerRadius)
+                        .background(resolved.primaryColor)
+                        .cornerRadius(12)
                 }
                 .buttonStyle(.plain)
             }
@@ -469,8 +462,8 @@ private struct ThemePreviewCards: View {
                     .foregroundColor(resolved.primaryColor)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
-                    .background(resolved.cardBackgroundTinted)
-                    .cornerRadius(resolved.cornerRadius - 4)
+                    .background(resolved.primaryColor.opacity(0.15))
+                    .cornerRadius(8)
 
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
@@ -481,16 +474,16 @@ private struct ThemePreviewCards: View {
                     .foregroundColor(resolved.primaryColor)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
-                    .background(resolved.cardBackgroundTinted)
-                    .cornerRadius(resolved.cornerRadius - 4)
+                    .background(resolved.primaryColor.opacity(0.15))
+                    .cornerRadius(8)
                 }
             }
             .padding(16)
             .background(resolved.cardBackground)
-            .cornerRadius(resolved.cornerRadius)
+            .cornerRadius(12)
             .overlay(
-                RoundedRectangle(cornerRadius: resolved.cornerRadius)
-                    .strokeBorder(resolved.cardBorderColor, lineWidth: resolved.cardBorderWidth)
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(resolved.cardBorderColor, lineWidth: 1)
             )
             .shadow(
                 color: resolved.shadowColor.opacity(resolved.shadowIntensity),
@@ -500,7 +493,7 @@ private struct ThemePreviewCards: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(resolved.previewBackgroundGradient)
+        .background(resolved.backgroundColor)
         .cornerRadius(20)
         .padding(.horizontal, 4)
     }
@@ -528,7 +521,7 @@ private struct NewThemeCard: View {
                 ZStack {
                     // Background with theme gradient
                     Circle()
-                        .fill(resolved.previewBackgroundGradient)
+                        .fill(resolved.backgroundColor)
                         .frame(width: 80, height: 80)
 
                     // Special icon for System theme
@@ -580,7 +573,7 @@ private struct NewThemeCard: View {
                         Circle()
                             .fill(
                                 RadialGradient(
-                                    colors: [.white.opacity(resolved.isDark ? 0.3 : 0.5), .clear],
+                                    colors: [.white.opacity(0.3), .clear],
                                     center: .topLeading,
                                     startRadius: 0,
                                     endRadius: 30
@@ -592,23 +585,19 @@ private struct NewThemeCard: View {
                     // Lock overlay for premium themes
                     if isLocked {
                         Circle()
-                            .fill(.ultraThinMaterial)
+                            .fill(Color.gray.opacity(0.7))
                             .frame(width: 60, height: 60)
 
                         Image(systemName: "lock.fill")
                             .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white)
                     }
 
                     // Selection ring
                     if isSelected {
                         Circle()
                             .strokeBorder(
-                                LinearGradient(
-                                    colors: resolved.buttonGradient,
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
+                                resolved.primaryColor,
                                 lineWidth: 3
                             )
                             .frame(width: 76, height: 76)
@@ -687,14 +676,12 @@ private struct NewThemeCard: View {
             .padding(.horizontal, 8)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(isSelected ? resolved.cardBackgroundTinted : Color(.systemBackground))
+                    .fill(isSelected ? resolved.primaryColor.opacity(0.15) : theme.cardBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .strokeBorder(
-                        isSelected ?
-                            LinearGradient(colors: resolved.buttonGradient, startPoint: .topLeading, endPoint: .bottomTrailing) :
-                            LinearGradient(colors: [Color(.systemGray5)], startPoint: .top, endPoint: .bottom),
+                        isSelected ? resolved.primaryColor : theme.cardBorderColor,
                         lineWidth: isSelected ? 2 : 1
                     )
             )
@@ -741,6 +728,7 @@ private struct AllPlusThemesSheet: View {
     let onShowPaywall: () -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     private var allPlusThemes: [AppTheme] {
         AppTheme.allCases.filter { $0.isPremium }
@@ -755,14 +743,14 @@ private struct AllPlusThemesSheet: View {
                         .padding(.top, 8)
 
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                        ForEach(allPlusThemes) { theme in
+                        ForEach(allPlusThemes) { appTheme in
                             NewThemeCard(
-                                theme: theme,
-                                isSelected: selectedTheme == theme,
+                                theme: appTheme,
+                                isSelected: selectedTheme == appTheme,
                                 isLocked: !isPremiumUser,
                                 colorScheme: colorScheme
                             ) {
-                                onSelectTheme(theme)
+                                onSelectTheme(appTheme)
                             }
                         }
                     }
@@ -782,7 +770,7 @@ private struct AllPlusThemesSheet: View {
                 }
                 .padding(.vertical, 20)
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

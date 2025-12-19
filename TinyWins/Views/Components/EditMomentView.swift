@@ -4,6 +4,7 @@ struct EditMomentView: View {
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     let event: BehaviorEvent
 
@@ -61,12 +62,12 @@ struct EditMomentView: View {
                                     .foregroundColor(.primary)
                             } else {
                                 Text("Select behavior")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                 }
@@ -85,7 +86,7 @@ struct EditMomentView: View {
                     Stepper(value: $pointsApplied, in: 1...10) {
                         HStack {
                             Image(systemName: "star.fill")
-                                .foregroundColor(Color.secondary)
+                                .foregroundColor(theme.textSecondary)
                             Text(isPositive ? "+\(pointsApplied)" : "-\(pointsApplied)")
                                 .font(.headline)
                                 .foregroundColor(isPositive ? AppColors.positive : AppColors.challenge)
@@ -103,9 +104,9 @@ struct EditMomentView: View {
                 Section("Timestamp") {
                     HStack {
                         Image(systemName: "calendar")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                         Text(formatDateTime(event.timestamp))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }

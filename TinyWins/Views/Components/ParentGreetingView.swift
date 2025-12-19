@@ -8,7 +8,7 @@ struct ParentGreetingView: View {
     var yesterdayPositive: Int = 0
     var childrenWithGoalsReached: [String] = []
     var onAddTapped: (() -> Void)? = nil
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     private var totalMomentsToday: Int {
         totalPositiveToday + totalChallengesToday
@@ -100,8 +100,7 @@ struct ParentGreetingView: View {
     // MARK: - Body
 
     var body: some View {
-        let resolved = themeProvider.resolved
-        let gradientColors = resolved.buttonGradient
+        let gradientColors = theme.accentGradient
 
         VStack(spacing: AppSpacing.md) {
             // Time-based icon and greeting
@@ -198,14 +197,14 @@ struct ParentGreetingView: View {
                 colors: [
                     gradientColors.first?.opacity(0.95) ?? Color.accentColor.opacity(0.9),
                     gradientColors.last?.opacity(0.85) ?? Color.accentColor.opacity(0.7),
-                    resolved.secondaryColor.opacity(0.7)
+                    theme.accentSecondary.opacity(0.7)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
         )
-        .cornerRadius(resolved.cornerRadius + 4)
-        .shadow(color: (gradientColors.first ?? Color.accentColor).opacity(resolved.isDark ? 0.4 : 0.3), radius: 16, y: 6)
+        .cornerRadius(theme.cornerRadius + 4)
+        .shadow(color: (gradientColors.first ?? Color.accentColor).opacity(theme.isDark ? 0.4 : 0.3), radius: 16, y: 6)
         .transition(.opacity)
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: totalPositiveToday)
     }

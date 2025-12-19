@@ -6,7 +6,7 @@ import SwiftUI
 /// Shows: Family | [Child chips] | You
 struct InsightsScopeChips: View {
     @Environment(\.insightsContext) private var context
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
 
     var body: some View {
@@ -18,7 +18,7 @@ struct InsightsScopeChips: View {
                         icon: "house.fill",
                         label: String(localized: "Family", table: "Insights"),
                         isSelected: context.scope == .family,
-                        accentColor: theme.accentColor
+                        accentColor: theme.accentPrimary
                     ) {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             context.selectFamily()
@@ -44,7 +44,7 @@ struct InsightsScopeChips: View {
                         icon: "person.fill",
                         label: String(localized: "You", table: "Insights"),
                         isSelected: context.scope == .you,
-                        accentColor: theme.accentColor
+                        accentColor: theme.accentPrimary
                     ) {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             context.selectYou()
@@ -78,7 +78,7 @@ struct InsightsScopeChips: View {
 
 /// Generic scope chip (Family, You)
 struct ScopeChip: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let icon: String
     let label: String
@@ -95,16 +95,16 @@ struct ScopeChip: View {
                 Text(label)
                     .font(.system(size: 14, weight: .medium))
             }
-            .foregroundColor(isSelected ? .white : theme.primaryText)
+            .foregroundColor(isSelected ? .white : theme.textPrimary)
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .background(
                 Capsule()
-                    .fill(isSelected ? accentColor : theme.chipBackground)
+                    .fill(isSelected ? accentColor : theme.accentMuted)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.clear : theme.borderSubtle, lineWidth: 1)
+                    .stroke(isSelected ? Color.clear : theme.borderSoft, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -116,7 +116,7 @@ struct ScopeChip: View {
 
 /// Child-specific chip with avatar and name
 struct ChildScopeChip: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let child: Child
     let isSelected: Bool
@@ -137,18 +137,18 @@ struct ChildScopeChip: View {
 
                 Text(child.name)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(isSelected ? .white : theme.primaryText)
+                    .foregroundColor(isSelected ? .white : theme.textPrimary)
             }
             .padding(.leading, 4)
             .padding(.trailing, 14)
             .padding(.vertical, 6)
             .background(
                 Capsule()
-                    .fill(isSelected ? child.colorTag.color : theme.chipBackground)
+                    .fill(isSelected ? child.colorTag.color : theme.accentMuted)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.clear : theme.borderSubtle, lineWidth: 1)
+                    .stroke(isSelected ? Color.clear : theme.borderSoft, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -162,7 +162,7 @@ struct ChildScopeChip: View {
 /// Even more compact version for tight spaces
 struct CompactScopePills: View {
     @Environment(\.insightsContext) private var context
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
 
     var body: some View {
@@ -185,12 +185,12 @@ struct CompactScopePills: View {
             Text(currentLabel)
                 .font(.system(size: 12, weight: .medium))
         }
-        .foregroundColor(theme.accentColor)
+        .foregroundColor(theme.accentPrimary)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background(
             Capsule()
-                .fill(theme.accentColor.opacity(0.12))
+                .fill(theme.accentPrimary.opacity(0.12))
         )
     }
 
@@ -244,5 +244,5 @@ struct CompactScopePills: View {
     .padding()
     .withInsightsContext(context)
     .environmentObject(ChildrenStore(repository: repository))
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

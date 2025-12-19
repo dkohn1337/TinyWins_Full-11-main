@@ -59,7 +59,7 @@ struct ElevatedCard<Content: View>: View {
     var padding: CGFloat?
     var accentPosition: CardAccentPosition
     var customAccentColor: Color?
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     init(
         elevation: CardElevation = .medium,
@@ -76,24 +76,23 @@ struct ElevatedCard<Content: View>: View {
     }
 
     var body: some View {
-        let resolved = themeProvider.resolved
-        let accentColor = customAccentColor ?? resolved.cardAccentColor
+        let accentColor = customAccentColor ?? theme.accentPrimary
 
         content
             .padding(padding ?? AppSpacing.cardPadding)
-            .background(resolved.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: resolved.cornerRadius))
+            .background(theme.surface1)
+            .clipShape(RoundedRectangle(cornerRadius: theme.cornerRadius))
             .overlay(
-                RoundedRectangle(cornerRadius: resolved.cornerRadius)
-                    .strokeBorder(resolved.cardBorderColor, lineWidth: resolved.cardBorderWidth)
+                RoundedRectangle(cornerRadius: theme.cornerRadius)
+                    .strokeBorder(theme.borderSoft, lineWidth: 1)
             )
             .overlay(alignment: accentAlignment) {
                 if accentPosition != .none {
-                    accentBar(color: accentColor, cornerRadius: resolved.cornerRadius)
+                    accentBar(color: accentColor, cornerRadius: theme.cornerRadius)
                 }
             }
             .shadow(
-                color: resolved.shadowColor.opacity(elevation.shadowOpacity * (resolved.isDark ? 1.5 : 1.0)),
+                color: theme.shadowColor.opacity(elevation.shadowOpacity * theme.shadowStrength * (theme.isDark ? 1.5 : 1.0)),
                 radius: elevation.shadowRadius,
                 y: elevation.shadowY
             )
@@ -142,7 +141,7 @@ struct ElevatedCard<Content: View>: View {
 struct ElevatedCardLarge<Content: View>: View {
     let content: Content
     var elevation: CardElevation
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     init(
         elevation: CardElevation = .high,
@@ -153,18 +152,16 @@ struct ElevatedCardLarge<Content: View>: View {
     }
 
     var body: some View {
-        let resolved = themeProvider.resolved
-
         content
             .padding(AppSpacing.cardPaddingLarge)
-            .background(resolved.cardBackground)
-            .cornerRadius(resolved.cornerRadius + 4)
+            .background(theme.surface1)
+            .cornerRadius(theme.cornerRadius + 4)
             .overlay(
-                RoundedRectangle(cornerRadius: resolved.cornerRadius + 4)
-                    .strokeBorder(resolved.cardBorderColor, lineWidth: resolved.cardBorderWidth)
+                RoundedRectangle(cornerRadius: theme.cornerRadius + 4)
+                    .strokeBorder(theme.borderSoft, lineWidth: 1)
             )
             .shadow(
-                color: resolved.shadowColor.opacity(elevation.shadowOpacity * (resolved.isDark ? 1.5 : 1.0)),
+                color: theme.shadowColor.opacity(elevation.shadowOpacity * theme.shadowStrength * (theme.isDark ? 1.5 : 1.0)),
                 radius: elevation.shadowRadius,
                 y: elevation.shadowY
             )
@@ -178,7 +175,7 @@ struct PressableCard<Content: View>: View {
     let content: Content
     let action: () -> Void
     var elevation: CardElevation
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @State private var isPressed = false
 
     init(
@@ -192,19 +189,17 @@ struct PressableCard<Content: View>: View {
     }
 
     var body: some View {
-        let resolved = themeProvider.resolved
-
         Button(action: action) {
             content
                 .padding(AppSpacing.cardPadding)
-                .background(resolved.cardBackground)
-                .cornerRadius(resolved.cornerRadius)
+                .background(theme.surface1)
+                .cornerRadius(theme.cornerRadius)
                 .overlay(
-                    RoundedRectangle(cornerRadius: resolved.cornerRadius)
-                        .strokeBorder(resolved.cardBorderColor, lineWidth: resolved.cardBorderWidth)
+                    RoundedRectangle(cornerRadius: theme.cornerRadius)
+                        .strokeBorder(theme.borderSoft, lineWidth: 1)
                 )
                 .shadow(
-                    color: resolved.shadowColor.opacity(isPressed ? elevation.shadowOpacity * 0.5 : elevation.shadowOpacity),
+                    color: theme.shadowColor.opacity((isPressed ? elevation.shadowOpacity * 0.5 : elevation.shadowOpacity) * theme.shadowStrength),
                     radius: isPressed ? elevation.shadowRadius * 0.7 : elevation.shadowRadius,
                     y: isPressed ? elevation.shadowY * 0.5 : elevation.shadowY
                 )
@@ -238,21 +233,19 @@ private struct PressableCardButtonStyle: ButtonStyle {
 struct CardStyleModifier: ViewModifier {
     let elevation: CardElevation
     let padding: CGFloat?
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     func body(content: Content) -> some View {
-        let resolved = themeProvider.resolved
-
         content
             .padding(padding ?? AppSpacing.cardPadding)
-            .background(resolved.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: resolved.cornerRadius))
+            .background(theme.surface1)
+            .clipShape(RoundedRectangle(cornerRadius: theme.cornerRadius))
             .overlay(
-                RoundedRectangle(cornerRadius: resolved.cornerRadius)
-                    .strokeBorder(resolved.cardBorderColor, lineWidth: resolved.cardBorderWidth)
+                RoundedRectangle(cornerRadius: theme.cornerRadius)
+                    .strokeBorder(theme.borderSoft, lineWidth: 1)
             )
             .shadow(
-                color: resolved.shadowColor.opacity(elevation.shadowOpacity * (resolved.isDark ? 1.5 : 1.0)),
+                color: theme.shadowColor.opacity(elevation.shadowOpacity * theme.shadowStrength * (theme.isDark ? 1.5 : 1.0)),
                 radius: elevation.shadowRadius,
                 y: elevation.shadowY
             )
@@ -308,12 +301,14 @@ extension View {
         }
         .padding(.vertical, AppSpacing.lg)
     }
-    .background(Color(.systemGroupedBackground))
+    .background(Theme().bg1)
+    .withTheme(Theme())
 }
 
 // MARK: - Preview Helper
 
 private struct CardContentExample: View {
+    @Environment(\.theme) private var theme
     let title: String
     let subtitle: String
 
@@ -324,7 +319,7 @@ private struct CardContentExample: View {
 
             Text(subtitle)
                 .font(AppTypography.bodySmall)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

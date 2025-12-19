@@ -53,6 +53,11 @@ final class DependencyContainer: ObservableObject {
     let todayViewModel: TodayViewModel
     let kidsViewModel: KidsViewModel
     let rewardsViewModel: RewardsViewModel
+    let insightsHomeViewModel: InsightsHomeViewModel
+
+    // MARK: - Navigation State
+
+    let insightsNavigationState: InsightsNavigationState
 
     // MARK: - Initialization
 
@@ -121,8 +126,13 @@ final class DependencyContainer: ObservableObject {
             celebrationStore: celebrationStore,
             userPreferences: userPreferences
         )
+
+        // PERFORMANCE: Wire up use cases and manager to ContentViewModel
+        // This enables Combine-based observation instead of view onChange handlers
+        self.contentViewModel.celebrationManager = celebrationManager
+        self.contentViewModel.goalPromptUseCase = goalPromptUseCase
+        self.contentViewModel.celebrationQueueUseCase = celebrationQueueUseCase
         self.todayViewModel = TodayViewModel(
-            progressionStore: progressionStore,
             behaviorsStore: behaviorsStore,
             childrenStore: childrenStore,
             rewardsStore: rewardsStore,
@@ -130,6 +140,8 @@ final class DependencyContainer: ObservableObject {
         )
         self.kidsViewModel = KidsViewModel(
             childrenStore: childrenStore,
+            rewardsStore: rewardsStore,
+            behaviorsStore: behaviorsStore,
             subscriptionManager: subscriptionManager
         )
         self.rewardsViewModel = RewardsViewModel(
@@ -138,6 +150,16 @@ final class DependencyContainer: ObservableObject {
             behaviorsStore: behaviorsStore,
             userPreferences: userPreferences,
             subscriptionManager: subscriptionManager
+        )
+
+        // Initialize navigation state for Insights
+        self.insightsNavigationState = InsightsNavigationState()
+
+        // Initialize InsightsHomeViewModel
+        self.insightsHomeViewModel = InsightsHomeViewModel(
+            repository: repository,
+            childrenStore: childrenStore,
+            navigation: insightsNavigationState
         )
     }
 }

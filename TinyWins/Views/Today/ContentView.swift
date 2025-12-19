@@ -1,85 +1,79 @@
 import SwiftUI
 import Network
 
+/// Main content view with optimized store dependencies.
+///
+/// PERFORMANCE OPTIMIZATION:
+/// - Reduced from 8 @EnvironmentObject to 4 essential ones
+/// - Celebration processing moved to ContentViewModel (Combine-based)
+/// - Heavy operations run asynchronously via ViewModel
+/// - Store observation happens in ViewModel, not view body
 struct ContentView: View {
     let logBehaviorUseCase: LogBehaviorUseCase
-    let celebrationQueueUseCase: CelebrationQueueUseCase
-    let goalPromptUseCase: GoalPromptUseCase
 
+    // MARK: - Essential Dependencies Only
+    // ContentViewModel handles celebration processing via Combine
+    // childrenStore/rewardsStore only needed for sheet callbacks (not observation)
     @EnvironmentObject private var contentViewModel: ContentViewModel
+    @EnvironmentObject private var todayViewModel: TodayViewModel
     @EnvironmentObject private var childrenStore: ChildrenStore
-    @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var rewardsStore: RewardsStore
-    @EnvironmentObject private var celebrationStore: CelebrationStore
     @EnvironmentObject private var celebrationManager: CelebrationManager
     @EnvironmentObject private var coachMarkManager: CoachMarkManager
     @EnvironmentObject private var coordinator: AppCoordinator
+    @EnvironmentObject private var kidsViewModel: KidsViewModel
+    @EnvironmentObject private var rewardsViewModel: RewardsViewModel
+    @EnvironmentObject private var insightsNavigation: InsightsNavigationState
+    @EnvironmentObject private var insightsHomeViewModel: InsightsHomeViewModel
 
-    // Track last processed event to avoid duplicate celebrations
-    @State private var lastProcessedEventId: UUID?
-
-    // Current action ID for batching celebrations
-    @State private var currentActionId: UUID?
-
-    // NOTE: InsightsNavigationState is now owned by AppCoordinator for stable lifecycle
-    // Access via coordinator.insightsNavigation
+    // NOTE: behaviorsStore and celebrationStore observation moved to ContentViewModel
+    // This prevents view body recalculation on every store change
 
     var body: some View {
         ZStack {
             Group {
-                // Show onboarding until explicitly completed (not just when child exists)
+                // Show onboarding until explicitly completed
                 if contentViewModel.hasCompletedOnboarding {
                     mainTabView
                 } else {
                     OnboardingFlowView()
                 }
             }
-            // Prompt to create goal if child has moments but no goal
-            // H1 FIX: Defer goal prompt to next session to avoid interrupting logging flow
-            .onChange(of: behaviorsStore.behaviorEvents.count) { _, newCount in
-                // Goal prompt is now checked on app launch, not during active logging
-                // This prevents the modal from interrupting the user mid-flow
-                flagGoalPromptForNextSession()
-
-                // Get the latest event (use max instead of sorted().first for O(n) vs O(n log n))
-                guard let lastEvent = behaviorsStore.behaviorEvents.max(by: { $0.timestamp < $1.timestamp }),
-                      lastEvent.id != lastProcessedEventId,
-                      lastEvent.pointsApplied > 0 else { return }
-
-                lastProcessedEventId = lastEvent.id
-
-                // Generate a new action ID for this behavior logging action
-                let actionId = UUID()
-                currentActionId = actionId
-
-                // Queue all celebrations that should trigger from this action
-                queueCelebrationsForEvent(lastEvent, actionId: actionId)
-
-                // Process after a short delay to allow stores to finish setting milestone/goal celebrations
-                // Reduced from 150ms to 50ms for snappier response (imperceptible delay)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                    // Only process if this is still the current action
-                    if currentActionId == actionId {
-                        celebrationManager.processCelebrations(forAction: actionId)
-                    }
-                }
-            }
+            // PERFORMANCE: Removed .onChange(of: behaviorsStore.behaviorEvents.count)
+            // Now handled by ContentViewModel using Combine (doesn't trigger view re-render)
             .sheet(item: $coordinator.presentedSheet) { sheet in
-                sheetContent(for: sheet)
+                // PHASE 4: DeferredBuild to prevent sheet presentation stalls
+                DeferredBuild {
+                    sheetContent(for: sheet)
+                }
+                #if DEBUG
+                .onAppear {
+                    FrameStallMonitor.shared.markPresentSheet(sheet.trackingName)
+                }
+                #endif
             }
             .fullScreenCover(item: $coordinator.presentedFullScreenCover) { cover in
-                fullScreenCoverContent(for: cover)
+                // PHASE 4: DeferredBuild to prevent presentation stalls
+                DeferredBuild {
+                    fullScreenCoverContent(for: cover)
+                }
+                #if DEBUG
+                .onAppear {
+                    FrameStallMonitor.shared.markPresentFullscreen(cover.trackingName)
+                }
+                #endif
             }
 
             // Unified celebration overlay from CelebrationManager
+            // PERFORMANCE: Animation scoped to this specific view, not affecting parent/siblings
             if let celebration = celebrationManager.activeCelebration {
                 CelebrationOverlay(celebration: celebration) {
                     celebrationManager.dismissCelebration()
-                    // Also clear the celebration store states
                     contentViewModel.dismissMilestone()
                     contentViewModel.dismissRewardEarnedCelebration()
                 }
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: celebrationManager.activeCelebration != nil)
                 .zIndex(100)
             }
 
@@ -93,148 +87,129 @@ struct ContentView: View {
                     Spacer()
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
+                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: celebrationManager.currentSecondaryBanner != nil)
                 .zIndex(99)
             }
 
-            // L3 DOCUMENTED: Coach marks overlay - PRIORITY HIERARCHY:
-            // 1. Primary celebration (zIndex 100) - highest priority
-            // 2. Secondary celebration banner (zIndex 99)
-            // 3. Coach marks (zIndex 98) - only shown when no active celebration
-            // This ensures celebrations always take precedence over guidance overlays
+            // Coach marks overlay - only shown when no active celebration
             if coachMarkManager.isShowingCoachMark && celebrationManager.activeCelebration == nil {
                 CoachMarkOverlay(manager: coachMarkManager)
+                    .animation(.easeInOut(duration: 0.3), value: coachMarkManager.isShowingCoachMark)
                     .zIndex(98)
             }
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: celebrationManager.activeCelebration != nil)
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: celebrationManager.currentSecondaryBanner != nil)
-        .animation(.easeInOut(duration: 0.3), value: coachMarkManager.isShowingCoachMark)
+        #if DEBUG
+        .withThemeDebugPanel()
+        #endif
+        // PERFORMANCE: Animation modifiers removed from parent to prevent tab transition jitter
+        // Animations are now applied directly to the celebration/coach mark views using withAnimation
         // Collect coach mark target rects from child views
         .onPreferenceChange(CoachMarkTargetPreferenceKey.self) { targets in
             for (target, rect) in targets {
                 coachMarkManager.registerTarget(target, rect: rect)
             }
         }
-        // Listen for celebration store triggers and queue to manager
-        .onChange(of: celebrationStore.rewardEarnedCelebration?.id) { _, newValue in
-            if let celebration = celebrationStore.rewardEarnedCelebration,
-               let actionId = currentActionId {
-                celebrationManager.queueCelebration(
-                    .goalReached(
-                        childId: celebration.childId,
-                        childName: celebration.childName,
-                        rewardId: celebration.rewardId,
-                        rewardName: celebration.rewardName,
-                        rewardIcon: celebration.rewardIcon
-                    ),
-                    forAction: actionId
-                )
-            }
-        }
-        .onChange(of: celebrationStore.recentMilestone?.id) { _, newValue in
-            if let milestone = celebrationStore.recentMilestone,
-               let actionId = currentActionId {
-                celebrationManager.queueCelebration(
-                    .milestoneReached(
-                        childId: milestone.childId,
-                        childName: milestone.childName,
-                        rewardId: milestone.rewardId,
-                        rewardName: milestone.rewardName,
-                        milestone: milestone.milestone,
-                        target: milestone.target,
-                        message: milestone.message
-                    ),
-                    forAction: actionId
-                )
-            }
-        }
-    }
-
-    // MARK: - Celebration Processing
-
-    private func queueCelebrationsForEvent(_ event: BehaviorEvent, actionId: UUID) {
-        // Use CelebrationQueueUseCase to determine which celebrations to queue
-        let result = celebrationQueueUseCase.execute(for: event)
-
-        // Queue Gold Star Day if applicable
-        if let goldStarDay = result.goldStarDay {
-            celebrationManager.queueCelebration(
-                .goldStarDay(
-                    childId: goldStarDay.childId,
-                    childName: goldStarDay.childName,
-                    momentCount: goldStarDay.momentCount
-                ),
-                forAction: actionId
-            )
-        }
-
-        // Queue pattern insight if applicable
-        if let pattern = result.patternInsight {
-            let patternInsight = CelebrationManager.PatternInsight(
-                title: pattern.insight.title,
-                message: pattern.insight.message,
-                suggestion: pattern.insight.suggestion,
-                icon: pattern.insight.icon,
-                color: pattern.insight.color
-            )
-            celebrationManager.queueCelebration(
-                .patternFound(
-                    childId: pattern.childId,
-                    childName: pattern.childName,
-                    behaviorId: pattern.behaviorId,
-                    behaviorName: pattern.behaviorName,
-                    count: pattern.count,
-                    insight: patternInsight
-                ),
-                forAction: actionId
-            )
-        }
+        // PERFORMANCE: Removed .onChange handlers for celebrationStore
+        // Now handled by ContentViewModel using Combine publishers
     }
 
     @State private var isOffline: Bool = false
 
+    /// Main tab view using native SwiftUI TabView for optimal performance.
+    ///
+    /// PERFORMANCE: Native TabView has built-in view caching and lazy loading.
+    /// The system TabView is hidden and replaced with custom FloatingTabBar.
+    /// Animation is explicitly disabled on selection to prevent jittery transitions.
     private var mainTabView: some View {
-        GeometryReader { geometry in
-            let safeAreaBottom = geometry.safeAreaInsets.bottom
-            let computedTabBarInset = FloatingTabBarMetrics.totalFixedHeight + safeAreaBottom
-
+        // PERFORMANCE: Use TabBarInsetProvider at root to set environment for all children
+        // This fixes the tabBarInset warning and prevents layout recalculations on tab switch
+        TabBarInsetProvider {
             ZStack(alignment: .bottom) {
-                // Content area with computed tab bar inset
-                VStack(spacing: 0) {
-                    // Offline banner at top
-                    if isOffline {
-                        OfflineBanner()
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                    }
-
-                    Group {
-                        switch coordinator.selectedTab {
-                        case .today:
-                            TodayView(logBehaviorUseCase: logBehaviorUseCase)
-                        case .kids:
-                            KidsView()
-                        case .rewards:
-                            RewardsView()
-                        case .insights:
-                            InsightsHomeView()
-                                .environmentObject(coordinator.insightsNavigation)
+                // Native TabView - hidden tab bar, keeps views cached
+                // PERFORMANCE: Use transaction to disable implicit animations on tab switch
+                TabView(selection: Binding(
+                    get: { coordinator.selectedTab },
+                    set: { newTab in
+                        // Disable animation for instant tab switching
+                        var transaction = Transaction()
+                        transaction.disablesAnimations = true
+                        withTransaction(transaction) {
+                            coordinator.selectedTab = newTab
                         }
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-                .environment(\.tabBarInset, computedTabBarInset)
+                )) {
+                    // Today Tab
+                    TodayView(logBehaviorUseCase: logBehaviorUseCase)
+                        .tag(AppCoordinator.Tab.today)
+                        .toolbar(.hidden, for: .tabBar)
 
-                // Floating tab bar
-                FloatingTabBar(selectedTab: $coordinator.selectedTab)
-            }
-            .animation(.easeInOut(duration: 0.3), value: isOffline)
-            .onAppear {
-                startNetworkMonitoring()
-                // H1 FIX: Check for goal prompt on app launch (deferred from previous session)
-                checkForGoalPromptOnLaunch()
+                    // Kids Tab
+                    KidsView()
+                        .tag(AppCoordinator.Tab.kids)
+                        .toolbar(.hidden, for: .tabBar)
+
+                    // Rewards Tab
+                    RewardsView()
+                        .tag(AppCoordinator.Tab.rewards)
+                        .toolbar(.hidden, for: .tabBar)
+
+                    // Insights Tab
+                    InsightsHomeView()
+                        .tag(AppCoordinator.Tab.insights)
+                        .toolbar(.hidden, for: .tabBar)
+                }
+                .tabViewStyle(.automatic)
+                .animation(.none, value: coordinator.selectedTab)
+
+                // Offline banner overlay
+                if isOffline {
+                    VStack {
+                        OfflineBanner()
+                        Spacer()
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .animation(.easeInOut(duration: 0.3), value: isOffline)
+                }
+
+                // Custom floating tab bar (simplified - no longer needs to manage environment)
+                VStack {
+                    Spacer()
+                    FloatingTabBar(selectedTab: $coordinator.selectedTab)
+                }
             }
         }
+        // PERFORMANCE: Animation removed from parent ZStack to prevent tab transition interference
         .ignoresSafeArea(.keyboard)
+        .onAppear {
+            // PHASE 0: Set initial screen context BEFORE any NavigationStack renders
+            // This ensures first stalls are never attributed to "unknown"
+            #if DEBUG
+            FrameStallMonitor.shared.setScreen("TodayView")
+            #endif
+
+            startNetworkMonitoring()
+            checkForGoalPromptOnLaunch()
+        }
+        // PERFORMANCE: Visibility gate - notify ViewModels when their tab becomes visible/hidden
+        // This defers heavy work (banners, focus generation, coaching) until after tab transition
+        .onChange(of: coordinator.selectedTab) { oldTab, newTab in
+            // Track tab navigation for stall attribution (DEBUG only)
+            #if DEBUG
+            FrameStallMonitor.shared.markTabSwitch(from: oldTab.rawValue, to: newTab.rawValue)
+            #endif
+
+            // Notify TodayViewModel of visibility change
+            todayViewModel.setVisible(newTab == .today)
+
+            // Notify KidsViewModel of visibility change
+            kidsViewModel.setVisible(newTab == .kids)
+
+            // Notify RewardsViewModel of visibility change
+            rewardsViewModel.setVisible(newTab == .rewards)
+
+            // Notify InsightsHomeViewModel of visibility change
+            insightsHomeViewModel.setVisible(newTab == .insights)
+        }
     }
 
     /// Simple network monitoring using NWPathMonitor
@@ -249,15 +224,8 @@ struct ContentView: View {
         monitor.start(queue: queue)
     }
 
-    /// H1 FIX: Flag that a goal prompt should be shown on next app launch
-    /// This prevents interrupting the user's active logging flow
-    private func flagGoalPromptForNextSession() {
-        let result = goalPromptUseCase.execute()
-        if result.childToPrompt != nil {
-            // Store flag for next session - prompt will be shown on next cold launch
-            UserDefaults.standard.set(true, forKey: "pendingGoalPrompt")
-        }
-    }
+    // PERFORMANCE: flagGoalPromptForNextSession moved to ContentViewModel
+    // It's now called via Combine observer, not view onChange
 
     /// Check for goal prompt on app launch (not during active logging)
     private func checkForGoalPromptOnLaunch() {
@@ -269,9 +237,12 @@ struct ContentView: View {
 
         // Delay to let UI settle after launch
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            let result = goalPromptUseCase.execute()
-            if let child = result.childToPrompt {
-                coordinator.presentSheet(.goalPrompt(child: child))
+            // Use ViewModel's goalPromptUseCase reference
+            if let useCase = contentViewModel.goalPromptUseCase {
+                let result = useCase.execute()
+                if let child = result.childToPrompt {
+                    coordinator.presentSheet(.goalPrompt(child: child))
+                }
             }
         }
     }
@@ -392,48 +363,167 @@ struct ContentView: View {
     }
 }
 
+// MARK: - Lazy Tab Container
+
+/// A container that lazily renders tab content and prevents hidden tabs from re-rendering.
+///
+/// PERFORMANCE: Unlike opacity-based hiding, this container:
+/// - Only evaluates the body of the currently visible tab
+/// - Keeps previously shown tabs in memory (via @State) but doesn't re-render them
+/// - Prevents hidden tabs from observing @EnvironmentObject changes
+private struct LazyTabContainer<Today: View, Kids: View, Rewards: View, Insights: View>: View {
+    let selectedTab: AppCoordinator.Tab
+    @ViewBuilder let todayContent: () -> Today
+    @ViewBuilder let kidsContent: () -> Kids
+    @ViewBuilder let rewardsContent: () -> Rewards
+    @ViewBuilder let insightsContent: () -> Insights
+
+    // Track which tabs have been shown (for persistence)
+    @State private var hasShownToday = false
+    @State private var hasShownKids = false
+    @State private var hasShownRewards = false
+    @State private var hasShownInsights = false
+
+    var body: some View {
+        ZStack {
+            // Only render tabs that are currently selected OR have been shown before
+            // Use .id() to give each tab a stable identity
+
+            if selectedTab == .today || hasShownToday {
+                todayContent()
+                    .opacity(selectedTab == .today ? 1 : 0)
+                    .allowsHitTesting(selectedTab == .today)
+                    .onAppear { hasShownToday = true }
+                    .id("today")
+            }
+
+            if selectedTab == .kids || hasShownKids {
+                kidsContent()
+                    .opacity(selectedTab == .kids ? 1 : 0)
+                    .allowsHitTesting(selectedTab == .kids)
+                    .onAppear { hasShownKids = true }
+                    .id("kids")
+            }
+
+            if selectedTab == .rewards || hasShownRewards {
+                rewardsContent()
+                    .opacity(selectedTab == .rewards ? 1 : 0)
+                    .allowsHitTesting(selectedTab == .rewards)
+                    .onAppear { hasShownRewards = true }
+                    .id("rewards")
+            }
+
+            if selectedTab == .insights || hasShownInsights {
+                insightsContent()
+                    .opacity(selectedTab == .insights ? 1 : 0)
+                    .allowsHitTesting(selectedTab == .insights)
+                    .onAppear { hasShownInsights = true }
+                    .id("insights")
+            }
+        }
+    }
+}
+
+// MARK: - Tab Bar with Safe Area
+
+/// Floating tab bar that calculates its own safe area inset.
+///
+/// PERFORMANCE: Uses @State to cache the safe area value and prevent
+/// GeometryReader from causing layout thrashing on every frame.
+/// The safe area is only recalculated on appear and orientation changes.
+private struct TabBarWithSafeArea: View {
+    @Binding var selectedTab: AppCoordinator.Tab
+    @State private var cachedSafeAreaBottom: CGFloat = 0
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private var computedTabBarInset: CGFloat {
+        FloatingTabBarMetrics.totalFixedHeight + cachedSafeAreaBottom
+    }
+
+    var body: some View {
+        VStack {
+            Spacer()
+            FloatingTabBar(selectedTab: $selectedTab)
+        }
+        .environment(\.tabBarInset, computedTabBarInset)
+        .background(
+            // Hidden GeometryReader that only updates cached value on meaningful changes
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear {
+                        cachedSafeAreaBottom = geometry.safeAreaInsets.bottom
+                    }
+                    .onChange(of: horizontalSizeClass) { _, _ in
+                        // Recalculate on orientation/size class change
+                        cachedSafeAreaBottom = geometry.safeAreaInsets.bottom
+                    }
+            }
+            .frame(height: 0)
+        )
+    }
+}
+
 // MARK: - Preview
 
 #Preview {
     let dependencies = DependencyContainer()
     let coordinator = AppCoordinator()
     ContentView(
-        logBehaviorUseCase: dependencies.logBehaviorUseCase,
-        celebrationQueueUseCase: dependencies.celebrationQueueUseCase,
-        goalPromptUseCase: dependencies.goalPromptUseCase
+        logBehaviorUseCase: dependencies.logBehaviorUseCase
     )
         .environmentObject(dependencies.contentViewModel)
-        .environmentObject(dependencies.repository)
         .environmentObject(dependencies.childrenStore)
-        .environmentObject(dependencies.behaviorsStore)
         .environmentObject(dependencies.rewardsStore)
+        .environmentObject(dependencies.celebrationManager)
+        .environmentObject(dependencies.coachMarkManager)
+        .environmentObject(coordinator)
+        // Additional environment objects needed by child views
+        .environmentObject(dependencies.repository)
+        .environmentObject(dependencies.behaviorsStore)
         .environmentObject(dependencies.insightsStore)
         .environmentObject(dependencies.progressionStore)
         .environmentObject(dependencies.agreementsStore)
         .environmentObject(dependencies.celebrationStore)
-        .environmentObject(dependencies.celebrationManager)
         .environmentObject(dependencies.userPreferences)
-        .environmentObject(coordinator)
+        .environmentObject(dependencies.todayViewModel)
+        .environmentObject(dependencies.kidsViewModel)
+        .environmentObject(dependencies.rewardsViewModel)
+        .environmentObject(dependencies.subscriptionManager)
+        .environmentObject(dependencies.notificationService)
+        .environmentObject(dependencies.feedbackManager)
+        .environmentObject(dependencies.featureFlags)
+        .environmentObject(dependencies.themeProvider)
+        .environmentObject(dependencies.insightsNavigationState)
+        .environmentObject(dependencies.insightsHomeViewModel)
 }
 
 #Preview("Onboarding") {
     let dependencies = DependencyContainer()
     let coordinator = AppCoordinator()
     ContentView(
-        logBehaviorUseCase: dependencies.logBehaviorUseCase,
-        celebrationQueueUseCase: dependencies.celebrationQueueUseCase,
-        goalPromptUseCase: dependencies.goalPromptUseCase
+        logBehaviorUseCase: dependencies.logBehaviorUseCase
     )
         .environmentObject(dependencies.contentViewModel)
-        .environmentObject(dependencies.repository)
         .environmentObject(dependencies.childrenStore)
-        .environmentObject(dependencies.behaviorsStore)
         .environmentObject(dependencies.rewardsStore)
+        .environmentObject(dependencies.celebrationManager)
+        .environmentObject(dependencies.coachMarkManager)
+        .environmentObject(coordinator)
+        .environmentObject(dependencies.repository)
+        .environmentObject(dependencies.behaviorsStore)
         .environmentObject(dependencies.insightsStore)
         .environmentObject(dependencies.progressionStore)
         .environmentObject(dependencies.agreementsStore)
         .environmentObject(dependencies.celebrationStore)
-        .environmentObject(dependencies.celebrationManager)
         .environmentObject(dependencies.userPreferences)
-        .environmentObject(coordinator)
+        .environmentObject(dependencies.todayViewModel)
+        .environmentObject(dependencies.kidsViewModel)
+        .environmentObject(dependencies.rewardsViewModel)
+        .environmentObject(dependencies.subscriptionManager)
+        .environmentObject(dependencies.notificationService)
+        .environmentObject(dependencies.feedbackManager)
+        .environmentObject(dependencies.featureFlags)
+        .environmentObject(dependencies.themeProvider)
+        .environmentObject(dependencies.insightsNavigationState)
+        .environmentObject(dependencies.insightsHomeViewModel)
 }

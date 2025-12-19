@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct BehaviorManagementView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @State private var showingAddBehavior = false
     @State private var editingBehavior: BehaviorType?
@@ -15,7 +16,7 @@ struct BehaviorManagementView: View {
                         .foregroundColor(.blue)
                     Text("The defaults work well for most families. Tweak points or add your own whenever you like.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding()
@@ -75,6 +76,7 @@ struct BehaviorManagementView: View {
 // MARK: - Behavior Row
 
 struct BehaviorRow: View {
+    @Environment(\.theme) private var theme
     let behavior: BehaviorType
     
     var body: some View {
@@ -93,10 +95,11 @@ struct BehaviorRow: View {
                 HStack(spacing: 6) {
                     Text(behavior.name)
                         .font(.body)
+                        .foregroundColor(theme.textPrimary)
                         .lineLimit(2)
                     
                     if !behavior.isActive {
-                        BadgeLabel(text: "Inactive", color: .gray)
+                        BadgeLabel(text: "Inactive", color: theme.textDisabled)
                     }
                     
                     if behavior.isCustom {
@@ -118,7 +121,7 @@ struct BehaviorRow: View {
                 if behavior.suggestedAgeRange.minAge != 2 || behavior.suggestedAgeRange.maxAge != 18 {
                     Text(behavior.suggestedAgeRange.displayName)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 
                 // Allowance indicator
@@ -136,7 +139,7 @@ struct BehaviorRow: View {
                 HStack(spacing: 2) {
                     ForEach(1...5, id: \.self) { level in
                         Circle()
-                            .fill(level <= behavior.difficultyScore ? categoryColor : Color.gray.opacity(0.2))
+                            .fill(level <= behavior.difficultyScore ? categoryColor : theme.textDisabled.opacity(0.2))
                             .frame(width: 6, height: 6)
                     }
                 }
@@ -144,7 +147,7 @@ struct BehaviorRow: View {
             
             Image(systemName: "chevron.right")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(.vertical, 6)
         .opacity(behavior.isActive ? 1 : 0.6)
@@ -197,6 +200,7 @@ struct BadgeLabel: View {
 struct AddEditBehaviorView: View {
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     
     enum Mode {
         case add(category: BehaviorCategory)
@@ -276,6 +280,7 @@ struct AddEditBehaviorView: View {
                 Section("Points") {
                     HStack {
                         Text("Points:")
+                            .foregroundColor(theme.textPrimary)
                         Spacer()
                         Text(pointsDisplayText)
                             .foregroundColor(points >= 0 ? .green : .red)
@@ -287,7 +292,7 @@ struct AddEditBehaviorView: View {
                     
                     Text(pointsHelpText)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 
                 Section("Icon") {
@@ -331,7 +336,7 @@ struct AddEditBehaviorView: View {
                     
                     Text("Suggested points: \(DifficultyLevel(rawValue: difficultyScore)?.suggestedPointRange.description ?? "")")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 
                 if selectedCategory != .negative {
@@ -341,7 +346,7 @@ struct AddEditBehaviorView: View {
                         if isMonetized {
                             Text("This behavior will earn money when allowance is enabled")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                 }
@@ -360,6 +365,8 @@ struct AddEditBehaviorView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(theme.bg0)
             .navigationTitle(mode.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -393,9 +400,9 @@ struct AddEditBehaviorView: View {
                 } label: {
                     Image(systemName: icon)
                         .font(.title3)
-                        .foregroundColor(selectedIcon == icon ? .white : .primary)
+                        .foregroundColor(selectedIcon == icon ? .white : theme.textPrimary)
                         .frame(width: 40, height: 40)
-                        .background(selectedIcon == icon ? categoryColor : Color(.systemGray5))
+                        .background(selectedIcon == icon ? categoryColor : theme.borderSoft)
                         .cornerRadius(8)
                 }
                 .buttonStyle(.plain)

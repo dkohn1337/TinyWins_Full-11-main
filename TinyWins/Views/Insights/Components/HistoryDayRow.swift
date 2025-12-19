@@ -48,6 +48,7 @@ private enum PartnerAttributionConfig {
 
 /// Row displaying all history items for a single day
 struct UnifiedDayRow: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
@@ -98,7 +99,7 @@ struct UnifiedDayRow: View {
                     .font(.subheadline.weight(.semibold))
                 Text(dayNumber)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 Spacer()
 
@@ -150,7 +151,7 @@ struct UnifiedDayRow: View {
                     }
                 }
             }
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(AppStyles.cardCornerRadius)
             .shadow(color: AppStyles.cardShadow, radius: AppStyles.cardShadowRadius, y: 2)
             .padding(.horizontal, 16)
@@ -200,7 +201,7 @@ struct UnifiedDayRow: View {
                 HStack(spacing: 8) {
                     Text(formatTime(event.timestamp))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     if childrenStore.children.count > 1, let child = childrenStore.child(id: event.childId) {
                         HStack(spacing: 4) {
@@ -209,7 +210,7 @@ struct UnifiedDayRow: View {
                                 .frame(width: 6, height: 6)
                             Text(child.name)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
 
@@ -233,13 +234,13 @@ struct UnifiedDayRow: View {
                     if event.hasMedia {
                         Image(systemName: "photo")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     if event.note != nil {
                         Image(systemName: "note.text")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }
@@ -252,7 +253,7 @@ struct UnifiedDayRow: View {
 
             Image(systemName: "chevron.right")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
@@ -282,7 +283,7 @@ struct UnifiedDayRow: View {
                 HStack(spacing: 8) {
                     Text(formatTime(event.timestamp))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     if childrenStore.children.count > 1, let child = childrenStore.child(id: event.childId) {
                         HStack(spacing: 4) {
@@ -291,14 +292,14 @@ struct UnifiedDayRow: View {
                                 .frame(width: 6, height: 6)
                             Text(child.name)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
 
                     // Stars info
                     Text("\(event.starsEarnedAtEvent) stars")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
 
@@ -315,7 +316,7 @@ struct UnifiedDayRow: View {
 
             Image(systemName: "chevron.right")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)

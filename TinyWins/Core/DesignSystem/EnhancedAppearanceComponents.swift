@@ -73,6 +73,7 @@ struct ThemePreviewCard: View {
     let isLocked: Bool
     let onSelect: () -> Void
 
+    @Environment(\.theme) private var themeEnv
     @State private var shimmerOffset: CGFloat = -100
 
     var body: some View {
@@ -182,21 +183,21 @@ struct ThemePreviewCard: View {
                 // Theme name
                 Text(theme.name)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(isLocked ? .secondary : .primary)
+                    .foregroundColor(isLocked ? themeEnv.textSecondary : themeEnv.textPrimary)
             }
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(.systemBackground))
+                    .fill(themeEnv.surface1)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .strokeBorder(
-                                isSelected ? theme.accentColor : Color(.systemGray5),
+                                isSelected ? themeEnv.accentPrimary : themeEnv.borderSoft,
                                 lineWidth: isSelected ? 3 : 1
                             )
                     )
             )
-            .shadow(color: isSelected ? theme.accentColor.opacity(0.3) : .black.opacity(0.06), radius: isSelected ? 12 : 8, y: isSelected ? 6 : 4)
+            .shadow(color: isSelected ? themeEnv.accentPrimary.opacity(0.3) : .black.opacity(0.06), radius: isSelected ? 12 : 8, y: isSelected ? 6 : 4)
         }
         .buttonStyle(.plain)
         .opacity(isLocked ? 0.8 : 1.0)
@@ -263,11 +264,11 @@ struct PremiumThemesUpsell: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("More ways to personalize")
                         .font(.system(size: 17, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("Includes Forest, Midnight, and Lavender")
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -386,6 +387,8 @@ struct AppIconPreview: View {
     let isLocked: Bool
     let onTap: () -> Void
 
+    @Environment(\.theme) private var theme
+
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 10) {
@@ -442,7 +445,7 @@ struct AppIconPreview: View {
 
                 Text(icon.name)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(isLocked ? .secondary : .primary)
+                    .foregroundColor(isLocked ? theme.textSecondary : theme.textPrimary)
             }
         }
         .buttonStyle(.plain)
@@ -457,6 +460,7 @@ struct AccentColorPicker: View {
     let isPremiumUser: Bool
     let onUpgrade: () -> Void
 
+    @Environment(\.theme) private var theme
     private let freeColors: [Color] = [.blue, .purple, .pink, .green, .orange]
     private let premiumColors: [Color] = [.red, .yellow, .mint, .cyan, .indigo, .brown]
 
@@ -489,7 +493,7 @@ struct AccentColorPicker: View {
                         .foregroundColor(.yellow)
                     Text("Premium Colors")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding(.top, 8)
             }
@@ -566,6 +570,7 @@ struct EnhancedAppearanceSettingsView: View {
     @State private var selectedAccentColor: Color = .purple
     @State private var showPaywall = false
 
+    @Environment(\.theme) private var theme
     let isPremiumUser: Bool
 
     // Sample data
@@ -682,7 +687,7 @@ struct EnhancedAppearanceSettingsView: View {
             }
             .padding(.top, 20)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(theme.bg1)
         .navigationTitle("Appearance")
         .sheet(isPresented: $showPaywall) {
             EnhancedPaywallView(

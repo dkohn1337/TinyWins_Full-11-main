@@ -4,6 +4,7 @@ import SwiftUI
 
 /// Header section showing quick insight summary.
 struct QuickInsightsHeaderView: View {
+    @Environment(\.theme) private var theme
     let insight: InsightGenerationUseCase.QuickInsight?
 
     var body: some View {
@@ -36,7 +37,7 @@ struct QuickInsightsHeaderView: View {
                         .font(.system(size: 16, weight: .bold))
                     Text(insight.message)
                         .font(.system(size: 13))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -72,6 +73,8 @@ struct QuickInsightsHeaderView: View {
 
 /// Card showing family-level stats for the selected period.
 struct FamilySummaryCardView: View {
+    @Environment(\.theme) private var theme
+
     let positiveCount: Int
     let challengeCount: Int
     let totalPoints: Int
@@ -151,7 +154,7 @@ struct FamilySummaryCardView: View {
                 VStack(alignment: .leading, spacing: CardAnatomy.overlineToTitle) {
                     Text(InsightOverlines.summary)
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .tracking(0.5)
 
                     Text("Family Overview")
@@ -209,7 +212,7 @@ struct FamilySummaryCardView: View {
 
                         Text("Takeaway: \(takeaway)")
                             .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
@@ -221,7 +224,7 @@ struct FamilySummaryCardView: View {
 
                             Text("Try: \(tryLine)")
                                 .font(.system(size: 13))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -235,14 +238,14 @@ struct FamilySummaryCardView: View {
             if let footer = footerText {
                 Text(footer)
                     .font(.system(size: 11))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .italic()
             }
         }
         .padding(AppCardPadding.large)
         .background(
             RoundedRectangle(cornerRadius: AppCorners.lg)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
@@ -252,7 +255,7 @@ struct FamilySummaryCardView: View {
 
 /// Visual gauge showing positive/negative ratio.
 struct PositivityGaugeView: View {
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     let positive: Int
     let negative: Int
     let animateStats: Bool
@@ -264,9 +267,9 @@ struct PositivityGaugeView: View {
 
     /// Color based on ratio - uses semantic theme colors
     private var ratioColor: Color {
-        if ratio >= 3 { return themeProvider.positiveColor }
-        if ratio >= 1.5 { return themeProvider.accentColor }
-        return themeProvider.challengeColor
+        if ratio >= 3 { return theme.success }
+        if ratio >= 1.5 { return theme.accentPrimary }
+        return theme.danger
     }
 
     var body: some View {
@@ -297,13 +300,13 @@ struct PositivityGaugeView: View {
                 ZStack(alignment: .leading) {
                     // Background
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color(.systemGray5))
+                        .fill(theme.borderSoft)
 
                     // Positive fill with gradient - uses theme positive color
                     RoundedRectangle(cornerRadius: 10)
                         .fill(
                             LinearGradient(
-                                colors: [themeProvider.positiveColor, themeProvider.positiveColor.opacity(0.7)],
+                                colors: [theme.success, theme.success.opacity(0.7)],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -323,7 +326,7 @@ struct PositivityGaugeView: View {
             // Message
             Text(positivityMessage)
                 .font(.system(size: 13))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
     }
 }
@@ -333,6 +336,8 @@ struct PositivityGaugeView: View {
 /// Compact child selector with header row and optional picker sheet.
 /// Scales well for 1-10+ children without horizontal scrolling clutter.
 struct ChildSwitcherSectionView: View {
+    @Environment(\.theme) private var theme
+
     let children: [Child]
     @Binding var selectedChildIndex: Int
     var showAllChildrenOption: Bool = false
@@ -365,12 +370,12 @@ struct ChildSwitcherSectionView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(child.name)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
 
                     if children.count > 1 {
                         Text("Viewing insights")
                             .font(.system(size: 12))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -397,7 +402,7 @@ struct ChildSwitcherSectionView: View {
             .padding(14)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
             )
             .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
             .accessibilityElement(children: .combine)
@@ -418,6 +423,7 @@ struct ChildSwitcherSectionView: View {
 
 /// Bottom sheet for selecting a child in Insights - clean list with avatars.
 struct InsightsChildPickerSheet: View {
+    @Environment(\.theme) private var theme
     let children: [Child]
     @Binding var selectedChildIndex: Int
     @Environment(\.dismiss) private var dismiss
@@ -448,7 +454,7 @@ struct InsightsChildPickerSheet: View {
                             // Name
                             Text(child.name)
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.primary)
+                                .foregroundColor(theme.textPrimary)
 
                             Spacer()
 
@@ -484,6 +490,8 @@ struct InsightsChildPickerSheet: View {
 
 /// Dot matrix showing 7-day activity patterns.
 struct WeeklyTrendChartView: View {
+    @Environment(\.theme) private var theme
+
     let dailyData: [InsightGenerationUseCase.DailyActivityData]
     let animateStats: Bool
 
@@ -621,7 +629,7 @@ struct WeeklyTrendChartView: View {
         .padding(AppCardPadding.large)
         .background(
             RoundedRectangle(cornerRadius: AppCorners.lg)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
@@ -655,7 +663,7 @@ struct WeeklyTrendChartView: View {
             VStack(alignment: .leading, spacing: CardAnatomy.overlineToTitle) {
                 Text(InsightOverlines.activity)
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .tracking(0.5)
 
                 Text("Daily Activity")
@@ -685,7 +693,7 @@ struct WeeklyTrendChartView: View {
                     // Locale-aware day label
                     Text(localeAwareWeekdaySymbol(for: day.date))
                         .font(.system(size: 11, weight: isToday ? .bold : .regular))
-                        .foregroundColor(isToday ? .primary : .secondary)
+                        .foregroundColor(isToday ? theme.textPrimary : theme.textSecondary)
                         .lineLimit(1)
                 }
                 .frame(maxWidth: .infinity)
@@ -705,7 +713,7 @@ struct WeeklyTrendChartView: View {
                     .frame(width: 8, height: 8)
                 Text("Positive")
                     .font(.system(size: 11))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             HStack(spacing: 5) {
@@ -714,14 +722,14 @@ struct WeeklyTrendChartView: View {
                     .frame(width: 8, height: 8)
                 Text("Challenges")
                     .font(.system(size: 11))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
 
             Text("Size = activity")
                 .font(.system(size: 10))
-                .foregroundColor(.secondary.opacity(0.7))
+                .foregroundColor(theme.textSecondary.opacity(0.7))
         }
     }
 
@@ -734,7 +742,7 @@ struct WeeklyTrendChartView: View {
 
                 Text("Takeaway: \(takeaway)")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -746,7 +754,7 @@ struct WeeklyTrendChartView: View {
 
                     Text("Try: \(tryLine)")
                         .font(.system(size: 13))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -761,7 +769,7 @@ struct WeeklyTrendChartView: View {
         if totalEvents >= 1 {
             Text(InsightCopyHelper.footerText(sampleCount: totalEvents, period: "this week"))
                 .font(.system(size: 11))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .italic()
         }
     }
@@ -773,12 +781,12 @@ struct WeeklyTrendChartView: View {
                 ForEach(0..<7, id: \.self) { index in
                     VStack(spacing: 6) {
                         Circle()
-                            .fill(Color(.systemGray5))
+                            .fill(theme.borderSoft)
                             .frame(width: emptyDotSize, height: emptyDotSize)
 
                         Text(weekdaySymbol(for: index))
                             .font(.system(size: 11))
-                            .foregroundColor(.secondary.opacity(0.5))
+                            .foregroundColor(theme.textSecondary.opacity(0.5))
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: maxDotSize + 24)
@@ -788,7 +796,7 @@ struct WeeklyTrendChartView: View {
             VStack(spacing: 8) {
                 Text("Log a few moments to see patterns here.")
                     .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
 
                 // Try line for empty state
@@ -798,7 +806,7 @@ struct WeeklyTrendChartView: View {
                         .foregroundColor(.purple.opacity(0.7))
                     Text("Try: Notice one small positive moment today.")
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
         }
@@ -821,7 +829,7 @@ struct WeeklyTrendChartView: View {
     private func dotColor(positive: Int, negative: Int) -> some ShapeStyle {
         let total = positive + negative
         guard total > 0 else {
-            return AnyShapeStyle(Color(.systemGray5))
+            return AnyShapeStyle(theme.borderSoft)
         }
 
         let positiveRatio = CGFloat(positive) / CGFloat(total)
@@ -877,6 +885,8 @@ struct WeeklyTrendChartView: View {
 /// Section displaying pattern-based insights (Highlights).
 /// Premium CTA is handled separately at the tab level.
 struct AhaInsightsSectionView: View {
+    @Environment(\.theme) private var theme
+
     let insights: [InsightGenerationUseCase.AhaInsight]
 
     var body: some View {
@@ -910,10 +920,10 @@ struct AhaInsightsSectionView: View {
                 // Insight count badge
                 Text("\(insights.count)")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color(.systemGray5))
+                    .background(theme.borderSoft)
                     .cornerRadius(10)
 
                 Spacer()
@@ -933,7 +943,7 @@ struct AhaInsightsSectionView: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
@@ -943,6 +953,8 @@ struct AhaInsightsSectionView: View {
 
 /// Section showing parent's engagement progress.
 struct ParentJourneySectionView: View {
+    @Environment(\.theme) private var theme
+
     let level: CoachLevel
     let activeDays: Int
     let animateStats: Bool
@@ -997,7 +1009,7 @@ struct ParentJourneySectionView: View {
 
                     Text(level.description)
                         .font(.system(size: 13))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -1008,7 +1020,7 @@ struct ParentJourneySectionView: View {
                 // Ring
                 ZStack {
                     Circle()
-                        .stroke(Color(.systemGray5), lineWidth: 6)
+                        .stroke(theme.borderSoft, lineWidth: 6)
                         .frame(width: 70, height: 70)
 
                     Circle()
@@ -1029,7 +1041,7 @@ struct ParentJourneySectionView: View {
                             .font(.system(size: 24, weight: .bold))
                         Text("of 7")
                             .font(.system(size: 11))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -1044,7 +1056,7 @@ struct ParentJourneySectionView: View {
                                 Circle()
                                     .fill(day < activeDays ?
                                         LinearGradient(colors: [.green, .mint], startPoint: .top, endPoint: .bottom) :
-                                        LinearGradient(colors: [Color(.systemGray5)], startPoint: .top, endPoint: .bottom)
+                                        LinearGradient(colors: [theme.borderSoft], startPoint: .top, endPoint: .bottom)
                                     )
                                     .frame(width: 28, height: 28)
 
@@ -1059,7 +1071,7 @@ struct ParentJourneySectionView: View {
 
                     Text(activeDays >= 5 ? "Amazing consistency! 🎉" : (activeDays >= 3 ? "Great progress! Keep going!" : "Every day counts!"))
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -1068,7 +1080,7 @@ struct ParentJourneySectionView: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
     }
@@ -1078,6 +1090,7 @@ struct ParentJourneySectionView: View {
 
 /// Premium subscription upsell card.
 struct PlusUpsellSectionView: View {
+    @Environment(\.theme) private var theme
     let onTapUpgrade: () -> Void
     @State private var shimmerOffset: CGFloat = -200
 
@@ -1114,7 +1127,7 @@ struct PlusUpsellSectionView: View {
 
                     Text("See patterns others miss")
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -1196,6 +1209,8 @@ struct PlusUpsellSectionView: View {
 
 /// Horizontal scrollable period selector with premium gating and scroll anchoring.
 struct PeriodSelectorView: View {
+    @Environment(\.theme) private var theme
+
     @Binding var selectedPeriod: InsightPeriod
     let isPlusSubscriber: Bool
     let onLockedPeriodTapped: () -> Void
@@ -1243,11 +1258,11 @@ struct PeriodSelectorView: View {
                                             .matchedGeometryEffect(id: "periodBg", in: animation)
                                     } else {
                                         Capsule()
-                                            .fill(Color(.systemGray6))
+                                            .fill(theme.surface2)
                                     }
                                 }
                             )
-                            .foregroundColor(selectedPeriod == period ? .white : (isLocked ? .secondary : .primary))
+                            .foregroundColor(selectedPeriod == period ? .white : (isLocked ? theme.textSecondary : theme.textPrimary))
                         }
                         .buttonStyle(.plain)
                         .id(period)
@@ -1276,6 +1291,7 @@ struct PeriodSelectorView: View {
 
 /// Section showing detailed stats for a specific child.
 struct ChildDeepDiveSectionView: View {
+    @Environment(\.theme) private var theme
     let child: Child
     let deepDive: InsightGenerationUseCase.ChildDeepDiveData
     let selectedPeriod: InsightPeriod
@@ -1367,6 +1383,8 @@ struct ChildDeepDiveSectionView: View {
 
 /// Card showing progress toward a child's active goal with milestone celebrations.
 struct GoalProgressCardView: View {
+    @Environment(\.theme) private var theme
+
     let child: Child
     let reward: Reward
     let behaviorEvents: [BehaviorEvent]
@@ -1452,7 +1470,7 @@ struct GoalProgressCardView: View {
                     HStack {
                         Text("Working toward")
                             .font(.system(size: 13))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         if status == .readyToRedeem {
                             Text("EARNED!")
@@ -1481,7 +1499,7 @@ struct GoalProgressCardView: View {
                 // Circular progress with milestone indicator
                 ZStack {
                     Circle()
-                        .stroke(Color(.systemGray5), lineWidth: 4)
+                        .stroke(theme.borderSoft, lineWidth: 4)
                         .frame(width: 50, height: 50)
 
                     Circle()
@@ -1548,7 +1566,7 @@ struct GoalProgressCardView: View {
                         .foregroundColor(.yellow)
                     Text("\(starsNeeded) more star\(starsNeeded == 1 ? "" : "s") to go")
                         .font(.system(size: 13))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Spacer()
                 }
             }
@@ -1556,7 +1574,7 @@ struct GoalProgressCardView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
         .onAppear {

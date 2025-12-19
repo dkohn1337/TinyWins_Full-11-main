@@ -4,6 +4,7 @@ import SwiftUI
 struct SharedReflectionView: View {
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
+    @Environment(\.theme) private var theme
 
     let date: Date
 
@@ -61,7 +62,7 @@ struct SharedReflectionView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(16)
     }
 
@@ -71,11 +72,11 @@ struct SharedReflectionView: View {
         VStack(spacing: 8) {
             Text("No shared reflections today")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             Text("When your partner shares their reflections, you'll see them here.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -113,7 +114,7 @@ struct SharedReflectionView: View {
                         .font(.caption.weight(.semibold))
                     Text("You both selected \"\(simplifyWin(commonWins.first ?? ""))\" today")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -142,6 +143,7 @@ struct SharedReflectionView: View {
 // MARK: - Partner Reflection Card
 
 private struct PartnerReflectionCard: View {
+    @Environment(\.theme) private var theme
     let note: ParentNote
 
     private var timeString: String {
@@ -164,7 +166,7 @@ private struct PartnerReflectionCard: View {
 
                 Text(timeString)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             // Content
@@ -202,6 +204,7 @@ private struct PartnerReflectionCard: View {
 
 struct PartnerReflectionCompactCard: View {
     @EnvironmentObject private var repository: Repository
+    @Environment(\.theme) private var theme
 
     let date: Date
 
@@ -223,14 +226,14 @@ struct PartnerReflectionCompactCard: View {
 
                     Text("\(partnerNotes.count) reflection\(partnerNotes.count == 1 ? "" : "s")")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 // Preview first note
                 if let firstNote = partnerNotes.first {
                     Text(firstNote.content)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .lineLimit(2)
                 }
             }

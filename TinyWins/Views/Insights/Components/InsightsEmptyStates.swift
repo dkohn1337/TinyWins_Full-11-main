@@ -4,6 +4,7 @@ import SwiftUI
 
 /// Empty state shown when no children have been added
 struct InsightsEmptyStateView: View {
+    @Environment(\.theme) private var theme
     @Binding var animateStats: Bool
 
     var body: some View {
@@ -58,7 +59,7 @@ struct InsightsEmptyStateView: View {
 
                     Text("Add your first child to start seeing family insights and patterns over time.")
                         .font(.system(size: 16))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -67,7 +68,7 @@ struct InsightsEmptyStateView: View {
             .padding()
             .padding(.bottom, 120)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(theme.bg1)
     }
 }
 
@@ -75,6 +76,7 @@ struct InsightsEmptyStateView: View {
 
 /// Empty state shown when children exist but no behavior events logged
 struct InsightsNoDataStateView: View {
+    @Environment(\.theme) private var theme
     @Binding var animateStats: Bool
     let eventCount: Int
 
@@ -138,7 +140,7 @@ struct InsightsNoDataStateView: View {
 
                     Text("Log a few positive moments and note any challenges. Insights will appear as patterns emerge.")
                         .font(.system(size: 16))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -150,7 +152,7 @@ struct InsightsNoDataStateView: View {
             .padding()
             .padding(.bottom, 120)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(theme.bg1)
     }
 }
 
@@ -158,6 +160,7 @@ struct InsightsNoDataStateView: View {
 
 /// Card showing progress toward first insight unlock
 struct ProgressHintCardView: View {
+    @Environment(\.theme) private var theme
     let eventCount: Int
 
     var body: some View {
@@ -178,7 +181,7 @@ struct ProgressHintCardView: View {
                         .font(.system(size: 15, weight: .semibold))
                     Text("Log 5 moments to see patterns")
                         .font(.system(size: 13))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -188,7 +191,7 @@ struct ProgressHintCardView: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 6)
-                        .fill(Color(.systemGray5))
+                        .fill(theme.borderSoft)
 
                     let progress = min(CGFloat(eventCount) / 5.0, 1.0)
                     RoundedRectangle(cornerRadius: 6)
@@ -206,12 +209,12 @@ struct ProgressHintCardView: View {
 
             Text("\(eventCount)/5 moments logged")
                 .font(.system(size: 12))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(18)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
         .padding(.horizontal, 24)
@@ -222,6 +225,7 @@ struct ProgressHintCardView: View {
 
 /// Styled toolbar button for insights view
 struct InsightsToolbarButton: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let gradient: [Color]
     var highlighted: Bool = false
@@ -229,7 +233,7 @@ struct InsightsToolbarButton: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(highlighted ? Color.purple.opacity(0.15) : Color(.systemGray6))
+                .fill(highlighted ? Color.purple.opacity(0.15) : theme.surface2)
                 .frame(width: 36, height: 36)
             Image(systemName: icon)
                 .font(.system(size: gradient.count > 1 ? 14 : 15, weight: .medium))

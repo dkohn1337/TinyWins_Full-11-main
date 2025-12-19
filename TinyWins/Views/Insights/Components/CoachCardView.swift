@@ -11,7 +11,7 @@ import SwiftUI
 /// - One encouraging line: Context without cognitive load
 /// - Clear CTA: "See moments" is the primary action
 struct CoachCardView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
 
     let card: CoachCard
@@ -88,12 +88,12 @@ struct CoachCardView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(card.title)
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
                     .lineLimit(2)
 
                 Text(card.oneLiner)
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .lineLimit(1)
             }
 
@@ -124,7 +124,7 @@ struct CoachCardView: View {
         switch card.priority {
         case 5: return Color(red: 0.95, green: 0.4, blue: 0.4)  // Soft coral red
         case 4: return Color(red: 1.0, green: 0.6, blue: 0.3)   // Warm orange
-        case 3: return theme.positiveColor                       // Green for positive
+        case 3: return theme.success                             // Green for positive
         default: return Color(red: 0.5, green: 0.7, blue: 0.9)  // Soft blue
         }
     }
@@ -147,7 +147,7 @@ struct CoachCardView: View {
                 ForEach(Array(["M", "T", "W", "T", "F", "S", "S"].enumerated()), id: \.offset) { index, day in
                     Text(day)
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -166,11 +166,11 @@ struct CoachCardView: View {
                 HStack(spacing: 4) {
                     Text("\(card.evidenceEventIds.count)")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(theme.positiveColor)
+                        .foregroundColor(theme.success)
 
                     Text(card.evidenceEventIds.count == 1 ? "time" : "times")
                         .font(.subheadline)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -183,13 +183,13 @@ struct CoachCardView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(
                             LinearGradient(
                                 colors: [
-                                    theme.positiveColor.opacity(0.05),
+                                    theme.success.opacity(0.05),
                                     Color.clear
                                 ],
                                 startPoint: .top,
@@ -200,7 +200,7 @@ struct CoachCardView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(theme.positiveColor.opacity(0.15), lineWidth: 1)
+                .stroke(theme.success.opacity(0.15), lineWidth: 1)
         )
     }
 
@@ -211,13 +211,13 @@ struct CoachCardView: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [theme.positiveColor, theme.positiveColor.opacity(0.8)],
+                            colors: [theme.success, theme.success.opacity(0.8)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
                     .frame(width: 28, height: 28)
-                    .shadow(color: theme.positiveColor.opacity(0.4), radius: 3, y: 1)
+                    .shadow(color: theme.success.opacity(0.4), radius: 3, y: 1)
 
                 Image(systemName: "checkmark")
                     .font(.system(size: 12, weight: .bold))
@@ -226,7 +226,7 @@ struct CoachCardView: View {
                 // Inactive day - subtle ring
                 Circle()
                     .stroke(
-                        isWeekend ? Color.gray.opacity(0.2) : Color.gray.opacity(0.3),
+                        isWeekend ? theme.textDisabled.opacity(0.2) : theme.textDisabled.opacity(0.3),
                         lineWidth: 2
                     )
                     .frame(width: 28, height: 28)
@@ -234,7 +234,7 @@ struct CoachCardView: View {
                 // Dot in center for weekdays only
                 if !isWeekend {
                     Circle()
-                        .fill(Color.gray.opacity(0.15))
+                        .fill(theme.textDisabled.opacity(0.15))
                         .frame(width: 6, height: 6)
                 }
             }
@@ -255,7 +255,7 @@ struct CoachCardView: View {
                 Text("Amazing week!")
                     .font(.caption)
                     .fontWeight(.semibold)
-                    .foregroundColor(theme.positiveColor)
+                    .foregroundColor(theme.success)
             } else if count >= 3 {
                 // Good progress
                 Image(systemName: "flame.fill")
@@ -270,12 +270,12 @@ struct CoachCardView: View {
                 // Getting started
                 Image(systemName: "leaf.fill")
                     .font(.system(size: 12))
-                    .foregroundColor(theme.positiveColor)
+                    .foregroundColor(theme.success)
 
                 Text("Growing habit")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.positiveColor)
+                    .foregroundColor(theme.success)
             }
         }
         .padding(.horizontal, 10)
@@ -287,7 +287,7 @@ struct CoachCardView: View {
                         ? Color.yellow.opacity(0.15)
                         : count >= 3
                             ? Color.orange.opacity(0.12)
-                            : theme.positiveColor.opacity(0.1)
+                            : theme.success.opacity(0.1)
                 )
         )
     }
@@ -313,7 +313,7 @@ struct CoachCardView: View {
 
             Text(message)
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .lineLimit(2)
         }
         .padding(.horizontal, 4)
@@ -341,13 +341,13 @@ struct CoachCardView: View {
                     .padding(.vertical, 12)
                     .background(
                         LinearGradient(
-                            colors: [theme.positiveColor, theme.positiveColor.opacity(0.85)],
+                            colors: [theme.success, theme.success.opacity(0.85)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                     .cornerRadius(24)
-                    .shadow(color: theme.positiveColor.opacity(0.3), radius: 4, y: 2)
+                    .shadow(color: theme.success.opacity(0.3), radius: 4, y: 2)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("See \(card.evidenceEventIds.count) moments that show this pattern"))
@@ -363,7 +363,7 @@ struct CoachCardView: View {
         ZStack {
             // Base card background
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
 
             // Subtle warm tint at top based on priority
             RoundedRectangle(cornerRadius: theme.cornerRadius)
@@ -412,7 +412,7 @@ struct CoachCardView: View {
     }
     .padding()
     .environmentObject(repository)
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Coach Card - Medium Activity") {
@@ -440,7 +440,7 @@ struct CoachCardView: View {
     }
     .padding()
     .environmentObject(repository)
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Coach Card - Low Activity") {
@@ -468,5 +468,5 @@ struct CoachCardView: View {
     }
     .padding()
     .environmentObject(repository)
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

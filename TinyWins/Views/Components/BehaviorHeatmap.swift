@@ -4,7 +4,7 @@ import SwiftUI
 
 /// A 7x24 heatmap showing behavior patterns by day and hour.
 struct BehaviorHeatmap: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let data: HeatmapData
     let colorScheme: HeatmapColorScheme
@@ -43,7 +43,7 @@ struct BehaviorHeatmap: View {
                 if hour % 6 == 0 {
                     Text(hourLabels[hour / 6])
                         .font(.system(size: 8))
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                         .frame(width: 10 * 6)
                 }
             }
@@ -57,7 +57,7 @@ struct BehaviorHeatmap: View {
             ForEach(0..<7, id: \.self) { day in
                 Text(dayLabels[day])
                     .font(.system(size: 9, weight: .medium))
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .frame(width: 14, height: 14)
             }
         }
@@ -87,7 +87,7 @@ struct BehaviorHeatmap: View {
             .cornerRadius(2)
             .overlay(
                 RoundedRectangle(cornerRadius: 2)
-                    .stroke(isSelected ? theme.primaryText : Color.clear, lineWidth: 1)
+                    .stroke(isSelected ? theme.textPrimary : Color.clear, lineWidth: 1)
             )
             .onTapGesture {
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -102,15 +102,15 @@ struct BehaviorHeatmap: View {
 
     private func cellColor(for value: Double) -> Color {
         if value == 0 {
-            return Color(.systemGray6)
+            return theme.surface2
         }
 
         // Use theme colors instead of hardcoded enum colors
         let baseColor: Color
         switch colorScheme {
-        case .positive: baseColor = theme.positiveColor
-        case .challenge: baseColor = theme.challengeColor
-        case .neutral: baseColor = theme.accentColor
+        case .positive: baseColor = theme.success
+        case .challenge: baseColor = theme.danger
+        case .neutral: baseColor = theme.accentPrimary
         }
         return baseColor.opacity(0.2 + value * 0.8)
     }
@@ -121,7 +121,7 @@ struct BehaviorHeatmap: View {
         HStack(spacing: 4) {
             Text("Less")
                 .font(.system(size: 9))
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             ForEach(0..<5, id: \.self) { level in
                 Rectangle()
@@ -132,7 +132,7 @@ struct BehaviorHeatmap: View {
 
             Text("More")
                 .font(.system(size: 9))
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
     }
 }
@@ -157,7 +157,7 @@ enum HeatmapColorScheme {
 
 /// A smaller, more compact version of the heatmap for dashboards.
 struct CompactBehaviorHeatmap: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let data: HeatmapData
     let colorScheme: HeatmapColorScheme
@@ -173,7 +173,7 @@ struct CompactBehaviorHeatmap: View {
                     ForEach(0..<7, id: \.self) { day in
                         Text(dayLabels[day])
                             .font(.system(size: 7, weight: .medium))
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                             .frame(width: 10, height: 8)
                     }
                 }
@@ -198,14 +198,14 @@ struct CompactBehaviorHeatmap: View {
 
     private func cellColor(for value: Double) -> Color {
         if value == 0 {
-            return Color(.systemGray6)
+            return theme.surface2
         }
         // Use theme colors instead of hardcoded enum colors
         let baseColor: Color
         switch colorScheme {
-        case .positive: baseColor = theme.positiveColor
-        case .challenge: baseColor = theme.challengeColor
-        case .neutral: baseColor = theme.accentColor
+        case .positive: baseColor = theme.success
+        case .challenge: baseColor = theme.danger
+        case .neutral: baseColor = theme.accentPrimary
         }
         return baseColor.opacity(0.2 + value * 0.8)
     }
@@ -219,7 +219,7 @@ struct CompactBehaviorHeatmap: View {
         colorScheme: .positive
     )
     .padding()
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 #Preview("Compact Heatmap") {
@@ -228,7 +228,7 @@ struct CompactBehaviorHeatmap: View {
         colorScheme: .challenge
     )
     .padding()
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 // MARK: - Preview Data

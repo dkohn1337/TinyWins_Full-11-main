@@ -6,7 +6,7 @@ import SwiftUI
 struct MomentConfirmationSheet: View {
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var progressionStore: ProgressionStore
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     let child: Child
     let behaviorType: BehaviorType
     @Binding var note: String
@@ -44,7 +44,7 @@ struct MomentConfirmationSheet: View {
                 VStack(spacing: 20) {
                     // Drag handle
                     RoundedRectangle(cornerRadius: 2.5)
-                        .fill(Color(.systemGray4))
+                        .fill(theme.borderStrong)
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
 
@@ -75,10 +75,10 @@ struct MomentConfirmationSheet: View {
                         if let reward = availableRewards.first {
                             HStack(spacing: 8) {
                                 Image(systemName: "arrow.right.circle.fill")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                                 Text("Goes toward: \(reward.name)")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                             .padding(.horizontal)
                         }
@@ -91,7 +91,7 @@ struct MomentConfirmationSheet: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Add a note (optional)")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         TextField("What happened?", text: $note, axis: .vertical)
                             .textFieldStyle(.roundedBorder)
@@ -103,7 +103,7 @@ struct MomentConfirmationSheet: View {
                         HStack {
                             Text("Attachments")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
 
                             Spacer()
 
@@ -116,10 +116,10 @@ struct MomentConfirmationSheet: View {
                         if mediaAttachments.isEmpty {
                             Text("No attachments")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding()
-                                .background(Color(.systemGray6))
+                                .background(theme.surface2)
                                 .cornerRadius(8)
                         } else {
                             ScrollView(.horizontal, showsIndicators: false) {
@@ -143,24 +143,24 @@ struct MomentConfirmationSheet: View {
                             HStack(spacing: 12) {
                                 Image(systemName: "sparkles")
                                     .font(.title2)
-                                    .foregroundColor(themeProvider.starColor)
+                                    .foregroundColor(theme.star)
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("That took real effort!")
                                         .font(.subheadline.weight(.semibold))
                                     Text("Tap to add a bonus star")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                 }
 
                                 Spacer()
 
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                             .padding()
-                            .background(themeProvider.starColor.opacity(0.1))
+                            .background(theme.star.opacity(0.1))
                             .cornerRadius(12)
                         }
                         .buttonStyle(.plain)
@@ -171,14 +171,14 @@ struct MomentConfirmationSheet: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "star.circle.fill")
                                     .font(.title)
-                                    .foregroundColor(themeProvider.starColor)
+                                    .foregroundColor(theme.star)
 
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Give a bonus star?")
                                         .font(.headline)
                                     Text("Tell \(child.name) why this moment stood out")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                 }
                             }
 
@@ -194,7 +194,7 @@ struct MomentConfirmationSheet: View {
                                     .font(.subheadline.weight(.semibold))
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
-                                    .background(themeProvider.starColor)
+                                    .background(theme.star)
                                     .foregroundColor(.black)
                                     .cornerRadius(10)
                                 }
@@ -204,14 +204,14 @@ struct MomentConfirmationSheet: View {
                                         .font(.subheadline)
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
-                                        .background(Color(.systemGray5))
-                                        .foregroundColor(.primary)
+                                        .background(theme.borderSoft)
+                                        .foregroundColor(theme.textPrimary)
                                         .cornerRadius(10)
                                 }
                             }
                         }
                         .padding()
-                        .background(themeProvider.starColor.opacity(0.1))
+                        .background(theme.star.opacity(0.1))
                         .cornerRadius(12)
                     } else {
                         // Primary button
@@ -246,7 +246,7 @@ struct MomentConfirmationSheet: View {
         VStack(spacing: 12) {
             Text("How many stars?")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             // Horizontal row of preset star options
             ScrollView(.horizontal, showsIndicators: false) {
@@ -280,10 +280,10 @@ struct MomentConfirmationSheet: View {
                             Text("Custom")
                                 .font(.subheadline.weight(.semibold))
                         }
-                        .foregroundColor(showCustomStarInput ? .white : .primary)
+                        .foregroundColor(showCustomStarInput ? .white : theme.textPrimary)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
-                        .background(showCustomStarInput ? Color.purple : Color(.systemGray6))
+                        .background(showCustomStarInput ? Color.purple : theme.surface2)
                         .cornerRadius(20)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
@@ -305,7 +305,7 @@ struct MomentConfirmationSheet: View {
                         }) {
                             Image(systemName: "minus.circle.fill")
                                 .font(.title2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
 
                         HStack(spacing: 4) {
@@ -316,7 +316,7 @@ struct MomentConfirmationSheet: View {
 
                             Image(systemName: "star.fill")
                                 .font(.title3)
-                                .foregroundColor(themeProvider.starColor)
+                                .foregroundColor(theme.star)
                         }
 
                         Button(action: {
@@ -334,10 +334,10 @@ struct MomentConfirmationSheet: View {
 
                     Text("Tap + or - to adjust")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding()
-                .background(Color(.systemGray6))
+                .background(theme.surface2)
                 .cornerRadius(12)
             }
         }
@@ -377,7 +377,7 @@ struct MomentConfirmationSheet: View {
             }
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(theme.surface2)
         .cornerRadius(12)
     }
 

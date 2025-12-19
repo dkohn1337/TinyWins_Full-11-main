@@ -3,7 +3,7 @@ import SwiftUI
 /// A view for picking a reward template or creating a custom reward
 struct RewardTemplatePickerView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     let child: Child
     let onTemplateSelected: (RewardTemplate) -> Void
@@ -55,7 +55,7 @@ struct RewardTemplatePickerView: View {
                     Spacer().frame(height: 24)
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -101,7 +101,7 @@ struct RewardTemplatePickerView: View {
 
                 Text("Pick something meaningful. Experiences create the best memories.")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
@@ -121,7 +121,7 @@ struct RewardTemplatePickerView: View {
                 .foregroundColor(.green)
             Text("Showing all \(totalCount) goals for \(ageText)")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(.horizontal)
         .padding(.top, 8)
@@ -152,20 +152,20 @@ struct RewardTemplatePickerView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Create your own")
                         .font(.headline)
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
                     Text("Custom name, stars & timeline")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(14)
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
@@ -179,6 +179,7 @@ struct RewardTemplatePickerView: View {
 // MARK: - Category Section
 
 private struct CategorySection: View {
+    @Environment(\.theme) private var theme
     let category: RewardTemplate.Category
     let templates: [RewardTemplate]
     let childColor: Color
@@ -200,16 +201,16 @@ private struct CategorySection: View {
 
                 Text(category.rawValue)
                     .font(.headline)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
                 Text("\(templates.count)")
                     .font(.caption.weight(.medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color(.systemGray6))
+                    .background(theme.surface2)
                     .cornerRadius(10)
             }
             .padding(.horizontal)
@@ -234,6 +235,7 @@ private struct CategorySection: View {
 // MARK: - Compact Template Card (for horizontal scroll)
 
 private struct CompactTemplateCard: View {
+    @Environment(\.theme) private var theme
     let template: RewardTemplate
     let categoryColor: Color
     let onTap: () -> Void
@@ -281,7 +283,7 @@ private struct CompactTemplateCard: View {
                 // Name
                 Text(template.name)
                     .font(.subheadline.weight(.medium))
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .frame(height: 40)
@@ -295,28 +297,28 @@ private struct CompactTemplateCard: View {
                             .foregroundColor(.yellow)
                         Text("\(template.defaultPoints)")
                             .font(.caption2.weight(.semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Text("•")
                         .font(.caption2)
-                        .foregroundColor(Color(.systemGray4))
+                        .foregroundColor(theme.borderStrong)
 
                     // Days
                     HStack(spacing: 2) {
                         Image(systemName: "calendar")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                         Text("\(template.defaultDurationDays)d")
                             .font(.caption2.weight(.medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }
             .frame(width: 130)
             .padding(.vertical, 14)
             .padding(.horizontal, 8)
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(20)
             .shadow(color: .black.opacity(0.06), radius: 8, y: 3)
             .scaleEffect(isPressed ? 0.96 : 1.0)
@@ -341,5 +343,5 @@ private struct CompactTemplateCard: View {
             print("Create custom")
         }
     )
-    .environmentObject(ThemeProvider())
+    .withTheme(Theme())
 }

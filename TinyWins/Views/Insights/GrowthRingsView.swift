@@ -13,7 +13,7 @@ import SwiftUI
 /// - Bucket (week/month) selector
 /// - Sample size guardrails
 struct GrowthRingsView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @EnvironmentObject private var repository: Repository
 
@@ -52,9 +52,9 @@ struct GrowthRingsView: View {
         .background(
             LinearGradient(
                 colors: [
-                    theme.backgroundColor,
+                    theme.bg0,
                     Color.purple.opacity(0.02),
-                    theme.backgroundColor
+                    theme.bg0
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -89,18 +89,18 @@ struct GrowthRingsView: View {
                 } label: {
                     Text(range.displayName)
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(viewModel?.timeRange == range ? .white : theme.secondaryText)
+                        .foregroundColor(viewModel?.timeRange == range ? .white : theme.textSecondary)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
                         .background(
                             Capsule()
                                 .fill(viewModel?.timeRange == range ?
-                                      theme.accentColor : theme.cardBackground)
+                                      theme.accentPrimary : theme.surface1)
                         )
                         .overlay(
                             Capsule()
                                 .stroke(viewModel?.timeRange == range ?
-                                        Color.clear : theme.accentColor.opacity(0.2), lineWidth: 1)
+                                        Color.clear : theme.accentPrimary.opacity(0.2), lineWidth: 1)
                         )
                 }
                 .buttonStyle(.plain)
@@ -137,12 +137,12 @@ struct GrowthRingsView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("This Period's Highlight", tableName: "Insights")
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     if let bucketLabel = viewModel?.selectedBucket?.labelLong {
                         Text(bucketLabel)
                             .font(.caption)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -168,11 +168,11 @@ struct GrowthRingsView: View {
                         Text(trait.displayName)
                             .font(.title3)
                             .fontWeight(.bold)
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         Text("is shining brightest", tableName: "Insights")
                             .font(.subheadline)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Spacer()
@@ -197,7 +197,7 @@ struct GrowthRingsView: View {
                     icon: "sparkle",
                     value: "\(brief.pointsCount)",
                     label: String(localized: "points", table: "Insights"),
-                    color: theme.positiveColor
+                    color: theme.success
                 )
             }
 
@@ -212,12 +212,12 @@ struct GrowthRingsView: View {
                         Text("Try this", tableName: "Insights")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(theme.positiveColor)
+                            .foregroundColor(theme.success)
                     }
 
                     Text(brief.suggestions.first ?? "")
                         .font(.subheadline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(12)
@@ -236,7 +236,7 @@ struct GrowthRingsView: View {
         .background(
             ZStack {
                 RoundedRectangle(cornerRadius: theme.cornerRadius)
-                    .fill(theme.cardBackground)
+                    .fill(theme.surface1)
 
                 RoundedRectangle(cornerRadius: theme.cornerRadius)
                     .fill(
@@ -290,11 +290,11 @@ struct GrowthRingsView: View {
             VStack(alignment: .leading, spacing: 1) {
                 Text(value)
                     .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text(label)
                     .font(.caption2)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding(.horizontal, 14)
@@ -312,7 +312,7 @@ struct GrowthRingsView: View {
 
             Text("Log a few more moments to unlock detailed insights", tableName: "Insights")
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -330,7 +330,7 @@ struct GrowthRingsView: View {
             HStack {
                 Text("\(child.name)'s Character Growth", tableName: "Insights")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
             }
@@ -344,7 +344,7 @@ struct GrowthRingsView: View {
                     Circle()
                         .fill(
                             RadialGradient(
-                                colors: [Color(.systemGray6).opacity(0.3), Color(.systemGray6).opacity(0.6)],
+                                colors: [theme.surface2.opacity(0.3), theme.surface2.opacity(0.6)],
                                 center: .center,
                                 startRadius: 20,
                                 endRadius: size / 2
@@ -380,9 +380,9 @@ struct GrowthRingsView: View {
             bucketSelector
         }
         .padding(18)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     private var centerLabel: some View {
@@ -390,27 +390,27 @@ struct GrowthRingsView: View {
             if let bucket = viewModel?.selectedBucket {
                 Text(bucket.labelShort)
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 if bucket.hasMinimumData {
                     Text("\(bucket.totalMoments) moments", tableName: "Insights")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
             } else {
                 Text(viewModel?.timeRange.shortName ?? "")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text("growth", tableName: "Insights")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding(16)
         .background(
             Circle()
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
         )
     }
@@ -435,16 +435,16 @@ struct GrowthRingsView: View {
 
                             // Data indicator dot
                             Circle()
-                                .fill(bucket.hasMinimumData ? theme.positiveColor : Color.gray.opacity(0.3))
+                                .fill(bucket.hasMinimumData ? theme.success : theme.textDisabled.opacity(0.3))
                                 .frame(width: 6, height: 6)
                         }
-                        .foregroundColor(viewModel?.selectedBucket?.id == bucket.id ? .white : theme.secondaryText)
+                        .foregroundColor(viewModel?.selectedBucket?.id == bucket.id ? .white : theme.textSecondary)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .background(
                             Capsule()
                                 .fill(viewModel?.selectedBucket?.id == bucket.id ?
-                                      theme.accentColor : Color(.systemGray6))
+                                      theme.accentPrimary : theme.surface2)
                         )
                     }
                     .buttonStyle(.plain)
@@ -461,13 +461,13 @@ struct GrowthRingsView: View {
             HStack {
                 Text("Character Traits", tableName: "Insights")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
                 Text("Tap to explore", tableName: "Insights")
                     .font(.caption)
-                    .foregroundColor(theme.accentColor)
+                    .foregroundColor(theme.accentPrimary)
             }
 
             LazyVGrid(columns: [
@@ -480,9 +480,9 @@ struct GrowthRingsView: View {
             }
         }
         .padding(18)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     private func legendItem(trait: CharacterTrait) -> some View {
@@ -517,7 +517,7 @@ struct GrowthRingsView: View {
                 Text(trait.displayName)
                     .font(.subheadline)
                     .fontWeight(isSelected ? .semibold : .medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
@@ -546,7 +546,7 @@ struct GrowthRingsView: View {
             .padding(.horizontal, 12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? trait.color.opacity(0.15) : theme.cardBackground)
+                    .fill(isSelected ? trait.color.opacity(0.15) : theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
@@ -567,7 +567,7 @@ struct GrowthRingsView: View {
             HStack {
                 Text(bucket.labelLong)
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
@@ -575,12 +575,12 @@ struct GrowthRingsView: View {
                     Text("Current", tableName: "Insights")
                         .font(.caption)
                         .fontWeight(.medium)
-                        .foregroundColor(theme.accentColor)
+                        .foregroundColor(theme.accentPrimary)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
                         .background(
                             Capsule()
-                                .fill(theme.accentColor.opacity(0.12))
+                                .fill(theme.accentPrimary.opacity(0.12))
                         )
                 }
             }
@@ -607,11 +607,11 @@ struct GrowthRingsView: View {
                         Text("Growing period", tableName: "Insights")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         Text("Log \(GrowthRingsViewModel.minimumMomentsPerBucket - bucket.totalMoments) more moments to see traits emerge", tableName: "Insights")
                             .font(.caption)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(14)
@@ -623,9 +623,9 @@ struct GrowthRingsView: View {
             }
         }
         .padding(18)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(theme.cornerRadius)
-        .shadow(color: theme.cardShadow, radius: theme.cardShadowRadius, y: 2)
+        .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 8, y: 2)
     }
 
     private func traitProgressRow(trait: CharacterTrait, score: TraitBucketScore, bucket: GrowthRingsBucket) -> some View {
@@ -645,11 +645,11 @@ struct GrowthRingsView: View {
                     Text(trait.displayName)
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("\(score.moments) moments • \(score.points) points", tableName: "Insights")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -661,7 +661,7 @@ struct GrowthRingsView: View {
 
                     ZStack(alignment: .leading) {
                         Capsule()
-                            .fill(Color(.systemGray5))
+                            .fill(theme.borderSoft)
 
                         Capsule()
                             .fill(
@@ -678,7 +678,7 @@ struct GrowthRingsView: View {
 
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText.opacity(0.5))
+                    .foregroundColor(theme.textSecondary.opacity(0.5))
             }
             .padding(.vertical, 6)
         }
@@ -704,11 +704,11 @@ struct GrowthRingsView: View {
                             Text(trait.displayName)
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(theme.primaryText)
+                                .foregroundColor(theme.textPrimary)
 
                             Text(trait.description)
                                 .font(.subheadline)
-                                .foregroundColor(theme.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
 
@@ -722,7 +722,7 @@ struct GrowthRingsView: View {
                 }
                 .padding(AppSpacing.screenPadding)
             }
-            .background(theme.backgroundColor.ignoresSafeArea())
+            .background(theme.bg0.ignoresSafeArea())
             .navigationTitle(trait.displayName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -743,7 +743,7 @@ struct GrowthRingsView: View {
             HStack {
                 Text("Trend", tableName: "Insights")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
@@ -771,7 +771,7 @@ struct GrowthRingsView: View {
                             if let bucket = viewModel?.buckets[safe: index] {
                                 Text(bucket.labelShort)
                                     .font(.system(size: 9))
-                                    .foregroundColor(theme.secondaryText)
+                                    .foregroundColor(theme.textSecondary)
                                     .lineLimit(1)
                             }
                         }
@@ -801,7 +801,7 @@ struct GrowthRingsView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
         )
     }
 
@@ -809,14 +809,14 @@ struct GrowthRingsView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Related Behaviors", tableName: "Insights")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             let relatedBehaviors = getRelatedBehaviors(for: trait)
 
             if relatedBehaviors.isEmpty {
                 Text("No specific behaviors mapped yet", tableName: "Insights")
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             } else {
                 ForEach(relatedBehaviors.prefix(6), id: \.self) { behaviorName in
                     HStack(spacing: 10) {
@@ -826,7 +826,7 @@ struct GrowthRingsView: View {
 
                         Text(behaviorName)
                             .font(.subheadline)
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -835,7 +835,7 @@ struct GrowthRingsView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: theme.cornerRadius)
-                .fill(theme.cardBackground)
+                .fill(theme.surface1)
         )
     }
 
@@ -973,7 +973,7 @@ struct RingSegment: Shape {
         GrowthRingsView(child: Child.preview)
     }
     .environmentObject(Repository.preview)
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }
 
 // MARK: - Child Preview Extension

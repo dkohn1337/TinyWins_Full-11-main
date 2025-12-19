@@ -5,6 +5,7 @@ import SwiftUI
 
 /// Compact stat display card with icon
 struct StatCardView: View {
+    @Environment(\.theme) private var theme
     let value: String
     let label: String
     let icon: String
@@ -27,14 +28,14 @@ struct StatCardView: View {
 
             Text(label)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
         )
     }

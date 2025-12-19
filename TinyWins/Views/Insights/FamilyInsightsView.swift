@@ -33,7 +33,7 @@ struct FamilyInsightsView: View {
     @EnvironmentObject private var progressionStore: ProgressionStore
     @EnvironmentObject private var coordinator: AppCoordinator
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     @State private var selectedScope: InsightsScope = .family
     @State private var selectedPeriod: InsightPeriod = .thisWeek
@@ -138,7 +138,7 @@ struct FamilyInsightsView: View {
             .sheet(isPresented: $showingDailyCheckIn) {
                 DailyCheckInView()
             }
-            .themedNavigationBar(themeProvider)
+            .themedNavigationBar(theme)
         }
         .onAppear {
             withAnimation(.spring(response: 0.6).delay(0.2)) {
@@ -190,7 +190,7 @@ struct FamilyInsightsView: View {
             .padding(.top, 8)
             .tabBarBottomPadding()
         }
-        .background(themeProvider.backgroundColor)
+        .background(theme.bg0)
     }
 
     // MARK: - Scope Selector
@@ -209,12 +209,12 @@ struct FamilyInsightsView: View {
                         Text(scope.rawValue)
                             .font(.system(size: 14, weight: .semibold))
                     }
-                    .foregroundColor(selectedScope == scope ? .white : themeProvider.primaryText)
+                    .foregroundColor(selectedScope == scope ? .white : theme.textPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(minHeight: 44) // Accessibility: minimum tap target
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(selectedScope == scope ? themeProvider.accentColor : Color.clear)
+                            .fill(selectedScope == scope ? theme.accentPrimary : Color.clear)
                     )
                 }
                 .buttonStyle(.plain)
@@ -225,7 +225,7 @@ struct FamilyInsightsView: View {
         .padding(4)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(themeProvider.cardBackground)
+                .fill(theme.surface1)
         )
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Insights scope selector")
@@ -298,35 +298,35 @@ struct FamilyInsightsView: View {
             HStack(spacing: 10) {
                 Image(systemName: "house.fill")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(themeProvider.accentColor)
+                    .foregroundColor(theme.accentPrimary)
 
                 Text("This \(selectedPeriod.shortLabel)")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 Spacer()
             }
 
             Text(heroMessage)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(themeProvider.primaryText)
+                .foregroundColor(theme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             // Week Activity Dots (visual proof of logging)
-            WeekActivityDots(dailyData: dailyData, accentColor: themeProvider.positiveColor)
+            WeekActivityDots(dailyData: dailyData, accentColor: theme.success)
                 .padding(.top, 4)
 
             if total > 0 && total < 5 {
                 Text("Early pattern from \(total) moments")
                     .font(.system(size: 11))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .italic()
             }
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(themeProvider.cardBackground)
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
     }
@@ -361,7 +361,7 @@ struct FamilyInsightsView: View {
                 icon: "star.fill",
                 label: "\(stats.positiveCount) wins",
                 sublabel: "\(stats.challengeCount) challenges",
-                color: stats.positiveCount >= stats.challengeCount ? themeProvider.positiveColor : themeProvider.challengeColor,
+                color: stats.positiveCount >= stats.challengeCount ? theme.success : theme.danger,
                 trend: trajectory.lastWeek > 0 ? trend : nil,
                 percentChange: trajectory.lastWeek > 0 ? trajectory.percentChange : nil
             )
@@ -372,7 +372,7 @@ struct FamilyInsightsView: View {
                 icon: "calendar",
                 label: "\(activeDays) active days",
                 sublabel: "this week",
-                color: activeDays >= 4 ? themeProvider.positiveColor : themeProvider.accentColor
+                color: activeDays >= 4 ? theme.success : theme.accentPrimary
             )
         }
     }
@@ -386,10 +386,10 @@ struct FamilyInsightsView: View {
             VStack(alignment: .leading, spacing: 1) {
                 Text(label)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(themeProvider.primaryText)
+                    .foregroundColor(theme.textPrimary)
                 Text(sublabel)
                     .font(.system(size: 10))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding(.horizontal, 12)
@@ -413,7 +413,7 @@ struct FamilyInsightsView: View {
 
             Text(actionText)
                 .font(.system(size: 14))
-                .foregroundColor(themeProvider.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Spacer()
         }
@@ -451,7 +451,7 @@ struct FamilyInsightsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Top behaviors")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 BehaviorPillStack(
                     behaviors: behaviors,
@@ -612,14 +612,14 @@ struct FamilyInsightsView: View {
 
                 Text(child.name)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(themeProvider.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 // "Change" button for multi-child families (integrated into hero card)
                 if hasMultipleChildren {
                     Button(action: { showingChildPickerSheet = true }) {
                         Text("Change")
                             .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(themeProvider.accentColor)
+                            .foregroundColor(theme.accentPrimary)
                     }
                     .buttonStyle(.plain)
                 }
@@ -629,12 +629,12 @@ struct FamilyInsightsView: View {
                 // Period label (right-aligned)
                 Text(selectedPeriod.shortLabel)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Text(heroMessage)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(themeProvider.primaryText)
+                .foregroundColor(theme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             // Child-specific Week Activity Dots
@@ -647,14 +647,14 @@ struct FamilyInsightsView: View {
             if total > 0 && total < 5 {
                 Text("Early pattern from \(total) moments")
                     .font(.system(size: 11))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .italic()
             }
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(themeProvider.cardBackground)
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
     }
@@ -693,7 +693,7 @@ struct FamilyInsightsView: View {
                 icon: "star.fill",
                 label: "\(totalPoints) stars",
                 sublabel: "this period",
-                color: totalPoints >= 0 ? themeProvider.positiveColor : themeProvider.challengeColor,
+                color: totalPoints >= 0 ? theme.success : theme.danger,
                 trend: trajectory.lastWeek > 0 ? trend : nil,
                 percentChange: trajectory.lastWeek > 0 ? trajectory.percentChange : nil
             )
@@ -730,13 +730,13 @@ struct FamilyInsightsView: View {
                 HStack(spacing: 4) {
                     Text("Wins")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(themeProvider.positiveColor)
+                        .foregroundColor(theme.success)
                     Text("&")
                         .font(.system(size: 11))
-                        .foregroundColor(themeProvider.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                     Text("work-ons")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(themeProvider.challengeColor)
+                        .foregroundColor(theme.danger)
                 }
 
                 BehaviorPillStack(
@@ -784,7 +784,7 @@ struct FamilyInsightsView: View {
 
             Text(actionText)
                 .font(.system(size: 14))
-                .foregroundColor(themeProvider.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Spacer()
         }
@@ -858,28 +858,28 @@ struct FamilyInsightsView: View {
             HStack(spacing: 10) {
                 Image(systemName: "person.fill")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(themeProvider.plusColor)
+                    .foregroundColor(theme.accentPrimary)
 
                 Text("Your Week")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 Spacer()
             }
 
             Text(heroMessage)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(themeProvider.primaryText)
+                .foregroundColor(theme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             // Reflection dots (days you logged)
-            WeekActivityDots(dailyData: reflectionDots, accentColor: themeProvider.plusColor)
+            WeekActivityDots(dailyData: reflectionDots, accentColor: theme.accentPrimary)
                 .padding(.top, 4)
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(themeProvider.cardBackground)
+                .fill(theme.surface1)
         )
         .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
     }
@@ -927,7 +927,7 @@ struct FamilyInsightsView: View {
                 icon: "checkmark.circle.fill",
                 label: "\(activeDays) check-ins",
                 sublabel: "this week",
-                color: activeDays >= 3 ? themeProvider.positiveColor : themeProvider.accentColor
+                color: activeDays >= 3 ? theme.success : theme.accentPrimary
             )
 
             // Hint 2: Coach level
@@ -935,7 +935,7 @@ struct FamilyInsightsView: View {
                 icon: "leaf.fill",
                 label: "Level \(level)",
                 sublabel: "coach",
-                color: themeProvider.plusColor
+                color: theme.accentPrimary
             )
         }
     }
@@ -960,17 +960,17 @@ struct FamilyInsightsView: View {
             HStack(spacing: 8) {
                 Image(systemName: "clock.arrow.circlepath")
                     .font(.system(size: 13))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 Text("View all history")
                     .font(.system(size: 13))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 11))
-                    .foregroundColor(themeProvider.secondaryText.opacity(0.5))
+                    .foregroundColor(theme.textSecondary.opacity(0.5))
             }
             .padding(.horizontal, 4)
         }
@@ -1029,16 +1029,16 @@ struct FamilyInsightsView: View {
                 HStack(spacing: 6) {
                     Text("Advanced Insights")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(themeProvider.primaryText)
+                        .foregroundColor(theme.textPrimary)
                     if showLock {
                         Image(systemName: "lock.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(themeProvider.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 Text(benefitLine)
                     .font(.caption)
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -1062,13 +1062,13 @@ struct FamilyInsightsView: View {
             } else {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(themeProvider.cardBackground)
+                .fill(theme.surface1)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(
@@ -1125,14 +1125,14 @@ struct FamilyInsightsView: View {
                         HStack(spacing: 6) {
                             Text("Advanced Insights")
                                 .font(.subheadline.weight(.semibold))
-                                .foregroundColor(themeProvider.primaryText)
+                                .foregroundColor(theme.textPrimary)
                             Image(systemName: "lock.fill")
                                 .font(.system(size: 10))
-                                .foregroundColor(themeProvider.secondaryText)
+                                .foregroundColor(theme.textSecondary)
                         }
                         Text(benefitLine)
                             .font(.caption)
-                            .foregroundColor(themeProvider.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Spacer()
@@ -1156,7 +1156,7 @@ struct FamilyInsightsView: View {
                 .padding(14)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(themeProvider.cardBackground)
+                        .fill(theme.surface1)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(
@@ -1188,22 +1188,22 @@ struct FamilyInsightsView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Advanced Insights")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(themeProvider.primaryText)
+                            .foregroundColor(theme.textPrimary)
                         Text(benefitLine)
                             .font(.caption)
-                            .foregroundColor(themeProvider.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Spacer()
 
                     Image(systemName: "chevron.right")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(themeProvider.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding(14)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(themeProvider.cardBackground)
+                        .fill(theme.surface1)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(
@@ -1224,15 +1224,15 @@ struct FamilyInsightsView: View {
             HStack(spacing: 12) {
                 Image(systemName: "chart.line.uptrend.xyaxis")
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Advanced Insights")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(themeProvider.primaryText)
+                        .foregroundColor(theme.textPrimary)
                     Text("Select a child in Child tab to see their patterns")
                         .font(.caption)
-                        .foregroundColor(themeProvider.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -1240,7 +1240,7 @@ struct FamilyInsightsView: View {
             .padding(14)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(themeProvider.cardBackground.opacity(0.6))
+                    .fill(theme.surface1.opacity(0.6))
             )
         }
     }
@@ -1275,22 +1275,22 @@ struct FamilyInsightsView: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(isEvening ? "Evening Reflection" : "Daily Reflection")
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(themeProvider.primaryText)
+                        .foregroundColor(theme.textPrimary)
                     Text("How did today go?")
                         .font(.system(size: 12))
-                        .foregroundColor(themeProvider.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(themeProvider.secondaryText.opacity(0.5))
+                    .foregroundColor(theme.textSecondary.opacity(0.5))
             }
             .padding(14)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(themeProvider.cardBackground)
+                    .fill(theme.surface1)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(
@@ -1317,28 +1317,28 @@ struct FamilyInsightsView: View {
 
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(themeProvider.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text("View History")
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(themeProvider.primaryText)
+                        .foregroundColor(theme.textPrimary)
                     Text("All past moments and reflections")
                         .font(.system(size: 12))
-                        .foregroundColor(themeProvider.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(themeProvider.secondaryText.opacity(0.5))
+                    .foregroundColor(theme.textSecondary.opacity(0.5))
             }
             .padding(14)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(themeProvider.cardBackground)
+                    .fill(theme.surface1)
             )
         }
         .buttonStyle(.plain)
@@ -1351,18 +1351,18 @@ struct FamilyInsightsView: View {
         VStack(spacing: 12) {
             Image(systemName: "figure.child.circle")
                 .font(.system(size: 40))
-                .foregroundColor(themeProvider.secondaryText.opacity(0.5))
+                .foregroundColor(theme.textSecondary.opacity(0.5))
 
             Text("Select a child to view their progress")
                 .font(.system(size: 15))
-                .foregroundColor(themeProvider.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 32)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(themeProvider.cardBackground)
+                .fill(theme.surface1)
         )
     }
 

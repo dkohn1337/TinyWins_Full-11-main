@@ -1,12 +1,21 @@
 import SwiftUI
 
+/// Sheet for logging a behavior/moment for a child.
+///
+/// PERFORMANCE: Reduced from 5 to 4 @EnvironmentObject dependencies.
+/// - Removed unused progressionStore (was causing unnecessary re-renders)
+/// - childrenStore: Only for child age display (could be passed as param in future)
+/// - behaviorsStore: Core - provides behavior types and recent events
+/// - rewardsStore: Core - provides available rewards for star target
+/// - prefs: Core - tracks goal interception state
 struct LogBehaviorSheet: View {
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var rewardsStore: RewardsStore
-    @EnvironmentObject private var progressionStore: ProgressionStore
+    // PERFORMANCE: Removed unused progressionStore dependency
     @EnvironmentObject private var prefs: UserPreferencesStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     let child: Child
     let onBehaviorSelected: (UUID, String?, [MediaAttachment], UUID?) -> Void // Added rewardId
@@ -104,7 +113,7 @@ struct LogBehaviorSheet: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationTitle("Add Moment")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -112,10 +121,11 @@ struct LogBehaviorSheet: View {
                     Button("Cancel") { dismiss() }
                 }
             }
-            // NOTE: This view uses 5 separate .sheet() modifiers, which can cause presentation issues on iOS 15-16.
-            // However, since TinyWins targets iOS 17+, this pattern is acceptable.
-            // The sheets are mutually exclusive (controlled by separate @State bools) and cannot trigger simultaneously.
-            // If iOS 17+ exhibits sheet issues in the future, refactor to a single .sheet() with an enum.
+            // PERFORMANCE NOTE: This view uses 5 separate .sheet() modifiers.
+            // While acceptable for iOS 17+, consolidating to a single .sheet(item:) with an enum
+            // would reduce memory overhead from keeping 5 sheet views ready.
+            // Current pattern is OK because sheets are mutually exclusive (cannot trigger simultaneously).
+            // Future optimization: Refactor to single sheet with enum if memory profiling shows issues.
             .sheet(isPresented: $showingMediaPicker) {
                 MediaPickerSheet(
                     onImageSelected: { image in
@@ -277,27 +287,27 @@ struct LogBehaviorSheet: View {
                     Image(systemName: "star.fill")
                         .font(.caption)
                         .foregroundColor(.yellow)
-                    
+
                     if selectedRewardId != nil {
                         Text("Stars will count toward:")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                         Text(currentTargetName)
                             .font(.caption.weight(.medium))
                             .foregroundColor(child.colorTag.color)
                     } else {
                         Text("Stars will not count toward a reward")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
-                    
+
                     Image(systemName: "chevron.down")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background(Color(.systemBackground))
+                .background(theme.surface1)
                 .cornerRadius(20)
                 .shadow(color: Color.black.opacity(0.05), radius: 2, y: 1)
             }
@@ -326,11 +336,11 @@ struct LogBehaviorSheet: View {
                                 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(option.reward.name)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(theme.textPrimary)
                                     if option.isDefault {
                                         Text("Active reward")
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(theme.textSecondary)
                                     }
                                 }
                                 
@@ -351,15 +361,15 @@ struct LogBehaviorSheet: View {
                     }) {
                         HStack {
                             Image(systemName: "star")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .frame(width: 24)
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("No reward, just stars")
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(theme.textPrimary)
                                 Text("Recognition without goal progress")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                             
                             Spacer()
@@ -382,17 +392,17 @@ struct LogBehaviorSheet: View {
                             HStack {
                                 if let iconName = option.reward.imageName {
                                     Image(systemName: iconName)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                         .frame(width: 24)
                                 }
-                                
+
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(option.reward.name)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                     if let note = option.statusNote {
                                         Text(note)
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(theme.textSecondary)
                                     }
                                 }
                                 
@@ -422,7 +432,7 @@ struct LogBehaviorSheet: View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 16))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             TextField("Search behaviors...", text: $searchText)
                 .font(.subheadline)
@@ -432,13 +442,13 @@ struct LogBehaviorSheet: View {
                 Button(action: { searchText = "" }) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 16))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Color(.systemGray6))
+        .background(theme.surface2)
         .cornerRadius(10)
     }
 
@@ -451,7 +461,7 @@ struct LogBehaviorSheet: View {
             VStack(alignment: .leading) {
                 Text("Add moment for")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                 Text(child.name)
                     .font(.headline)
             }
@@ -489,7 +499,7 @@ struct LogBehaviorSheet: View {
                     
                     Text("Pick a reward so \(child.name) has something exciting to work toward.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 
@@ -519,14 +529,14 @@ struct LogBehaviorSheet: View {
             
             Text("Showing behaviors suggested for \(age)-year-olds. You can add your own in Manage Behaviors.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
             
             Spacer()
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Color(.systemGray6))
+        .background(theme.surface2)
         .cornerRadius(10)
     }
     
@@ -542,13 +552,13 @@ struct LogBehaviorSheet: View {
                     StyledIcon(systemName: "clock.arrow.circlepath", color: .purple, size: 14, backgroundSize: 28)
                     Text("Recent")
                         .font(.headline)
-                        .foregroundColor(.primary)
-                    
+                        .foregroundColor(theme.textPrimary)
+
                     Spacer()
-                    
+
                     Text("Tap to add quickly")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -611,23 +621,23 @@ struct LogBehaviorSheet: View {
                         )
                         Text(category.displayName)
                             .font(.headline)
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
 
                         Spacer()
 
                         Text("\(behaviors.count)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 2)
-                            .background(Color(.systemGray5))
+                            .background(theme.borderSoft)
                             .cornerRadius(10)
 
                         // Chevron for collapsible Challenges section
                         if isChallenge {
                             Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                 }
@@ -637,7 +647,7 @@ struct LogBehaviorSheet: View {
                 if isChallenge && !isExpanded {
                     Text("Tap to expand")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .padding(.leading, 36)
                 }
 

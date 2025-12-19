@@ -5,7 +5,7 @@ import SwiftUI
 /// Horizontal scrollable child picker optimized for quick selection.
 /// Ensures selected child is always visible and scrolled into view.
 struct CompactChildPicker: View {
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
 
     let children: [Child]
@@ -84,7 +84,7 @@ struct CompactChildPicker: View {
 /// Individual child avatar button with selection state.
 /// Tapping navigates to add moment for this child.
 private struct ChildAvatarButton: View {
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var rewardsStore: RewardsStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
 
@@ -141,7 +141,7 @@ private struct ChildAvatarButton: View {
                         // Checkmark badge for goal reached
                         ZStack {
                             Circle()
-                                .fill(themeProvider.positiveColor)
+                                .fill(theme.success)
                                 .frame(width: 16, height: 16)
                             Image(systemName: "checkmark")
                                 .font(.system(size: 9, weight: .bold))
@@ -149,7 +149,7 @@ private struct ChildAvatarButton: View {
                         }
                         .overlay(
                             Circle()
-                                .stroke(themeProvider.cardBackground, lineWidth: 2)
+                                .stroke(theme.surface1, lineWidth: 2)
                         )
                         .offset(x: avatarSize / 2 - 4, y: -avatarSize / 2 + 4)
                     }
@@ -166,7 +166,7 @@ private struct ChildAvatarButton: View {
                         }
                         .overlay(
                             Circle()
-                                .stroke(themeProvider.cardBackground, lineWidth: 2)
+                                .stroke(theme.surface1, lineWidth: 2)
                         )
                         .offset(x: avatarSize / 2 - 2, y: avatarSize / 2 - 2)
                     }
@@ -175,7 +175,7 @@ private struct ChildAvatarButton: View {
                 // Name
                 Text(child.name)
                     .font(.system(size: 11, weight: isSelected ? .semibold : .medium))
-                    .foregroundColor(isSelected ? themeProvider.primaryText : themeProvider.secondaryText)
+                    .foregroundColor(isSelected ? theme.textPrimary : theme.textSecondary)
                     .lineLimit(1)
 
                 // Selection indicator dot

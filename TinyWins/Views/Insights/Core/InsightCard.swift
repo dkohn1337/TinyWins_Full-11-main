@@ -102,7 +102,7 @@ enum InsightVisualData: Equatable {
 
 /// Action-oriented insight card with Interpretation → Try → Visual structure
 struct InsightCard: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let insight: CoachInsight
     let isFeatured: Bool
@@ -150,7 +150,7 @@ struct InsightCard: View {
             // Headline
             Text(insight.headline)
                 .font(.system(size: isFeatured ? 17 : 15, weight: .semibold))
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Spacer()
         }
@@ -161,7 +161,7 @@ struct InsightCard: View {
     private var interpretationSection: some View {
         Text(insight.interpretation)
             .font(.system(size: 14))
-            .foregroundColor(theme.secondaryText)
+            .foregroundColor(theme.textSecondary)
             .lineLimit(3)
             .fixedSize(horizontal: false, vertical: true)
     }
@@ -196,11 +196,11 @@ struct InsightCard: View {
                 let isToday = day?.isToday ?? false
 
                 Circle()
-                    .fill(intensity > 0 ? theme.accentColor.opacity(0.3 + intensity * 0.7) : Color(.systemGray5))
+                    .fill(intensity > 0 ? theme.accentPrimary.opacity(0.3 + intensity * 0.7) : theme.borderSoft)
                     .frame(width: 12, height: 12)
                     .overlay(
                         Circle()
-                            .stroke(isToday ? theme.accentColor : Color.clear, lineWidth: 2)
+                            .stroke(isToday ? theme.accentPrimary : Color.clear, lineWidth: 2)
                     )
             }
         }
@@ -216,7 +216,7 @@ struct InsightCard: View {
                 let height = maxValue > 0 ? CGFloat(value) / CGFloat(maxValue) * 24 : 0
 
                 RoundedRectangle(cornerRadius: 2)
-                    .fill(index == values.count - 1 ? theme.accentColor : theme.accentColor.opacity(0.4))
+                    .fill(index == values.count - 1 ? theme.accentPrimary : theme.accentPrimary.opacity(0.4))
                     .frame(width: 12, height: max(4, height))
             }
         }
@@ -245,16 +245,16 @@ struct InsightCard: View {
     private func progressRingView(_ progress: Double) -> some View {
         ZStack {
             Circle()
-                .stroke(Color(.systemGray5), lineWidth: 4)
+                .stroke(theme.borderSoft, lineWidth: 4)
 
             Circle()
                 .trim(from: 0, to: min(progress, 1.0))
-                .stroke(theme.accentColor, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .stroke(theme.accentPrimary, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                 .rotationEffect(.degrees(-90))
 
             Text("\(Int(progress * 100))%")
                 .font(.system(size: 11, weight: .medium))
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
         }
         .frame(width: 40, height: 40)
     }
@@ -272,12 +272,12 @@ struct InsightCard: View {
                             .font(.caption)
                             .fontWeight(.medium)
                     }
-                    .foregroundColor(pill.isPositive ? theme.positiveColor : theme.challengeColor)
+                    .foregroundColor(pill.isPositive ? theme.success : theme.danger)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(
                         Capsule()
-                            .fill((pill.isPositive ? theme.positiveColor : theme.challengeColor).opacity(0.12))
+                            .fill((pill.isPositive ? theme.success : theme.danger).opacity(0.12))
                     )
                 }
             }
@@ -295,7 +295,7 @@ struct InsightCard: View {
 
             Text(insight.tryAction)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
                 .lineLimit(2)
         }
         .padding(12)
@@ -321,13 +321,13 @@ struct InsightCard: View {
 
     private var cardBackground: some View {
         RoundedRectangle(cornerRadius: theme.cornerRadius)
-            .fill(isFeatured ? insight.category.color.opacity(0.06) : theme.cardBackground)
+            .fill(isFeatured ? insight.category.color.opacity(0.06) : theme.surface1)
     }
 
     private var cardBorder: some View {
         RoundedRectangle(cornerRadius: theme.cornerRadius)
             .stroke(
-                isFeatured ? insight.category.color.opacity(0.2) : theme.borderSubtle,
+                isFeatured ? insight.category.color.opacity(0.2) : theme.borderSoft,
                 lineWidth: isFeatured ? 1.5 : 1
             )
     }
@@ -343,7 +343,7 @@ struct InsightCard: View {
 
 /// Smaller version for lists and grids
 struct CompactInsightCard: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let insight: CoachInsight
 
@@ -362,12 +362,12 @@ struct CompactInsightCard: View {
                 Text(insight.headline)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
                     .lineLimit(1)
 
                 Text(insight.interpretation)
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .lineLimit(2)
             }
 
@@ -375,10 +375,10 @@ struct CompactInsightCard: View {
 
             Image(systemName: "chevron.right")
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .padding(12)
-        .background(theme.cardBackground)
+        .background(theme.surface1)
         .cornerRadius(12)
     }
 }
@@ -387,7 +387,7 @@ struct CompactInsightCard: View {
 
 /// Large banner card for the "One small thing" featured insight
 struct FeaturedInsightBanner: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let insight: CoachInsight
 
@@ -405,12 +405,12 @@ struct FeaturedInsightBanner: View {
             Text(insight.headline)
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             // Interpretation
             Text(insight.interpretation)
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .lineLimit(3)
 
             // Visual (if present)
@@ -428,7 +428,7 @@ struct FeaturedInsightBanner: View {
 
                 Text(insight.tryAction)
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -489,16 +489,16 @@ struct FeaturedInsightBanner: View {
 
                 VStack(spacing: 4) {
                     Circle()
-                        .fill(intensity > 0 ? theme.accentColor.opacity(0.3 + intensity * 0.7) : Color(.systemGray5))
+                        .fill(intensity > 0 ? theme.accentPrimary.opacity(0.3 + intensity * 0.7) : theme.borderSoft)
                         .frame(width: 16, height: 16)
                         .overlay(
                             Circle()
-                                .stroke(isToday ? theme.accentColor : Color.clear, lineWidth: 2)
+                                .stroke(isToday ? theme.accentPrimary : Color.clear, lineWidth: 2)
                         )
 
                     Text(dayLabel(index))
                         .font(.system(size: 9))
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
         }
@@ -571,5 +571,5 @@ struct FeaturedInsightBanner: View {
         }
         .padding()
     }
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

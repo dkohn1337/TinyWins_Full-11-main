@@ -83,7 +83,7 @@ struct FloatingTabBar: View {
     @Binding var selectedTab: AppCoordinator.Tab
     @Namespace private var tabAnimation
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     // Tab configuration
     struct TabItem: Identifiable {
@@ -102,8 +102,7 @@ struct FloatingTabBar: View {
     ]
 
     var body: some View {
-        let resolved = themeProvider.resolved
-        let isDark = resolved.isDark
+        let isDark = theme.isDark
 
         HStack(spacing: 0) {
             ForEach(tabs) { tab in
@@ -112,12 +111,24 @@ struct FloatingTabBar: View {
                     isSelected: selectedTab == tab.id,
                     namespace: tabAnimation,
                     isDark: isDark,
-                    themeProvider: themeProvider
+                    theme: theme
                 ) {
                     if selectedTab != tab.id {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                        #if DEBUG
+                        print("📍 TAB SWITCH: \(selectedTab.rawValue) → \(tab.id.rawValue)")
+                        #endif
+
+                        // PERFORMANCE: Instant tab switch using transaction to disable all animations
+                        // This prevents jitter and skippy transitions
+                        var transaction = Transaction()
+                        transaction.disablesAnimations = true
+                        withTransaction(transaction) {
                             selectedTab = tab.id
+                        }
+
+                        // Haptic runs async to not block main thread
+                        Task { @MainActor in
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         }
                     }
                 }
@@ -128,14 +139,9 @@ struct FloatingTabBar: View {
         .frame(height: 64)
         .background(
             ZStack {
-                // Solid background for dark mode, glass for light
-                if isDark {
-                    RoundedRectangle(cornerRadius: 32)
-                        .fill(resolved.cardBackground)
-                } else {
-                    RoundedRectangle(cornerRadius: 32)
-                        .fill(.ultraThinMaterial)
-                }
+                // Consistent background using theme
+                RoundedRectangle(cornerRadius: 32)
+                    .fill(theme.surface1)
 
                 // Gradient overlay for depth
                 RoundedRectangle(cornerRadius: 32)
@@ -155,8 +161,8 @@ struct FloatingTabBar: View {
                     .strokeBorder(
                         LinearGradient(
                             colors: [
-                                isDark ? resolved.cardBorderColor : Color.white.opacity(0.6),
-                                isDark ? resolved.cardBorderColor.opacity(0.5) : Color.white.opacity(0.2)
+                                isDark ? theme.borderSoft : Color.white.opacity(0.6),
+                                isDark ? theme.borderSoft.opacity(0.5) : Color.white.opacity(0.2)
                             ],
                             startPoint: .top,
                             endPoint: .bottom
@@ -177,12 +183,10 @@ struct FloatingTabBar: View {
 struct ElegantTabButton: View {
     let tab: FloatingTabBar.TabItem
     let isSelected: Bool
-    let namespace: Namespace.ID
+    let namespace: Namespace.ID  // Kept for API compatibility
     let isDark: Bool
-    let themeProvider: ThemeProvider
+    let theme: Theme
     let action: () -> Void
-
-    @State private var isPressed = false
 
     /// Returns a stable accessibility identifier for a tab
     private func accessibilityIdentifierForTab(_ tabId: AppCoordinator.Tab) -> String {
@@ -198,37 +202,35 @@ struct ElegantTabButton: View {
         Button(action: action) {
             VStack(spacing: 4) {
                 ZStack {
-                    // Selected pill background with matched geometry
-                    if isSelected {
-                        Capsule()
-                            .fill(
-                                LinearGradient(
-                                    colors: [tab.gradient[0].opacity(isDark ? 0.3 : 0.2), tab.gradient[1].opacity(isDark ? 0.25 : 0.15)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 48, height: 28)
-                            .matchedGeometryEffect(id: "tabPill", in: namespace)
-                    }
+                    // PERFORMANCE: Simplified - removed matchedGeometryEffect
+                    // Selected pill background
+                    Capsule()
+                        .fill(
+                            isSelected ?
+                            LinearGradient(
+                                colors: [tab.gradient[0].opacity(isDark ? 0.3 : 0.2), tab.gradient[1].opacity(isDark ? 0.25 : 0.15)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ) :
+                            LinearGradient(colors: [Color.clear], startPoint: .top, endPoint: .bottom)
+                        )
+                        .frame(width: 48, height: 28)
 
-                    // Icon
+                    // Icon - simplified, no scale animation
                     Image(systemName: isSelected ? tab.selectedIcon : tab.icon)
                         .font(.system(size: 18, weight: isSelected ? .semibold : .regular))
                         .foregroundStyle(
                             isSelected ?
                             LinearGradient(colors: tab.gradient, startPoint: .topLeading, endPoint: .bottomTrailing) :
-                            LinearGradient(colors: [isDark ? Color.white.opacity(0.5) : Color(.systemGray)], startPoint: .top, endPoint: .bottom)
+                            LinearGradient(colors: [isDark ? Color.white.opacity(0.5) : theme.textSecondary], startPoint: .top, endPoint: .bottom)
                         )
-                        .scaleEffect(isPressed ? 0.85 : 1.0)
-                        .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
                 }
                 .frame(height: 28)
 
                 // Label
                 Text(tab.label)
                     .font(.system(size: 9, weight: isSelected ? .semibold : .medium))
-                    .foregroundColor(isSelected ? tab.gradient[0] : (isDark ? Color.white.opacity(0.5) : Color(.systemGray)))
+                    .foregroundColor(isSelected ? tab.gradient[0] : (isDark ? Color.white.opacity(0.5) : theme.textSecondary))
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
@@ -240,21 +242,6 @@ struct ElegantTabButton: View {
         .accessibilityHint(isSelected ? "Currently selected" : "Double tap to switch to \(tab.label)")
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
         .accessibilityIdentifier(accessibilityIdentifierForTab(tab.id))
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    if !isPressed {
-                        withAnimation(.easeInOut(duration: 0.1)) {
-                            isPressed = true
-                        }
-                    }
-                }
-                .onEnded { _ in
-                    withAnimation(.easeInOut(duration: 0.1)) {
-                        isPressed = false
-                    }
-                }
-        )
     }
 }
 

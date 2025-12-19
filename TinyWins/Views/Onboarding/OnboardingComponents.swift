@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Onboarding Flow View (Multi-step)
 
 struct OnboardingFlowView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var contentViewModel: ContentViewModel
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var rewardsStore: RewardsStore
@@ -107,7 +108,7 @@ struct OnboardingFlowView: View {
 
                     Text("Notice the good in your child and watch small moments become big progress.")
                         .font(.title3)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 8)
@@ -144,7 +145,7 @@ struct OnboardingFlowView: View {
                 // Privacy reassurance
                 Text("Everything stays private to your family.")
                     .font(.footnote)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 VStack(spacing: 8) {
                     Button(action: {
@@ -168,7 +169,7 @@ struct OnboardingFlowView: View {
 
                     Text("Setup takes about a minute.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 32)
@@ -289,6 +290,7 @@ struct OnboardingFlowView: View {
 
 /// Consistent progress bar used across all onboarding steps
 struct OnboardingProgressBar: View {
+    @Environment(\.theme) private var theme
     let currentStep: Int // 0-indexed: 0=Child, 1=Goal, 2=Behaviors, 3=Done
     let steps = ["Child", "Goal", "Behaviors", "Done"]
 
@@ -297,7 +299,7 @@ struct OnboardingProgressBar: View {
             HStack(spacing: 8) {
                 ForEach(0..<steps.count, id: \.self) { i in
                     Capsule()
-                        .fill(i <= currentStep ? Color.accentColor : Color(.systemGray4))
+                        .fill(i <= currentStep ? Color.accentColor : Theme().borderStrong)
                         .frame(height: 4)
                 }
             }
@@ -306,7 +308,7 @@ struct OnboardingProgressBar: View {
                 ForEach(steps, id: \.self) { label in
                     Text(label)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -319,6 +321,7 @@ struct OnboardingProgressBar: View {
 // MARK: - Onboarding Feature Card (with title and subtitle)
 
 struct OnboardingFeatureCard: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let color: Color
     let title: String
@@ -344,7 +347,7 @@ struct OnboardingFeatureCard: View {
 
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
             }
@@ -355,6 +358,7 @@ struct OnboardingFeatureCard: View {
 // MARK: - Onboarding Feature Row (simple version for other uses)
 
 struct OnboardingFeatureRow: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let color: Color
     let text: String
@@ -382,6 +386,7 @@ struct OnboardingFeatureRow: View {
 // MARK: - Add Child Onboarding View
 
 struct AddChildOnboardingView: View {
+    @Environment(\.theme) private var theme
     let onComplete: (Child) -> Void
     var onBack: (() -> Void)?
     var existingChild: Child?
@@ -407,11 +412,11 @@ struct AddChildOnboardingView: View {
 
                 Text("Who are you cheering on?")
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 Text("You can update this anytime. Everything stays private on your device.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 32)
@@ -440,7 +445,7 @@ struct AddChildOnboardingView: View {
 
                     // Divider
                     Rectangle()
-                        .fill(Color(.systemGray5))
+                        .fill(theme.borderSoft)
                         .frame(height: 1)
                         .padding(.horizontal)
 
@@ -448,7 +453,7 @@ struct AddChildOnboardingView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Name")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         TextField("First name or nickname", text: $name)
                             .textFieldStyle(.roundedBorder)
@@ -472,7 +477,7 @@ struct AddChildOnboardingView: View {
                             Spacer()
                             Text("\(name.count)/20")
                                 .font(.caption2)
-                                .foregroundColor(name.count >= 18 ? .orange : .secondary)
+                                .foregroundColor(name.count >= 18 ? .orange : theme.textSecondary)
                         }
                     }
                     .padding(.horizontal)
@@ -481,7 +486,7 @@ struct AddChildOnboardingView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Age (optional)")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         Button {
                             isNameFocused = false
@@ -491,18 +496,18 @@ struct AddChildOnboardingView: View {
                         } label: {
                             HStack {
                                 Text(ageDisplayText)
-                                    .foregroundColor(selectedAge == nil ? .secondary : .primary)
+                                    .foregroundColor(selectedAge == nil ? theme.textSecondary : theme.textPrimary)
                                 Spacer()
                                 Image(systemName: "chevron.down")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                             .padding()
-                            .background(Color(.systemBackground))
+                            .background(theme.surface1)
                             .cornerRadius(8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color(.systemGray4), lineWidth: 0.5)
+                                    .stroke(theme.borderStrong, lineWidth: 0.5)
                             )
                         }
                         .buttonStyle(.plain)
@@ -513,7 +518,7 @@ struct AddChildOnboardingView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Color")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         // Two rows of colors, centered
                         let selectableColors = ColorTag.selectableColors
@@ -538,7 +543,7 @@ struct AddChildOnboardingView: View {
                                 .foregroundColor(selectedColor.color)
                             Text("\(selectedColor.displayName) selected")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -546,7 +551,7 @@ struct AddChildOnboardingView: View {
                     .padding(.bottom, 8)
                 }
                 .padding(.vertical, 16)
-                .background(Color(.systemBackground))
+                .background(theme.surface1)
                 .cornerRadius(16)
                 .shadow(color: .black.opacity(0.05), radius: 10, y: 2)
                 .padding(.horizontal)
@@ -569,17 +574,17 @@ struct AddChildOnboardingView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(name.isEmpty ? Color(.systemGray4) : Color.accentColor)
+                        .background(name.isEmpty ? theme.borderStrong : Color.accentColor)
                         .foregroundColor(.white)
                         .cornerRadius(14)
                 }
                 .disabled(name.isEmpty)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
-                .background(Color(.systemGroupedBackground))
+                .background(theme.bg1)
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(theme.bg1)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             if onBack != nil {
@@ -648,7 +653,7 @@ struct AddChildOnboardingView: View {
             }
             .overlay(
                 Circle()
-                    .stroke(Color.primary.opacity(0.3), lineWidth: selectedColor == color ? 3 : 0)
+                    .stroke(theme.textPrimary.opacity(0.3), lineWidth: selectedColor == color ? 3 : 0)
                     .padding(-2)
             )
             .scaleEffect(selectedColor == color ? 1.1 : 1.0)
@@ -663,6 +668,7 @@ struct AddChildOnboardingView: View {
 // MARK: - Age Picker Sheet
 
 struct AgePickerSheet: View {
+    @Environment(\.theme) private var theme
     @Binding var selectedAge: Int?
     let ageOptions: [Int?]
     @Environment(\.dismiss) private var dismiss
@@ -696,6 +702,7 @@ struct AgePickerSheet: View {
 // MARK: - Create First Goal View
 
 struct CreateFirstGoalView: View {
+    @Environment(\.theme) private var theme
     let child: Child
     let onComplete: (Reward?) -> Void
     var onBack: (() -> Void)?
@@ -822,7 +829,7 @@ struct CreateFirstGoalView: View {
 
                 Text("Here are some ideas to get you started")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             ScrollViewReader { scrollProxy in
@@ -836,7 +843,7 @@ struct CreateFirstGoalView: View {
                                     .foregroundColor(.green)
                                 Text("Quick wins help build momentum early on")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
@@ -855,11 +862,11 @@ struct CreateFirstGoalView: View {
 
                                 Text(section.category.rawValue)
                                     .font(.subheadline.weight(.semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(theme.textPrimary)
 
                                 Text("• \(section.category.subtitle)")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
 
                                 Spacer()
                             }
@@ -888,14 +895,14 @@ struct CreateFirstGoalView: View {
                     // Divider before custom
                     HStack {
                         Rectangle()
-                            .fill(Color(.systemGray4))
+                            .fill(theme.borderStrong)
                             .frame(height: 1)
                         Text("or")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                             .padding(.horizontal, 8)
                         Rectangle()
-                            .fill(Color(.systemGray4))
+                            .fill(theme.borderStrong)
                             .frame(height: 1)
                     }
                     .padding(.vertical, 4)
@@ -936,26 +943,26 @@ struct CreateFirstGoalView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Create your own")
                                         .font(.subheadline.weight(.medium))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(theme.textPrimary)
                                     Text("Something special for \(child.name)")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                 }
 
                                 Spacer()
 
                                 Image(systemName: showingCustom ? "chevron.up" : "chevron.down")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(showingCustom ? child.colorTag.color.opacity(0.08) : Color(.systemBackground))
+                                    .fill(showingCustom ? child.colorTag.color.opacity(0.08) : theme.surface1)
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(showingCustom ? child.colorTag.color : Color(.systemGray4), lineWidth: showingCustom ? 2 : 1)
+                                    .stroke(showingCustom ? child.colorTag.color : theme.borderStrong, lineWidth: showingCustom ? 2 : 1)
                             )
                         }
                         .buttonStyle(ScaleButtonStyle())
@@ -967,7 +974,7 @@ struct CreateFirstGoalView: View {
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text("What's the reward?")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
 
                                     TextField("e.g., Trip to the zoo", text: $customName)
                                         .textFieldStyle(.roundedBorder)
@@ -990,7 +997,7 @@ struct CreateFirstGoalView: View {
                                 )
                             }
                             .padding()
-                            .background(Color(.systemGray6))
+                            .background(theme.surface2)
                             .cornerRadius(12)
                             .transition(.opacity.combined(with: .move(edge: .top)))
                         }
@@ -1010,7 +1017,7 @@ struct CreateFirstGoalView: View {
                 } label: {
                     Text("Skip for now")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding(.top, 4)
 
@@ -1053,7 +1060,7 @@ struct CreateFirstGoalView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background((selectedSuggestion != nil || (showingCustom && !customName.isEmpty)) ? Color.accentColor : Color(.systemGray4))
+                    .background((selectedSuggestion != nil || (showingCustom && !customName.isEmpty)) ? Color.accentColor : theme.borderStrong)
                     .foregroundColor(.white)
                     .cornerRadius(14)
                 }
@@ -1107,6 +1114,7 @@ struct GoalSuggestion: Identifiable, Equatable {
 }
 
 struct GoalSuggestionCard: View {
+    @Environment(\.theme) private var theme
     let suggestion: GoalSuggestion
     let isSelected: Bool
     let childColor: Color
@@ -1133,7 +1141,7 @@ struct GoalSuggestionCard: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(suggestion.name)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
                         .lineLimit(1)
 
                     HStack(spacing: 10) {
@@ -1145,7 +1153,7 @@ struct GoalSuggestionCard: View {
                             Text("\(suggestion.stars)")
                                 .font(.caption.weight(.medium))
                         }
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                         // Days badge
                         HStack(spacing: 3) {
@@ -1154,7 +1162,7 @@ struct GoalSuggestionCard: View {
                             Text("\(suggestion.days)d")
                                 .font(.caption.weight(.medium))
                         }
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -1163,16 +1171,16 @@ struct GoalSuggestionCard: View {
                 // Selection indicator
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundColor(isSelected ? childColor : Color(.systemGray4))
+                    .foregroundColor(isSelected ? childColor : theme.borderStrong)
             }
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? childColor.opacity(0.08) : Color(.systemBackground))
+                    .fill(isSelected ? childColor.opacity(0.08) : theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? childColor : Color(.systemGray4), lineWidth: isSelected ? 2 : 1)
+                    .stroke(isSelected ? childColor : theme.borderStrong, lineWidth: isSelected ? 2 : 1)
             )
             .contentShape(Rectangle())
         }
@@ -1195,6 +1203,7 @@ struct ScaleButtonStyle: ButtonStyle {
 // MARK: - Select Behaviors Onboarding
 
 struct SelectBehaviorsOnboardingView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     let child: Child
     let onComplete: () -> Void
@@ -1223,7 +1232,7 @@ struct SelectBehaviorsOnboardingView: View {
 
                 Text("Tap to log these moments and your child earns stars toward their goal.")
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 16)
@@ -1249,7 +1258,7 @@ struct SelectBehaviorsOnboardingView: View {
 
             Text("Start with a few. You can add or change these later.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 24)
@@ -1306,6 +1315,7 @@ struct SelectBehaviorsOnboardingView: View {
 }
 
 struct BehaviorChip: View {
+    @Environment(\.theme) private var theme
     let behavior: BehaviorType
     let isSelected: Bool
     let onTap: () -> Void
@@ -1332,8 +1342,8 @@ struct BehaviorChip: View {
             .padding(.horizontal, 12)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 44) // Accessibility: minimum tap target
-            .background(isSelected ? AppColors.positive.opacity(0.15) : Color(.systemGray6))
-            .foregroundColor(isSelected ? AppColors.positive : .primary)
+            .background(isSelected ? AppColors.positive.opacity(0.15) : theme.surface2)
+            .foregroundColor(isSelected ? AppColors.positive : theme.textPrimary)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -1354,6 +1364,7 @@ struct BehaviorChip: View {
 struct OnboardingSummaryView: View {
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var notificationService: NotificationService
+    @Environment(\.theme) private var theme
     let child: Child
     let reward: Reward?
     let onComplete: () -> Void
@@ -1396,7 +1407,7 @@ struct OnboardingSummaryView: View {
 
                 Text("Here is your plan with \(child.name).")
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 16)
@@ -1424,12 +1435,12 @@ struct OnboardingSummaryView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(child.name)
                                 .font(.headline)
-                                .foregroundColor(.primary)
+                                .foregroundColor(theme.textPrimary)
 
                             if let age = child.age {
                                 Text("\(age) years old")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
 
@@ -1438,7 +1449,7 @@ struct OnboardingSummaryView: View {
                         if onEditChild != nil {
                             Image(systemName: "pencil.circle.fill")
                                 .font(.title3)
-                                .foregroundColor(.secondary.opacity(0.5))
+                                .foregroundColor(theme.textSecondary.opacity(0.5))
                         }
                     }
                 }
@@ -1469,17 +1480,17 @@ struct OnboardingSummaryView: View {
                                 Text("Goal: \(reward.name)")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(theme.textPrimary)
 
                                 if let dueDate = reward.dueDate {
                                     let days = Calendar.current.dateComponents([.day], from: Date(), to: dueDate).day ?? 0
                                     Text("\(reward.targetPoints) stars in \(max(1, days)) days")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                 } else {
                                     Text("\(reward.targetPoints) stars")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(theme.textSecondary)
                                 }
                             }
 
@@ -1488,7 +1499,7 @@ struct OnboardingSummaryView: View {
                             if onEditGoal != nil {
                                 Image(systemName: "pencil.circle.fill")
                                     .font(.title3)
-                                    .foregroundColor(.secondary.opacity(0.5))
+                                    .foregroundColor(theme.textSecondary.opacity(0.5))
                             }
                         }
                     } else {
@@ -1505,7 +1516,7 @@ struct OnboardingSummaryView: View {
 
                             Text("Tap to add a goal")
                                 .font(.subheadline)
-                                .foregroundColor(.accentColor)
+                                .foregroundColor(theme.accentPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
 
                             Spacer()
@@ -1513,7 +1524,7 @@ struct OnboardingSummaryView: View {
                             if onEditGoal != nil {
                                 Image(systemName: "plus.circle.fill")
                                     .font(.title3)
-                                    .foregroundColor(.accentColor.opacity(0.7))
+                                    .foregroundColor(theme.accentPrimary.opacity(0.7))
                             }
                         }
                     }
@@ -1538,14 +1549,14 @@ struct OnboardingSummaryView: View {
 
                                 Text(behavior.name)
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
                     }
                 }
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(16)
             .shadow(color: .black.opacity(0.05), radius: 10)
             .padding(.horizontal)
@@ -1567,7 +1578,7 @@ struct OnboardingSummaryView: View {
 
                             Text("A gentle nudge to notice something good.")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 
@@ -1593,7 +1604,7 @@ struct OnboardingSummaryView: View {
             // Helper text
             Text("You can change any of this later in Settings.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 32)
@@ -1618,7 +1629,7 @@ struct OnboardingSummaryView: View {
         .safeAreaInset(edge: .bottom) {
             Color.clear.frame(height: 32)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(theme.bg1)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             if onBack != nil {
@@ -1650,6 +1661,7 @@ struct OnboardingSummaryView: View {
 // MARK: - Goal Prompt Sheet (shown after recording moments without a goal)
 
 struct GoalPromptSheet: View {
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
     let child: Child
 
@@ -1681,7 +1693,7 @@ struct GoalPromptSheet: View {
 
                     Text("You've been catching great moments for \(child.name). Pick a reward so those stars feel even more meaningful!")
                         .font(.body)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 24)
@@ -1703,7 +1715,7 @@ struct GoalPromptSheet: View {
                     Button(action: { dismiss() }) {
                         Text("Maybe later")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(.horizontal, 24)

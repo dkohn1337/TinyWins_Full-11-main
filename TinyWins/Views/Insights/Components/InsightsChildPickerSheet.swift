@@ -11,7 +11,7 @@ import SwiftUI
 /// - Clear visual feedback on selection
 /// - Accessible: full VoiceOver support
 struct InsightsChildSelectionSheet: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var navigation: InsightsNavigationState
     @EnvironmentObject private var childrenStore: ChildrenStore
@@ -23,7 +23,7 @@ struct InsightsChildSelectionSheet: View {
                     // Header explanation
                     Text("Choose which child's insights to view", tableName: "Insights")
                         .font(.subheadline)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                         .padding(.top, 8)
@@ -51,7 +51,7 @@ struct InsightsChildSelectionSheet: View {
                 }
                 .padding(.vertical, 16)
             }
-            .background(theme.backgroundColor)
+            .background(theme.bg0)
             .navigationTitle(Text("Select Child", tableName: "Insights"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -80,15 +80,15 @@ struct InsightsChildSelectionSheet: View {
         VStack(spacing: 16) {
             Image(systemName: "figure.2.and.child.holdinghands")
                 .font(.system(size: 48))
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             Text("No children added yet", tableName: "Insights")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("Add a child from the Kids tab to see insights", tableName: "Insights")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(40)
@@ -98,7 +98,7 @@ struct InsightsChildSelectionSheet: View {
 // MARK: - Child Picker Row
 
 private struct ChildPickerRow: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let child: Child
     let isSelected: Bool
@@ -114,13 +114,13 @@ private struct ChildPickerRow: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(child.name)
                         .font(.headline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     // Optional: show recent activity hint
                     if let recentActivity = recentActivityHint {
                         Text(recentActivity)
                             .font(.caption)
-                            .foregroundColor(theme.secondaryText)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
 
@@ -130,17 +130,17 @@ private struct ChildPickerRow: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
-                        .foregroundColor(theme.accentColor)
+                        .foregroundColor(theme.accentPrimary)
                 }
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: theme.cornerRadius)
-                    .fill(isSelected ? theme.accentColor.opacity(0.1) : theme.cardBackground)
+                    .fill(isSelected ? theme.accentPrimary.opacity(0.1) : theme.surface1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: theme.cornerRadius)
-                    .stroke(isSelected ? theme.accentColor : theme.borderSubtle, lineWidth: isSelected ? 2 : 1)
+                    .stroke(isSelected ? theme.accentPrimary : theme.borderSoft, lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -189,5 +189,5 @@ private struct ChildPickerRow: View {
     InsightsChildSelectionSheet()
         .environmentObject(navigation)
         .environmentObject(ChildrenStore(repository: repository))
-        .withThemeProvider(ThemeProvider())
+        .withTheme(Theme())
 }

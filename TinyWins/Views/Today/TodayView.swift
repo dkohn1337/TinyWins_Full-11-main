@@ -15,9 +15,20 @@ private enum DateFormatterCache {
     }()
 }
 
+/// Today screen with optimized store dependencies.
+///
+/// PERFORMANCE OPTIMIZATION:
+/// - Uses TodayViewModel for cached computed properties
+/// - Expensive calculations (yesterdayPositiveCount, childrenWithGoalsReached) are
+///   now Combine-based in ViewModel with debouncing
+/// - Reduced direct store observations where possible
 struct TodayView: View {
  let logBehaviorUseCase: LogBehaviorUseCase
 
+ // MARK: - ViewModel (handles cached computations)
+ @EnvironmentObject private var todayViewModel: TodayViewModel
+
+ // MARK: - Essential Store Dependencies
  @EnvironmentObject private var childrenStore: ChildrenStore
  @EnvironmentObject private var behaviorsStore: BehaviorsStore
  @EnvironmentObject private var rewardsStore: RewardsStore
@@ -25,7 +36,7 @@ struct TodayView: View {
  @EnvironmentObject private var prefs: UserPreferencesStore
  @EnvironmentObject private var coordinator: AppCoordinator
  @EnvironmentObject private var coachMarkManager: CoachMarkManager
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
  @EnvironmentObject private var repository: Repository
  @State private var selectedChildForLogging: Child?
  @State private var showBehaviorManagement = false
@@ -78,31 +89,20 @@ struct TodayView: View {
      )
  }
 
+ // PERFORMANCE: These properties now use ViewModel's cached values
+ // Updated via Combine with debouncing instead of recalculating on every render
  private var hasMomentsToday: Bool {
- !behaviorsStore.todayEvents.isEmpty
+     todayViewModel.hasMomentsToday
  }
 
- /// Yesterday's positive moment count for comparison
+ /// Yesterday's positive moment count - CACHED in ViewModel
  private var yesterdayPositiveCount: Int {
-     let calendar = Calendar.current
-     guard let yesterday = calendar.date(byAdding: .day, value: -1, to: Date()) else { return 0 }
-     let startOfYesterday = calendar.startOfDay(for: yesterday)
-     guard let endOfYesterday = calendar.date(byAdding: .day, value: 1, to: startOfYesterday) else { return 0 }
-
-     return behaviorsStore.behaviorEvents.filter { event in
-         event.timestamp >= startOfYesterday &&
-         event.timestamp < endOfYesterday &&
-         event.pointsApplied > 0
-     }.count
+     todayViewModel.yesterdayPositiveCount
  }
 
- /// Children who have reached their goal target today
+ /// Children who have reached their goal - CACHED in ViewModel
  private var childrenWithGoalsReached: [String] {
-     childrenStore.activeChildren.compactMap { child in
-         guard let goal = rewardsStore.activeReward(forChild: child.id) else { return nil }
-         let earned = goal.pointsEarnedInWindow(from: behaviorsStore.behaviorEvents, isPrimaryReward: true)
-         return earned >= goal.targetPoints ? child.name : nil
-     }
+     todayViewModel.childrenWithGoalsReached
  }
 
  private var shouldShowEveningReflection: Bool {
@@ -240,34 +240,20 @@ struct TodayView: View {
  return daysFromStart + 1
  }
  
+ // PERFORMANCE: weekProgressMessage now uses ViewModel's cached value
  private var weekProgressMessage: String {
- let metrics = progressionStore.weeklyParentMetrics(
-  children: childrenStore.children,
-  behaviorEvents: behaviorsStore.behaviorEvents,
-  behaviorTypes: behaviorsStore.behaviorTypes,
-  rewards: rewardsStore.rewards
- )
-
- let daysActive = metrics.daysActive
- let dayText = daysActive == 1 ? "day" : "days"
-
- if daysActive == 0 {
- return "Every time you open TinyWins, you are building a habit that helps your kids."
- } else if daysActive == 1 {
- return "You have shown up on 1 day this week. Every moment you log matters."
- } else {
- return "You have shown up on \(daysActive) \(dayText) this week. You're building something lasting."
- }
+     todayViewModel.cachedWeekProgressMessage
  }
 
  // MARK: - New Today Experience Helpers
 
- /// Get today's data-driven focus
+ /// Get today's data-driven focus - CACHED in ViewModel
  private var todayFocus: TodayFocus {
-     TodayFocusGenerator.shared.generateTodayFocus(
-         children: childrenStore.activeChildren,
-         behaviorEvents: behaviorsStore.behaviorEvents,
-         behaviorTypes: behaviorsStore.behaviorTypes
+     todayViewModel.todayFocus ?? TodayFocus(
+         primaryTip: "Notice one small positive moment today.",
+         actionTip: "Just watch for something good.",
+         source: .genericTip,
+         relatedChildName: nil
      )
  }
 
@@ -323,19 +309,19 @@ struct TodayView: View {
  private func focusIconColor(for focus: TodayFocus) -> Color {
      switch focus.source {
      case .challengePattern:
-         return themeProvider.challengeColor
+         return theme.warning
      case .strengthBuilding:
-         return themeProvider.positiveColor
+         return theme.success
      case .streakCelebration:
          return .orange
      case .recoveryCelebration:
-         return themeProvider.positiveColor
+         return theme.success
      case .balanceNeeded:
-         return themeProvider.plusColor
+         return theme.accentPrimary
      case .routineSupport:
-         return themeProvider.routineColor
+         return theme.routine
      case .genericTip:
-         return themeProvider.starColor
+         return theme.star
      }
  }
 
@@ -410,11 +396,11 @@ struct TodayView: View {
                      if focus.source != .genericTip {
                          Image(systemName: "sparkles")
                              .font(.system(size: 8))
-                             .foregroundColor(themeProvider.plusColor.opacity(0.6))
+                             .foregroundColor(theme.accentPrimary.opacity(0.6))
                      }
                      Image(systemName: "chevron.right")
                          .font(.system(size: 10, weight: .medium))
-                         .foregroundColor(themeProvider.secondaryText.opacity(0.5))
+                         .foregroundColor(theme.textSecondary.opacity(0.5))
                  }
              },
              expandedContent: {
@@ -437,23 +423,23 @@ struct TodayView: View {
              HStack(spacing: 10) {
                  Image(systemName: "moon.stars.fill")
                      .font(.system(size: 14, weight: .medium))
-                     .foregroundColor(themeProvider.plusColor)
+                     .foregroundColor(theme.accentPrimary)
 
                  Text("Reflect on today")
                      .font(.system(size: 13, weight: .medium))
-                     .foregroundColor(themeProvider.primaryText)
+                     .foregroundColor(theme.textPrimary)
 
                  Spacer()
 
                  Image(systemName: "chevron.right")
                      .font(.system(size: 10, weight: .semibold))
-                     .foregroundColor(themeProvider.secondaryText.opacity(0.5))
+                     .foregroundColor(theme.textSecondary.opacity(0.5))
              }
              .padding(.horizontal, 12)
              .padding(.vertical, 10)
              .background(
                  RoundedRectangle(cornerRadius: 10)
-                     .fill(themeProvider.plusColor.opacity(0.08))
+                     .fill(theme.accentPrimary.opacity(0.08))
              )
          }
          .buttonStyle(.plain)
@@ -474,7 +460,7 @@ struct TodayView: View {
  .padding()
  .tabBarBottomPadding()
  }
- .background(themeProvider.backgroundColor)
+ .background(theme.bg0)
  .refreshable {
  await refreshData()
  }
@@ -482,16 +468,16 @@ struct TodayView: View {
  // Coach marks are now handled by CoachMarkOverlay in ContentView
  }
  .navigationBarTitleDisplayMode(.inline)
- .themedNavigationBar(themeProvider)
+ .themedNavigationBar(theme)
  .toolbar {
  ToolbarItem(placement: .principal) {
      VStack(spacing: 0) {
          Text("Today")
              .font(.headline)
-             .foregroundColor(themeProvider.primaryText)
+             .foregroundColor(theme.textPrimary)
          Text(Date(), format: .dateTime.weekday(.wide).month(.abbreviated).day())
              .font(.caption)
-             .foregroundColor(themeProvider.secondaryText)
+             .foregroundColor(theme.textSecondary)
      }
      .accessibilityElement(children: .combine)
      .accessibilityLabel("Today, \(Date().formatted(.dateTime.weekday(.wide).month(.wide).day()))")
@@ -505,66 +491,78 @@ struct TodayView: View {
  }
  }
  .sheet(item: $selectedChildForLogging) { child in
- LogBehaviorSheet(
- child: child,
- onBehaviorSelected: { behaviorTypeId, note, mediaAttachments, rewardId in
- logBehaviorUseCase.execute(
- childId: child.id,
- behaviorTypeId: behaviorTypeId,
- note: note
- )
+ // PHASE 4: DeferredBuild to prevent sheet presentation stalls
+ DeferredBuild {
+     LogBehaviorSheet(
+     child: child,
+     onBehaviorSelected: { behaviorTypeId, note, mediaAttachments, rewardId in
+     logBehaviorUseCase.execute(
+     childId: child.id,
+     behaviorTypeId: behaviorTypeId,
+     note: note
+     )
 
- // Check for first positive of the day
- if shouldShowFirstPositiveBanner {
- prefs.lastFirstPositiveBannerDate = Date()
- DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
- withAnimation { showingFirstPositiveBanner = true }
- }
- DispatchQueue.main.asyncAfter(deadline: .now() + 5.3) {
- withAnimation { showingFirstPositiveBanner = false }
- }
- }
- },
- onQuickAdd: { message, category in
- toastMessage = message
- toastCategory = category
- withAnimation {
- showingToast = true
- }
+     // Check for first positive of the day
+     if shouldShowFirstPositiveBanner {
+     prefs.lastFirstPositiveBannerDate = Date()
+     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+     withAnimation { showingFirstPositiveBanner = true }
+     }
+     DispatchQueue.main.asyncAfter(deadline: .now() + 5.3) {
+     withAnimation { showingFirstPositiveBanner = false }
+     }
+     }
+     },
+     onQuickAdd: { message, category in
+     toastMessage = message
+     toastCategory = category
+     withAnimation {
+     showingToast = true
+     }
 
- DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
- if shouldShowFirstPositiveBanner {
- prefs.lastFirstPositiveBannerDate = Date()
- withAnimation { showingFirstPositiveBanner = true }
- DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
- withAnimation { showingFirstPositiveBanner = false }
+     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+     if shouldShowFirstPositiveBanner {
+     prefs.lastFirstPositiveBannerDate = Date()
+     withAnimation { showingFirstPositiveBanner = true }
+     DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+     withAnimation { showingFirstPositiveBanner = false }
+     }
+     }
+     }
+     }
+     )
  }
- }
- }
- }
- )
  }
  .toast(isShowing: $showingToast, message: toastMessage, icon: "checkmark.circle.fill", category: toastCategory)
  .onAppear {
+ // PERFORMANCE: Defer non-critical work to avoid blocking initial render
+ // Critical UI work first
  progressionStore.refreshDailyPromptIfNeeded()
- checkParentReinforcementConditions()
- checkFeedbackPromptEligibility()
- checkFirst48Coaching()
 
- // Track Today opened for analytics
- todayOpenedTime = Date()
- let selectedIndex = selectedChildId.wrappedValue.flatMap { id in
-     childrenStore.activeChildren.firstIndex(where: { $0.id == id })
- }
- TodayAnalyticsTracker.shared.trackTodayOpened(
-     childCount: childrenStore.activeChildren.count,
-     hasActivityToday: hasMomentsToday,
-     selectedChildIndex: selectedIndex
- )
+ // Defer non-critical checks to next run loop
+ Task { @MainActor in
+     // Small delay to let UI render first
+     try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
 
- // Trigger new post-onboarding coach mark sequence
- if childrenStore.hasChildren {
-     coachMarkManager.startSequenceIfNeeded(.today)
+     checkParentReinforcementConditions()
+     checkFeedbackPromptEligibility()
+     checkFirst48Coaching()
+
+     // Track Today opened for analytics (non-blocking)
+     todayOpenedTime = Date()
+     let selectedIndex = selectedChildId.wrappedValue.flatMap { id in
+         childrenStore.activeChildren.firstIndex(where: { $0.id == id })
+     }
+     TodayAnalyticsTracker.shared.trackTodayOpened(
+         childCount: childrenStore.activeChildren.count,
+         hasActivityToday: hasMomentsToday,
+         selectedChildIndex: selectedIndex
+     )
+
+     // Trigger new post-onboarding coach mark sequence
+     if childrenStore.hasChildren {
+         coachMarkManager.startSequenceIfNeeded(.today)
+     }
  }
  }
  .sheet(isPresented: $showingFeedbackPrompt) {
@@ -577,6 +575,7 @@ struct TodayView: View {
  .navigationDestination(isPresented: $navigateToHistory) {
  HistoryView()
  }
+ .trackScreen("TodayView")
  }
  }
  
@@ -620,8 +619,8 @@ struct TodayView: View {
 
  private var weekProgressStrip: some View {
  let activeDays = progressionStore.parentActivity.activeDaysThisWeek
- let streakColor = activeDays >= 5 ? themeProvider.streakHotColor : themeProvider.streakActiveColor
- let inactiveColor = themeProvider.streakInactiveColor
+ let streakColor = activeDays >= 5 ? theme.danger : theme.success
+ let inactiveColor = theme.textDisabled
 
  return VStack(spacing: 0) {
  ElevatedCard(elevation: .medium, padding: AppSpacing.lg) {
@@ -635,7 +634,7 @@ struct TodayView: View {
  .fill(
  RadialGradient(
  colors: [
- streakColor.opacity(themeProvider.isDarkMode ? 0.5 : 0.4),
+ streakColor.opacity(theme.isDark ? 0.5 : 0.4),
  Color.clear
  ],
  center: .center,
@@ -652,14 +651,14 @@ struct TodayView: View {
  .fill(
  LinearGradient(
  colors: activeDays >= 5
- ? [themeProvider.streakHotColor, themeProvider.challengeColor]
- : (activeDays >= 3 ? [themeProvider.streakActiveColor, themeProvider.positiveColor] : [inactiveColor, inactiveColor.opacity(0.8)]),
+ ? [theme.danger, theme.warning]
+ : (activeDays >= 3 ? [theme.success, theme.success] : [inactiveColor, inactiveColor.opacity(0.8)]),
  startPoint: .topLeading,
  endPoint: .bottomTrailing
  )
  )
  .frame(width: 64, height: 64)
- .shadow(color: streakColor.opacity(themeProvider.isDarkMode ? 0.6 : 0.4), radius: 12, y: 4)
+ .shadow(color: streakColor.opacity(theme.isDark ? 0.6 : 0.4), radius: 12, y: 4)
 
  // Flame or number
  VStack(spacing: 0) {
@@ -671,7 +670,7 @@ struct TodayView: View {
  }
  Text("\(activeDays)")
  .font(.system(size: activeDays >= 3 ? 16 : 28, weight: .black, design: .rounded))
- .foregroundColor(activeDays >= 3 ? .white : themeProvider.primaryText)
+ .foregroundColor(activeDays >= 3 ? .white : theme.textPrimary)
  }
  }
  .coachMarkTarget(.streakBadge)
@@ -681,7 +680,7 @@ struct TodayView: View {
  HStack(spacing: 6) {
  Text(streakTitle(for: activeDays))
  .font(.system(size: 18, weight: .bold))
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
  .minimumScaleFactor(0.7)
  .lineLimit(1)
 
@@ -693,7 +692,7 @@ struct TodayView: View {
 
  Text(weekProgressMessage)
  .font(.system(size: 14))
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  .fixedSize(horizontal: false, vertical: true)
  }
 
@@ -716,7 +715,7 @@ struct TodayView: View {
  Circle()
  .fill(
  isActive
- ? LinearGradient(colors: [themeProvider.streakActiveColor, themeProvider.positiveColor], startPoint: .top, endPoint: .bottom)
+ ? LinearGradient(colors: [theme.success, theme.success], startPoint: .top, endPoint: .bottom)
  : LinearGradient(colors: [inactiveColor], startPoint: .top, endPoint: .bottom)
  )
  .frame(width: 32, height: 32)
@@ -727,14 +726,14 @@ struct TodayView: View {
  .foregroundColor(.white)
  } else if isToday {
  Circle()
- .strokeBorder(themeProvider.streakActiveColor, lineWidth: 2)
+ .strokeBorder(theme.success, lineWidth: 2)
  .frame(width: 32, height: 32)
  }
  }
 
  Text(dayName)
  .font(.system(size: 10, weight: .medium))
- .foregroundColor(isActive ? themeProvider.streakActiveColor : themeProvider.secondaryText)
+ .foregroundColor(isActive ? theme.success : theme.textSecondary)
  }
  }
  }
@@ -744,23 +743,23 @@ struct TodayView: View {
  HStack(spacing: AppSpacing.sm) {
  Image(systemName: "sparkles")
  .font(.system(size: 12))
- .foregroundColor(themeProvider.starColor)
+ .foregroundColor(theme.star)
 
  let momentText = behaviorsStore.todayPositiveCount == 1 ? "moment" : "moments"
  Text("\(behaviorsStore.todayPositiveCount) positive \(momentText) logged today")
  .font(.system(size: 13, weight: .medium))
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
 
  Spacer()
 
  Image(systemName: "checkmark.circle.fill")
  .font(.system(size: 14))
- .foregroundColor(themeProvider.positiveColor)
+ .foregroundColor(theme.success)
  }
  .padding(12)
  .background(
  RoundedRectangle(cornerRadius: 12)
- .fill(themeProvider.bannerPositiveBackground)
+ .fill(theme.successBg)
  )
  }
  }
@@ -823,7 +822,7 @@ struct TodayView: View {
                      HStack(spacing: 4) {
                          Text(child.name)
                              .font(.system(size: 13, weight: .semibold))
-                             .foregroundColor(themeProvider.primaryText)
+                             .foregroundColor(theme.textPrimary)
                          if isComplete {
                              Image(systemName: "party.popper.fill")
                                  .font(.system(size: 10))
@@ -837,7 +836,7 @@ struct TodayView: View {
                              .foregroundColor(child.colorTag.color.opacity(0.7))
                          Text(isComplete ? "Goal Reached!" : reward.name)
                              .font(.system(size: 12))
-                             .foregroundColor(isComplete ? Color(red: 0.85, green: 0.55, blue: 0.1) : themeProvider.secondaryText)
+                             .foregroundColor(isComplete ? Color(red: 0.85, green: 0.55, blue: 0.1) : theme.textSecondary)
                              .lineLimit(1)
                      }
                  }
@@ -848,13 +847,13 @@ struct TodayView: View {
                  VStack(alignment: .trailing, spacing: 2) {
                      Text("\(progress)/\(target)")
                          .font(.system(size: 12, weight: .medium))
-                         .foregroundColor(themeProvider.secondaryText)
+                         .foregroundColor(theme.textSecondary)
 
                      // Mini progress bar
                      GeometryReader { geo in
                          ZStack(alignment: .leading) {
                              Capsule()
-                                 .fill(Color(.systemGray5))
+                                 .fill(theme.borderSoft)
                                  .frame(height: 4)
 
                              Capsule()
@@ -871,13 +870,13 @@ struct TodayView: View {
 
                  Image(systemName: "chevron.right")
                      .font(.system(size: 12))
-                     .foregroundColor(themeProvider.secondaryText)
+                     .foregroundColor(theme.textSecondary)
              }
              .padding(12)
              .background(
                  RoundedRectangle(cornerRadius: 12)
-                     .fill(themeProvider.cardBackground)
-                     .shadow(color: themeProvider.cardShadow, radius: 4, y: 2)
+                     .fill(theme.surface1)
+                     .shadow(color: theme.shadowColor, radius: 4, y: 2)
              )
          }
          .buttonStyle(.plain)
@@ -907,27 +906,27 @@ struct TodayView: View {
  ZStack {
  Circle()
  .fill(LinearGradient(
- colors: [themeProvider.starColor.opacity(themeProvider.isDarkMode ? 0.4 : 0.3), themeProvider.challengeColor.opacity(themeProvider.isDarkMode ? 0.3 : 0.2)],
+ colors: [theme.star.opacity(theme.isDark ? 0.4 : 0.3), theme.warning.opacity(theme.isDark ? 0.3 : 0.2)],
  startPoint: .topLeading,
  endPoint: .bottomTrailing
  ))
  .frame(width: 64, height: 64)
- .shadow(color: themeProvider.starColor.opacity(themeProvider.isDarkMode ? 0.4 : 0.3), radius: 12)
+ .shadow(color: theme.star.opacity(theme.isDark ? 0.4 : 0.3), radius: 12)
 
  Image(systemName: "lightbulb.fill")
  .font(.system(size: 28))
- .foregroundColor(themeProvider.starColor)
+ .foregroundColor(theme.star)
  }
 
  VStack(alignment: .leading, spacing: AppSpacing.xs) {
  Text("Today's Focus")
  .font(AppTypography.title3)
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
  .fontWeight(.bold)
 
  Text(primaryFocus)
  .font(AppTypography.bodyLarge)
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
  .fixedSize(horizontal: false, vertical: true)
 
  Divider()
@@ -936,10 +935,10 @@ struct TodayView: View {
  HStack(spacing: AppSpacing.xxs) {
  Image(systemName: "target")
  .font(.caption)
- .foregroundColor(themeProvider.challengeColor)
+ .foregroundColor(theme.warning)
  Text(tinyGoal)
  .font(AppTypography.bodySmall)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  .fixedSize(horizontal: false, vertical: true)
  }
  }
@@ -952,7 +951,7 @@ struct TodayView: View {
  }) {
  Image(systemName: "xmark.circle.fill")
  .font(.title3)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  Spacer()
  }
@@ -961,7 +960,7 @@ struct TodayView: View {
  .coachMarkTarget(.dailyFocusCard)
  .background(
  LinearGradient(
- colors: [themeProvider.bannerFocusBackground, themeProvider.bannerChallengeBackground.opacity(0.5)],
+ colors: [theme.infoBg, theme.warningBg.opacity(0.5)],
  startPoint: .topLeading,
  endPoint: .bottomTrailing
  )
@@ -976,17 +975,17 @@ struct TodayView: View {
  HStack {
  Text("Today:")
  .font(.subheadline)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
 
  HStack(spacing: 12) {
  if behaviorsStore.todayPositiveCount > 0 {
  HStack(spacing: 4) {
  Image(systemName: "hand.thumbsup.fill")
  .font(.caption)
- .foregroundColor(themeProvider.positiveColor)
+ .foregroundColor(theme.success)
  Text("\(behaviorsStore.todayPositiveCount) positive")
  .font(.subheadline)
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
  }
  }
 
@@ -994,17 +993,17 @@ struct TodayView: View {
  HStack(spacing: 4) {
  Image(systemName: "exclamationmark.triangle.fill")
  .font(.caption)
- .foregroundColor(themeProvider.challengeColor)
+ .foregroundColor(theme.warning)
  Text("\(behaviorsStore.todayNegativeCount) challenges")
  .font(.subheadline)
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
  }
  }
 
  if behaviorsStore.todayPositiveCount == 0 && behaviorsStore.todayNegativeCount == 0 {
  Text("No moments yet")
  .font(.subheadline)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  }
 
@@ -1012,11 +1011,11 @@ struct TodayView: View {
 
  Image(systemName: "chevron.right")
  .font(.caption)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  .padding(.horizontal, 12)
  .padding(.vertical, 10)
- .background(themeProvider.cardBackground)
+ .background(theme.surface1)
  .cornerRadius(10)
  }
  .buttonStyle(.plain)
@@ -1028,7 +1027,7 @@ struct TodayView: View {
  VStack(alignment: .leading, spacing: AppSpacing.sm) {
  Text("Quick Add")
  .font(AppTypography.title2)
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
  .padding(.horizontal, 4)
 
  if childrenStore.activeChildren.isEmpty {
@@ -1094,10 +1093,10 @@ struct TodayView: View {
  if showingFirst48Coaching, let msg = first48Message {
  coachingBanner(
  icon: "graduationcap.fill",
- iconColor: themeProvider.plusColor,
+ iconColor: theme.accentPrimary,
  title: msg.title,
  message: msg.message,
- backgroundColor: themeProvider.bannerSpecialBackground,
+ backgroundColor: theme.accentMuted,
  onDismiss: { withAnimation { showingFirst48Coaching = false } }
  )
  }
@@ -1109,7 +1108,7 @@ struct TodayView: View {
  iconColor: Color.pink,
  title: "You're back. That matters.",
  message: "Kids don't need perfect. They need you to come back and try again.",
- backgroundColor: themeProvider.bannerPinkBackground,
+ backgroundColor: Color.pink.opacity(0.15),
  onDismiss: { withAnimation { showingReturnBanner = false } }
  )
  }
@@ -1124,10 +1123,10 @@ struct TodayView: View {
  )
  coachingBanner(
  icon: "star.fill",
- iconColor: themeProvider.routineColor,
+ iconColor: theme.routine,
  title: "You kept a small promise.",
  message: "You showed up here on \(metrics.daysActive) days this week. Kids remember that.",
- backgroundColor: themeProvider.bannerInfoBackground,
+ backgroundColor: theme.infoBg,
  onDismiss: { withAnimation { showingConsistencyBanner = false } }
  )
  }
@@ -1141,10 +1140,10 @@ struct TodayView: View {
  if showingFirstPositiveBanner {
  coachingBanner(
  icon: "sparkles",
- iconColor: themeProvider.challengeColor,
+ iconColor: theme.warning,
  title: "You turned a moment into a Tiny Win.",
  message: "Catching small good things is what changes the pattern.",
- backgroundColor: themeProvider.bannerChallengeBackground,
+ backgroundColor: theme.warningBg,
  onDismiss: { withAnimation { showingFirstPositiveBanner = false } }
  )
  }
@@ -1167,12 +1166,12 @@ struct TodayView: View {
  VStack(alignment: .leading, spacing: 2) {
  Text(title)
  .font(.caption.weight(.semibold))
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
  .fixedSize(horizontal: false, vertical: true)
 
  Text(message)
  .font(.caption2)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  .fixedSize(horizontal: false, vertical: true)
  .multilineTextAlignment(.leading)
  }
@@ -1182,7 +1181,7 @@ struct TodayView: View {
  Button(action: onDismiss) {
  Image(systemName: "xmark")
  .font(.caption2)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  }
  .padding(10)
@@ -1202,23 +1201,23 @@ struct TodayView: View {
  return HStack(spacing: 10) {
  Image(systemName: "heart.text.square.fill")
  .font(.subheadline)
- .foregroundColor(themeProvider.positiveColor)
+ .foregroundColor(theme.success)
 
  VStack(alignment: .leading, spacing: 2) {
  Text("What you did well this week")
  .font(.caption.weight(.semibold))
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
 
  HStack(spacing: 8) {
  if metrics.daysWithPositiveMoments > 0 {
  Text("\(metrics.daysWithPositiveMoments) days with positives")
  .font(.caption2)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  if metrics.uniqueGoalsWorkedOn > 0 {
  Text("· \(metrics.uniqueGoalsWorkedOn) goals")
  .font(.caption2)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  }
  }
@@ -1231,11 +1230,11 @@ struct TodayView: View {
  }) {
  Image(systemName: "xmark")
  .font(.caption2)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  }
  .padding(10)
- .background(themeProvider.bannerPositiveBackground.opacity(0.8))
+ .background(theme.successBg.opacity(0.8))
  .cornerRadius(10)
  }
 
@@ -1243,16 +1242,16 @@ struct TodayView: View {
  HStack(spacing: 10) {
  Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
  .font(.subheadline)
- .foregroundColor(themeProvider.plusColor)
+ .foregroundColor(theme.accentPrimary)
 
  VStack(alignment: .leading, spacing: 2) {
  Text("You did something powerful today.")
  .font(.caption.weight(.semibold))
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
 
  Text("You named a hard moment and a win for \(child.name). That helps them learn.")
  .font(.caption2)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
 
  Spacer()
@@ -1264,11 +1263,11 @@ struct TodayView: View {
  }) {
  Image(systemName: "xmark")
  .font(.caption2)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  }
  .padding(10)
- .background(themeProvider.bannerSpecialBackground.opacity(0.8))
+ .background(theme.accentMuted.opacity(0.8))
  .cornerRadius(10)
  }
  
@@ -1280,14 +1279,14 @@ struct TodayView: View {
  HStack(alignment: .firstTextBaseline, spacing: AppSpacing.sm) {
  Text("Today's Activity")
  .font(.system(size: 17, weight: .bold))
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
 
  Spacer()
 
  if !behaviorsStore.todayEvents.isEmpty {
  Text("\(behaviorsStore.todayEvents.count)")
  .font(.system(size: 15, weight: .bold, design: .rounded))
- .foregroundColor(themeProvider.accentColor)
+ .foregroundColor(theme.accentPrimary)
  }
  }
 
@@ -1317,15 +1316,16 @@ struct TodayView: View {
  .frame(width: 8, height: 8)
  Text("\(item.child.name) has \(item.count) moment\(item.count == 1 ? "" : "s")")
  .font(.caption)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  }
  }
  .padding(.bottom, 4)
  }
 
+ // PERFORMANCE: Uses cached grouped events from ViewModel instead of O(n) grouping on every render
  private var groupedEventsList: some View {
- let eventsGroupedByChild = Dictionary(grouping: behaviorsStore.todayEvents) { $0.childId }
+ let eventsGroupedByChild = todayViewModel.todayEventsGroupedByChild
 
  return VStack(spacing: 12) {
  ForEach(childrenStore.activeChildren) { child in
@@ -1339,7 +1339,7 @@ struct TodayView: View {
 
  Text(child.name)
  .font(.system(size: 15, weight: .semibold))
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
 
  Spacer()
 
@@ -1371,21 +1371,21 @@ struct TodayView: View {
  
  private var emptyActivityState: some View {
  VStack(spacing: 12) {
- StyledIcon(systemName: "sun.max.fill", color: themeProvider.secondaryText, size: 32, backgroundSize: 64, isCircle: true)
+ StyledIcon(systemName: "sun.max.fill", color: theme.textSecondary, size: 32, backgroundSize: 64, isCircle: true)
 
  Text("No moments yet today")
  .font(.subheadline)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
 
  Text("You can always start with one small moment.")
  .font(.caption)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  .frame(maxWidth: .infinity)
  .padding(.vertical, 32)
- .background(themeProvider.cardBackground)
+ .background(theme.surface1)
  .cornerRadius(AppStyles.cardCornerRadius)
- .shadow(color: themeProvider.cardShadow, radius: AppStyles.cardShadowRadius, y: 2)
+ .shadow(color: theme.shadowColor, radius: AppStyles.cardShadowRadius, y: 2)
  }
 
  // MARK: - No Children Empty State
@@ -1394,15 +1394,15 @@ struct TodayView: View {
  VStack(spacing: 16) {
  Image(systemName: "figure.2.and.child.holdinghands")
  .font(.system(size: 48))
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
 
  Text("Add your child to begin")
  .font(.headline)
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
 
  Text("Let's set up your first child so you can start noticing the good moments.")
  .font(.subheadline)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  .multilineTextAlignment(.center)
  .fixedSize(horizontal: false, vertical: true)
  .padding(.horizontal, 16)
@@ -1420,7 +1420,7 @@ struct TodayView: View {
  .frame(maxWidth: .infinity)
  .padding(.vertical, 40)
  .padding(.horizontal, 16)
- .background(themeProvider.cardBackground)
+ .background(theme.surface1)
  .cornerRadius(AppStyles.cardCornerRadius)
  }
  
@@ -1433,7 +1433,7 @@ struct ChildQuickLogCard: View {
  @EnvironmentObject private var behaviorsStore: BehaviorsStore
  @EnvironmentObject private var rewardsStore: RewardsStore
  @EnvironmentObject private var prefs: UserPreferencesStore
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
 
  let child: Child
  let todayPoints: Int
@@ -1486,7 +1486,7 @@ struct ChildQuickLogCard: View {
  VStack(alignment: .leading, spacing: AppSpacing.xxs) {
  Text(child.name)
  .font(AppTypography.title3)
- .foregroundColor(themeProvider.primaryText)
+ .foregroundColor(theme.textPrimary)
 
  // Goal info or no goal prompt
  if let goal = activeGoal {
@@ -1499,7 +1499,7 @@ struct ChildQuickLogCard: View {
  .font(.system(size: 9, weight: .semibold))
  .opacity(0.6)
  }
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
  }
  .buttonStyle(.plain)
  .contextMenu {
@@ -1523,7 +1523,7 @@ struct ChildQuickLogCard: View {
  .font(AppTypography.caption)
  .fontWeight(.medium)
  }
- .foregroundColor(themeProvider.plusColor)
+ .foregroundColor(theme.accentPrimary)
  }
  }
  }
@@ -1551,7 +1551,7 @@ struct ChildQuickLogCard: View {
  let statsText = buildStatsText()
  Text(statsText)
  .font(AppTypography.bodySmall)
- .foregroundColor(themeProvider.secondaryText)
+ .foregroundColor(theme.textSecondary)
 
  Spacer()
 
@@ -1643,7 +1643,7 @@ struct ChildQuickLogCard: View {
 struct EventRow: View {
  @EnvironmentObject private var childrenStore: ChildrenStore
  @EnvironmentObject private var behaviorsStore: BehaviorsStore
- @EnvironmentObject private var themeProvider: ThemeProvider
+ @Environment(\.theme) private var theme
 
  let event: BehaviorEvent
  var showChildName: Bool = false
@@ -1652,14 +1652,14 @@ struct EventRow: View {
  HStack(spacing: 10) {
      // Compact timeline dot
      Circle()
-         .fill(event.isPositive ? themeProvider.positiveColor : themeProvider.challengeColor)
+         .fill(event.isPositive ? theme.success : theme.warning)
          .frame(width: 8, height: 8)
 
      // Compact icon
      ZStack {
          RoundedRectangle(cornerRadius: 8)
              .fill(
-                 (event.isPositive ? themeProvider.positiveColor : themeProvider.challengeColor)
+                 (event.isPositive ? theme.success : theme.warning)
                      .opacity(0.12)
              )
              .frame(width: 32, height: 32)
@@ -1667,7 +1667,7 @@ struct EventRow: View {
          if let behaviorType = behaviorsStore.behaviorType(id: event.behaviorTypeId) {
              Image(systemName: behaviorType.iconName)
                  .font(.system(size: 14, weight: .semibold))
-                 .foregroundColor(event.isPositive ? themeProvider.positiveColor : themeProvider.challengeColor)
+                 .foregroundColor(event.isPositive ? theme.success : theme.warning)
          }
      }
 
@@ -1676,13 +1676,13 @@ struct EventRow: View {
          if let behaviorType = behaviorsStore.behaviorType(id: event.behaviorTypeId) {
              Text(behaviorType.name)
                  .font(.system(size: 14, weight: .semibold))
-                 .foregroundColor(themeProvider.primaryText)
+                 .foregroundColor(theme.textPrimary)
                  .lineLimit(1)
          }
 
          Text(timeString)
              .font(.system(size: 11))
-             .foregroundColor(themeProvider.secondaryText)
+             .foregroundColor(theme.textSecondary)
      }
 
      Spacer()
@@ -1690,11 +1690,11 @@ struct EventRow: View {
      // Compact points badge
      Text(pointsText)
          .font(.system(size: 16, weight: .bold, design: .rounded))
-         .foregroundColor(event.isPositive ? themeProvider.positiveColor : themeProvider.challengeColor)
+         .foregroundColor(event.isPositive ? theme.success : theme.warning)
  }
  .padding(.vertical, 8)
  .padding(.horizontal, 10)
- .background(themeProvider.cardBackground.opacity(0.5))
+ .background(theme.surface1.opacity(0.5))
  .cornerRadius(10)
  }
 
@@ -1718,12 +1718,12 @@ struct ChildPickerSheet: View {
     let children: [Child]
     let onChildSelected: (Child) -> Void
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     var body: some View {
         NavigationStack {
             childListContent
-                .background(themeProvider.backgroundColor)
+                .background(theme.bg0)
                 .navigationTitle("Add a Tiny Win")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -1758,7 +1758,7 @@ struct ChildPickerSheet: View {
 
                 Text(child.name)
                     .font(AppTypography.title3)
-                    .foregroundColor(themeProvider.resolved.primaryTextColor)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
@@ -1786,6 +1786,6 @@ struct ChildPickerSheet: View {
  .environmentObject(container.coachMarkManager)
  .environmentObject(container.feedbackManager)
  .environmentObject(container.repository)
- .environmentObject(container.themeProvider)
+ .withTheme(Theme())
  .environmentObject(coordinator)
 }

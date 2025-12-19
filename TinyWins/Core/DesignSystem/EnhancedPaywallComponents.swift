@@ -7,6 +7,7 @@ import SwiftUI
 
 /// Top section of paywall with premium messaging
 struct PaywallHeroSection: View {
+    @Environment(\.theme) private var theme
     @State private var shimmerOffset: CGFloat = -200
 
     var body: some View {
@@ -72,12 +73,12 @@ struct PaywallHeroSection: View {
                             )
                             .overlay(
                                 Circle()
-                                    .strokeBorder(Color(.systemBackground), lineWidth: 3)
+                                    .strokeBorder(theme.surface1, lineWidth: 3)
                             )
                     }
 
                     Circle()
-                        .fill(Color(.systemGray4))
+                        .fill(theme.borderStrong)
                         .frame(width: 44, height: 44)
                         .overlay(
                             Image(systemName: "plus")
@@ -85,13 +86,13 @@ struct PaywallHeroSection: View {
                         )
                         .overlay(
                             Circle()
-                                .strokeBorder(Color(.systemBackground), lineWidth: 3)
+                                .strokeBorder(theme.surface1, lineWidth: 3)
                         )
                 }
 
                 Text("Join mindful parents everywhere")
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
         }
     }
@@ -109,6 +110,7 @@ struct PaywallHeroSection: View {
 
 /// Premium features with value stacking
 struct PaywallFeatureList: View {
+    @Environment(\.theme) private var theme
     let features: [PremiumFeature]
 
     struct PremiumFeature: Identifiable {
@@ -146,7 +148,7 @@ struct PaywallFeatureList: View {
                     Spacer()
                     Text("$\(String(format: "%.2f", totalValue))/month")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .strikethrough()
                 }
 
@@ -154,16 +156,18 @@ struct PaywallFeatureList: View {
                     Text("Your Price:")
                         .font(.system(size: 18, weight: .semibold))
                     Spacer()
-                    Text("$9.99/month")
-                        .font(.system(size: 28, weight: .black))
-                        .foregroundColor(.green)
+                    HStack(spacing: 0) {
+                        Text("$9.99/month")
+                            .font(.system(size: 28, weight: .black))
+                            .foregroundColor(.green)
+                    }
                 }
             }
         }
         .padding(24)
         .background(
             RoundedRectangle(cornerRadius: 24)
-                .fill(Color(.systemGray6))
+                .fill(theme.surface2)
         )
     }
 }
@@ -171,6 +175,8 @@ struct PaywallFeatureList: View {
 /// Individual feature row
 struct PaywallFeatureRow: View {
     let feature: PaywallFeatureList.PremiumFeature
+
+    @Environment(\.theme) private var theme
 
     var body: some View {
         HStack(spacing: 16) {
@@ -198,7 +204,7 @@ struct PaywallFeatureRow: View {
                     .font(.system(size: 17, weight: .bold))
                 Text(feature.description)
                     .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -207,13 +213,13 @@ struct PaywallFeatureRow: View {
             // Value
             Text(feature.value)
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .strikethrough()
         }
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
     }
 }
@@ -222,6 +228,7 @@ struct PaywallFeatureRow: View {
 
 /// Plan selection cards
 struct PaywallPricingSection: View {
+    @Environment(\.theme) private var theme
     @Binding var selectedPlan: PricingPlan
 
     enum PricingPlan: String, CaseIterable {
@@ -292,7 +299,9 @@ struct PaywallPlanCard: View {
     let isPopular: Bool
     let onTap: () -> Void
 
-    var body: some View {
+    @Environment(\.theme) private var theme
+
+    var body: some View{
         Button(action: onTap) {
             VStack(spacing: 0) {
                 // Popular badge
@@ -316,7 +325,7 @@ struct PaywallPlanCard: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(plan.rawValue)
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
 
                         if let savings = plan.savings {
                             Text(savings)
@@ -333,7 +342,7 @@ struct PaywallPlanCard: View {
                                 .font(.system(size: 32, weight: .black))
                             Text(plan.billingCycle)
                                 .font(.system(size: 14))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
 
                         if let monthly = plan.monthlyEquivalent {
@@ -359,13 +368,13 @@ struct PaywallPlanCard: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: isPopular ? 0 : 20)
-                    .fill(isSelected ? Color.purple.opacity(0.1) : Color(.systemBackground))
+                    .fill(isSelected ? Color.purple.opacity(0.1) : theme.surface1)
                     .overlay(
                         RoundedRectangle(cornerRadius: isPopular ? 0 : 20)
                             .strokeBorder(
                                 isSelected ?
                                     LinearGradient(colors: [.purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                                    LinearGradient(colors: [Color(.systemGray4)], startPoint: .top, endPoint: .bottom),
+                                    LinearGradient(colors: [theme.borderStrong], startPoint: .top, endPoint: .bottom),
                                 lineWidth: isSelected ? 3 : 1
                             )
                     )
@@ -383,6 +392,8 @@ struct PaywallPlanCard: View {
 struct PaywallTestimonialsSection: View {
     let testimonials: [Testimonial]
     @State private var currentIndex = 0
+
+    @Environment(\.theme) private var theme
 
     struct Testimonial: Identifiable {
         let id = UUID()
@@ -416,6 +427,8 @@ struct PaywallTestimonialsSection: View {
 
 /// Money-back guarantee badge
 struct PaywallGuaranteeSection: View {
+    @Environment(\.theme) private var theme
+
     var body: some View {
         HStack(spacing: 16) {
             ZStack {
@@ -434,7 +447,7 @@ struct PaywallGuaranteeSection: View {
 
                 Text("Try risk-free. Cancel anytime, no questions asked.")
                     .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -456,6 +469,7 @@ struct PaywallCTASection: View {
     let onStartTrial: () -> Void
     let onRestorePurchases: () -> Void
 
+    @Environment(\.theme) private var theme
     @State private var buttonScale: CGFloat = 1.0
 
     var body: some View {
@@ -499,7 +513,7 @@ struct PaywallCTASection: View {
                     Image(systemName: "clock.fill")
                         .foregroundColor(.red)
                     Text("Offer expires in")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     UrgencyTimerView(targetDate: deadline, label: nil)
                 }
                 .font(.system(size: 14, weight: .semibold))
@@ -508,7 +522,7 @@ struct PaywallCTASection: View {
             // Fine print
             Text("Auto-renews. Cancel anytime.")
                 .font(.system(size: 12))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             // Restore purchases
             Button(action: onRestorePurchases) {
@@ -525,6 +539,7 @@ struct PaywallCTASection: View {
 /// Full paywall screen composition
 struct EnhancedPaywallView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @State private var selectedPlan: PaywallPricingSection.PricingPlan = .annual
 
     let onPurchase: (PaywallPricingSection.PricingPlan) -> Void
@@ -573,14 +588,14 @@ struct EnhancedPaywallView: View {
                 }
                 .padding(.top, 20)
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 24))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }

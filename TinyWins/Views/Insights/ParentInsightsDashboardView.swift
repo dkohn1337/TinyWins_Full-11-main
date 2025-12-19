@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Dashboard view showing parent reflection insights (Plus feature)
 struct ParentInsightsDashboardView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var childrenStore: ChildrenStore
@@ -51,7 +52,7 @@ struct ParentInsightsDashboardView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.bg0)
         .cornerRadius(16)
         .task {
             await loadInsights()
@@ -75,11 +76,11 @@ struct ParentInsightsDashboardView: View {
         VStack(spacing: 12) {
             Image(systemName: "moon.stars")
                 .font(.title)
-                .foregroundColor(.secondary.opacity(0.5))
+                .foregroundColor(theme.textSecondary.opacity(0.5))
 
             Text("Start reflecting to see your insights")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -132,7 +133,7 @@ struct ParentInsightsDashboardView: View {
                     .font(.subheadline.weight(.semibold))
                 Text(consistencyMessage(streak))
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -171,7 +172,7 @@ struct ParentInsightsDashboardView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Your top strength \(topStrength.period)")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                 Text(topStrength.strength)
                     .font(.subheadline.weight(.semibold))
                 Text("\(topStrength.count)x this period")
@@ -203,12 +204,12 @@ struct ParentInsightsDashboardView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Reflection Impact")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                 Text("\(correlation.percentageMorePositive)% more positive moments")
                     .font(.subheadline.weight(.semibold))
                 Text("on days you reflect")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -265,7 +266,7 @@ struct ParentInsightsDashboardView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Top strengths this month:")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     FlowLayout(spacing: 6) {
                         ForEach(review.topStrengths, id: \.self) { strength in
@@ -309,6 +310,7 @@ struct ParentInsightsDashboardView: View {
 // MARK: - Month Stat Cell
 
 private struct MonthStatCell: View {
+    @Environment(\.theme) private var theme
     let value: String
     let label: String
     let color: Color
@@ -320,7 +322,7 @@ private struct MonthStatCell: View {
                 .foregroundColor(color)
             Text(label)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }

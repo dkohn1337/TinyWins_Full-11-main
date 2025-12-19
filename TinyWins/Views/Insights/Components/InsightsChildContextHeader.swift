@@ -11,7 +11,7 @@ import SwiftUI
 /// - Accessible: VoiceOver announces child name
 /// - Optional dropdown affordance for child picker
 struct InsightsChildContextHeader: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
 
     let child: Child
     var showDropdownArrow: Bool = false
@@ -48,25 +48,25 @@ struct InsightsChildContextHeader: View {
                     Text(child.name)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("Viewing insights", tableName: "Insights")
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 if showDropdownArrow {
                     Image(systemName: "chevron.down")
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
             }
             .padding(.horizontal, AppSpacing.screenPadding)
             .padding(.vertical, 10)
-            .background(theme.cardBackground)
+            .background(theme.surface1)
         }
         .buttonStyle(.plain)
         .disabled(onTap == nil)
@@ -86,5 +86,5 @@ struct InsightsChildContextHeader: View {
         InsightsChildContextHeader(child: child)
         Spacer()
     }
-    .withThemeProvider(ThemeProvider())
+    .withTheme(Theme())
 }

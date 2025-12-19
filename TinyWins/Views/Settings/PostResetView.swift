@@ -3,6 +3,7 @@ import SwiftUI
 /// View shown immediately after factory reset completes.
 /// Provides reassurance and a clear path forward to set up the first child again.
 struct PostResetView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var coordinator: AppCoordinator
     @Environment(\.dismiss) private var dismiss
 
@@ -31,7 +32,7 @@ struct PostResetView: View {
                 // Non-judgmental body copy
                 Text("You've cleared your data on this device. Let's set up your first child again.")
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 24)
@@ -68,7 +69,7 @@ struct PostResetView: View {
                     }) {
                         Text("Back to Home")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(.horizontal, 24)

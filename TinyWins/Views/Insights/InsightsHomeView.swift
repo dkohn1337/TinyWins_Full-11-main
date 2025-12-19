@@ -311,36 +311,14 @@ final class InsightsNavigationState: ObservableObject {
 /// 3. Proof Summary - evidence backing the insights
 /// 4. Explore Section - links to deeper analytics (premium-gated where appropriate)
 struct InsightsHomeView: View {
-    @Environment(\.themeProvider) private var theme
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var navigation: InsightsNavigationState
-    @EnvironmentObject private var repository: Repository
+    @EnvironmentObject private var viewModel: InsightsHomeViewModel
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
+    @EnvironmentObject private var repository: Repository
 
-    @State private var cards: [CoachCard] = []
-    @State private var isLoading = true
     @State private var showingDebugReport = false
-    @State private var impressionTracker: CardImpressionTracker?
-
-    // Coaching engine instance (cached to preserve cooldown manager state)
-    @State private var _engine: CoachingEngine?
-    private var engine: CoachingEngine {
-        if let existing = _engine {
-            return existing
-        }
-        let dataProvider = RepositoryDataProvider(repository: repository)
-        let newEngine = CoachingEngineImpl(dataProvider: dataProvider)
-        // Note: Can't set _engine here as this is a computed property
-        return newEngine
-    }
-
-    private func getOrCreateEngine() -> CoachingEngine {
-        if _engine == nil {
-            let dataProvider = RepositoryDataProvider(repository: repository)
-            _engine = CoachingEngineImpl(dataProvider: dataProvider)
-        }
-        return _engine!
-    }
 
     var body: some View {
         NavigationStack(path: $navigation.path) {
@@ -355,7 +333,7 @@ struct InsightsHomeView: View {
                             coachCardsSection
 
                             // Proof Summary (if cards have evidence)
-                            if hasEvidence {
+                            if viewModel.state.hasEvidence {
                                 proofSummarySection
                             }
                         }
@@ -365,7 +343,7 @@ struct InsightsHomeView: View {
                             LinearGradient(
                                 colors: [
                                     Color.yellow.opacity(0.02),
-                                    theme.backgroundColor
+                                    theme.bg0
                                 ],
                                 startPoint: .top,
                                 endPoint: .bottom
@@ -374,7 +352,7 @@ struct InsightsHomeView: View {
 
                         // Section divider
                         Rectangle()
-                            .fill(Color.gray.opacity(0.15))
+                            .fill(theme.textDisabled.opacity(0.15))
                             .frame(height: 1)
                             .padding(.horizontal, AppSpacing.screenPadding)
 
@@ -387,7 +365,7 @@ struct InsightsHomeView: View {
                         .background(
                             LinearGradient(
                                 colors: [
-                                    theme.backgroundColor,
+                                    theme.bg0,
                                     Color.blue.opacity(0.015)
                                 ],
                                 startPoint: .top,
@@ -408,7 +386,7 @@ struct InsightsHomeView: View {
                     }
                 }
             }
-            .background(theme.backgroundColor.ignoresSafeArea())
+            .background(theme.bg0.ignoresSafeArea())
             .accessibilityIdentifier(InsightsAccessibilityIdentifiers.insightsHomeRoot)
             .navigationTitle(Text("Insights", tableName: "Insights"))
             .navigationBarTitleDisplayMode(.large)
@@ -435,91 +413,80 @@ struct InsightsHomeView: View {
             }
             #endif
             .onAppear {
-                validateAndLoadCards()
+                // PERFORMANCE: Use visibility gate to defer heavy work
+                viewModel.setVisible(true)
+
+                // Defer initial validation to avoid blocking initial render
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 150_000_000) // 0.15 seconds
+                    viewModel.validateAndLoadCards()
+                }
             }
-            .onChange(of: navigation.selectedChildId) { _, _ in
-                loadCards()
-            }
-            .onChange(of: childrenStore.activeChildren.count) { _, _ in
-                // Re-validate when children list changes (child added/deleted)
-                validateAndLoadCards()
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .demoDataDidLoad)) { notification in
-                // Demo data was loaded - reset engine and child selection
-                handleDemoDataLoaded(notification: notification)
+            .onDisappear {
+                viewModel.setVisible(false)
             }
             .navigationDestination(for: InsightsDestination.self) { destination in
                 destinationView(for: destination)
             }
+            .trackScreen("InsightsHomeView")
         }
     }
 
     // MARK: - Coach Cards Section
 
-    /// Cards that represent habit-forming patterns (can be consolidated)
-    private var habitFormingCards: [CoachCard] {
-        cards.filter { card in
-            card.templateId == "routine_forming" || card.templateId == "positive_pattern"
-        }
-    }
-
-    /// Cards that are NOT habit-forming (displayed individually)
-    private var otherCards: [CoachCard] {
-        cards.filter { card in
-            card.templateId != "routine_forming" && card.templateId != "positive_pattern"
-        }
-    }
-
     @ViewBuilder
     private var coachCardsSection: some View {
+        let habitFormingCards = viewModel.state.habitFormingCards
+        let otherCards = viewModel.state.otherCards
+
         VStack(alignment: .leading, spacing: AppSpacing.cardGap) {
             HStack(spacing: 8) {
                 Image(systemName: "chart.line.uptrend.xyaxis")
                     .font(.system(size: 14))
-                    .foregroundColor(theme.positiveColor)
+                    .foregroundColor(theme.success)
 
                 Text("Patterns This Week", tableName: "Insights")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
             }
 
-            if isLoading {
+            if viewModel.state.isLoading {
                 loadingState
                     .accessibilityIdentifier(InsightsAccessibilityIdentifiers.cardsLoadingIndicator)
-            } else if cards.isEmpty {
+            } else if viewModel.state.cards.isEmpty {
                 emptyState
                     .accessibilityIdentifier(InsightsAccessibilityIdentifiers.cardsEmptyState)
             } else {
                 // Consolidated habits card (when 2+ habit-forming cards exist)
                 if habitFormingCards.count >= 2 {
                     HabitsFormingCard(cards: habitFormingCards) { card in
-                        recordCardInteraction(card)
+                        viewModel.recordCardInteraction(card)
                         navigation.showingEvidenceSheet = card
                     }
                     .accessibilityIdentifier(InsightsAccessibilityIdentifiers.coachCard(cardId: "habits-forming"))
                     .onAppear {
                         for card in habitFormingCards {
-                            impressionTracker?.cardBecameVisible(card)
+                            viewModel.cardBecameVisible(card)
                         }
                     }
                     .onDisappear {
                         for card in habitFormingCards {
-                            impressionTracker?.cardBecameHidden(card)
+                            viewModel.cardBecameHidden(card)
                         }
                     }
                 } else {
                     // Single habit-forming card (display individually)
                     ForEach(habitFormingCards) { card in
                         CoachCardView(card: card) {
-                            recordCardInteraction(card)
+                            viewModel.recordCardInteraction(card)
                             navigation.showingEvidenceSheet = card
                         }
                         .accessibilityIdentifier(InsightsAccessibilityIdentifiers.coachCard(cardId: card.id))
                         .onAppear {
-                            impressionTracker?.cardBecameVisible(card)
+                            viewModel.cardBecameVisible(card)
                         }
                         .onDisappear {
-                            impressionTracker?.cardBecameHidden(card)
+                            viewModel.cardBecameHidden(card)
                         }
                     }
                 }
@@ -527,15 +494,15 @@ struct InsightsHomeView: View {
                 // Other cards (always displayed individually)
                 ForEach(otherCards) { card in
                     CoachCardView(card: card) {
-                        recordCardInteraction(card)
+                        viewModel.recordCardInteraction(card)
                         navigation.showingEvidenceSheet = card
                     }
                     .accessibilityIdentifier(InsightsAccessibilityIdentifiers.coachCard(cardId: card.id))
                     .onAppear {
-                        impressionTracker?.cardBecameVisible(card)
+                        viewModel.cardBecameVisible(card)
                     }
                     .onDisappear {
-                        impressionTracker?.cardBecameHidden(card)
+                        viewModel.cardBecameHidden(card)
                     }
                 }
             }
@@ -548,7 +515,7 @@ struct InsightsHomeView: View {
             ProgressView()
             Text("Analyzing patterns...", tableName: "Insights")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 60)
@@ -582,11 +549,11 @@ struct InsightsHomeView: View {
             VStack(spacing: 8) {
                 Text("Keep building the picture", tableName: "Insights")
                     .font(.headline)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text("Log a few more moments and insights will appear here.", tableName: "Insights")
                     .font(.subheadline)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
@@ -597,7 +564,7 @@ struct InsightsHomeView: View {
             LinearGradient(
                 colors: [
                     Color.yellow.opacity(0.06),
-                    theme.cardBackground
+                    theme.surface1
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -612,14 +579,11 @@ struct InsightsHomeView: View {
 
     // MARK: - Proof Summary Section
 
-    private var hasEvidence: Bool {
-        cards.contains { $0.hasValidEvidence }
-    }
-
     @ViewBuilder
     private var proofSummarySection: some View {
-        let totalEvidence = cards.reduce(0) { $0 + $1.evidenceEventIds.count }
-        let evidenceWindow = cards.first?.evidenceWindow ?? 7
+        let totalEvidence = viewModel.state.totalEvidence
+        let evidenceWindow = viewModel.state.evidenceWindow
+        let cardsCount = viewModel.state.cards.count
 
         VStack(alignment: .leading, spacing: AppSpacing.cardGap) {
             HStack {
@@ -629,17 +593,17 @@ struct InsightsHomeView: View {
                         .foregroundColor(.yellow)
                     Text("Based on \(totalEvidence) real moments", tableName: "Insights")
                         .font(.subheadline)
-                        .foregroundColor(theme.primaryText)
+                        .foregroundColor(theme.textPrimary)
                 }
 
                 Spacer()
 
                 Text("Last \(evidenceWindow) days", tableName: "Insights")
                     .font(.caption)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(theme.positiveColor.opacity(0.1))
+                    .background(theme.success.opacity(0.1))
                     .cornerRadius(8)
             }
 
@@ -648,7 +612,7 @@ struct InsightsHomeView: View {
                 proofStatChip(
                     icon: "heart.fill",
                     label: "Patterns found",
-                    value: "\(cards.count)",
+                    value: "\(cardsCount)",
                     color: Color.pink
                 )
 
@@ -665,7 +629,7 @@ struct InsightsHomeView: View {
             LinearGradient(
                 colors: [
                     Color.yellow.opacity(0.05),
-                    theme.cardBackground
+                    theme.surface1
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -693,11 +657,11 @@ struct InsightsHomeView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(value)
                     .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text(label)
                     .font(.caption2)
-                    .foregroundColor(theme.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -710,7 +674,7 @@ struct InsightsHomeView: View {
         VStack(alignment: .leading, spacing: AppSpacing.cardGap) {
             Text("Explore", tableName: "Insights")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             // History link (free)
             exploreLink(
@@ -796,7 +760,7 @@ struct InsightsHomeView: View {
                         Text(title)
                             .font(.subheadline)
                             .fontWeight(.semibold)
-                            .foregroundColor(theme.primaryText)
+                            .foregroundColor(theme.textPrimary)
 
                         if showPremiumBadge {
                             HStack(spacing: 3) {
@@ -821,7 +785,7 @@ struct InsightsHomeView: View {
 
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundColor(theme.secondaryText)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Spacer()
@@ -1029,7 +993,7 @@ struct InsightsHomeView: View {
     private func exploreLinkChevronColor(style: ExploreLinkStyle) -> Color {
         switch style {
         case .standard(let color): return color.opacity(0.5)
-        case .multiColor: return theme.positiveColor.opacity(0.5)
+        case .multiColor: return theme.success.opacity(0.5)
         case .garden: return Color.green.opacity(0.5)
         case .premium: return Color.purple.opacity(0.5)
         }
@@ -1040,14 +1004,14 @@ struct InsightsHomeView: View {
         let (tintColor, borderColor): (Color, Color) = {
             switch style {
             case .standard(let color): return (color, color)
-            case .multiColor: return (theme.positiveColor, theme.positiveColor)
+            case .multiColor: return (theme.success, theme.success)
             case .garden: return (Color.green, Color.green)
             case .premium: return (Color.purple, Color.purple)
             }
         }()
 
         RoundedRectangle(cornerRadius: theme.cornerRadius)
-            .fill(theme.cardBackground)
+            .fill(theme.surface1)
             .overlay(
                 RoundedRectangle(cornerRadius: theme.cornerRadius)
                     .fill(
@@ -1074,12 +1038,12 @@ struct InsightsHomeView: View {
                 Text("Go deeper with TinyWins+", tableName: "Insights")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(theme.primaryText)
+                    .foregroundColor(theme.textPrimary)
             }
 
             Text("Unlock character radar, growth trends, and advanced patterns.", tableName: "Insights")
                 .font(.caption)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
 
             Button {
@@ -1167,125 +1131,21 @@ struct InsightsHomeView: View {
         VStack(spacing: 16) {
             Image(systemName: "person.crop.circle.badge.questionmark")
                 .font(.system(size: 48))
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
 
             Text("No Child Selected")
                 .font(.headline)
-                .foregroundColor(theme.primaryText)
+                .foregroundColor(theme.textPrimary)
 
             Text("Add a child in the Kids tab to see their insights.")
                 .font(.subheadline)
-                .foregroundColor(theme.secondaryText)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(40)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // MARK: - Data Loading
-
-    /// Validates child selection and loads cards.
-    /// This is the primary entry point - ensures selection is valid before loading.
-    private func validateAndLoadCards() {
-        // Validate and auto-fix selection
-        let state = navigation.validateSelection(against: childrenStore.activeChildren)
-
-        switch state {
-        case .noChildren:
-            isLoading = false
-            cards = []
-            return
-
-        case .validSelection:
-            // Selection is valid, proceed to load
-            break
-
-        case .invalidSelection(let fallback):
-            // Child was deleted, fallback applied (or nil if no children)
-            if fallback == nil {
-                isLoading = false
-                cards = []
-                return
-            }
-            // Fallback was applied, proceed to load
-
-        case .noSelection(let firstChild):
-            // No selection yet, select the first child
-            if let child = firstChild {
-                navigation.selectChild(child.id)
-            } else {
-                isLoading = false
-                cards = []
-                return
-            }
-        }
-
-        // Prune any stale recent IDs
-        let validIds = Set(childrenStore.activeChildren.map { $0.id })
-        navigation.pruneStaleRecentIds(validIds: validIds)
-
-        loadCards()
-    }
-
-    private func loadCards() {
-        isLoading = true
-
-        // Use selected child (should be valid after validateAndLoadCards)
-        guard let selectedId = navigation.selectedChildId else {
-            isLoading = false
-            cards = []
-            return
-        }
-
-        let childId = selectedId.uuidString
-
-        // Get or create engine (preserves cooldown manager state)
-        let currentEngine = getOrCreateEngine()
-
-        // Generate cards using deterministic engine
-        // NOTE: We do NOT call recordCardsDisplayed() here.
-        // Cooldowns are recorded only when cards are actually seen by the user,
-        // tracked via CardImpressionTracker (after threshold time or interaction).
-        let generatedCards = currentEngine.generateCards(childId: childId, now: Date())
-
-        cards = generatedCards
-        isLoading = false
-
-        // Initialize or update impression tracker
-        if impressionTracker == nil {
-            impressionTracker = CardImpressionTracker(engine: currentEngine)
-        }
-    }
-
-    // MARK: - Impression Recording
-
-    /// Record impression when user interacts with a card (opens evidence, taps CTA)
-    private func recordCardInteraction(_ card: CoachCard) {
-        impressionTracker?.recordInteraction(with: card)
-    }
-
-    // MARK: - Demo Data Handling
-
-    /// Handle demo data loaded notification - reset engine and child selection
-    private func handleDemoDataLoaded(notification: Notification) {
-        // Reset cached engine so a new one is created with fresh data
-        _engine = nil
-        impressionTracker = nil
-
-        // Select the first demo child
-        if let firstChildId = notification.userInfo?["firstChildId"] as? UUID {
-            navigation.selectChild(firstChildId)
-        } else if let firstChild = childrenStore.activeChildren.first {
-            navigation.selectChild(firstChild.id)
-        }
-
-        // Reload cards with fresh data
-        validateAndLoadCards()
-
-        #if DEBUG
-        print("[InsightsHomeView] Demo data loaded - engine reset, child selected: \(navigation.selectedChildId?.uuidString ?? "none")")
-        #endif
-    }
 }
 
 // MARK: - Navigation Destinations
@@ -1311,11 +1171,18 @@ extension Notification.Name {
 #Preview("Insights Home") {
     let navigation = InsightsNavigationState()
     let repository = Repository.preview
+    let childrenStore = ChildrenStore(repository: repository)
+    let viewModel = InsightsHomeViewModel(
+        repository: repository,
+        childrenStore: childrenStore,
+        navigation: navigation
+    )
 
     InsightsHomeView()
         .environmentObject(navigation)
+        .environmentObject(viewModel)
+        .environmentObject(childrenStore)
         .environmentObject(repository)
-        .environmentObject(ChildrenStore(repository: repository))
         .environmentObject(SubscriptionManager())
-        .withThemeProvider(ThemeProvider())
+        .withTheme(Theme())
 }

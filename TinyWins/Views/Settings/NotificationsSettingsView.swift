@@ -4,6 +4,7 @@ import UserNotifications
 /// Notification settings for daily and gentle reminders
 struct NotificationsSettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var notificationService: NotificationService
     
     @State private var dailyReminderEnabled: Bool = false
@@ -44,8 +45,8 @@ struct NotificationsSettingsView: View {
                                     .font(.subheadline.weight(.medium))
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
-                                    .background(Color(.systemGray5))
-                                    .foregroundColor(.primary)
+                                    .background(theme.borderSoft)
+                                    .foregroundColor(theme.textPrimary)
                                     .cornerRadius(8)
                                 }
                             } else {
@@ -75,10 +76,11 @@ struct NotificationsSettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Daily Reminder")
                                     .font(.body)
+                                    .foregroundColor(theme.textPrimary)
                                 
                                 Text("A gentle nudge to log moments")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
                     }
@@ -121,10 +123,11 @@ struct NotificationsSettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Check-in Reminder")
                                     .font(.body)
+                                    .foregroundColor(theme.textPrimary)
                                 
                                 Text("A friendly nudge if you haven't logged in a while")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
                     }
@@ -155,7 +158,7 @@ struct NotificationsSettingsView: View {
                         
                         Text("Most parents find evening reminders (around 7-8 PM) work best for reflecting on the day's wins.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .padding(.vertical, 4)
                 }

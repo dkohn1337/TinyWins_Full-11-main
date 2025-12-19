@@ -25,6 +25,7 @@ struct OnboardingPage: Identifiable {
 
 /// First screen with emotional hook
 struct OnboardingWelcomeScreen: View {
+    @Environment(\.theme) private var theme
     let onContinue: () -> Void
 
     @State private var iconScale: CGFloat = 0.5
@@ -95,7 +96,7 @@ struct OnboardingWelcomeScreen: View {
 
                 Text("Transform your parenting with the power of attention")
                     .font(.system(size: 18))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
                     .padding(.top, 8)
@@ -155,6 +156,7 @@ struct OnboardingWelcomeScreen: View {
 
 /// Screen explaining the core value proposition
 struct OnboardingValueScreen: View {
+    @Environment(\.theme) private var theme
     let onContinue: () -> Void
 
     @State private var visibleItems: Set<Int> = []
@@ -177,7 +179,7 @@ struct OnboardingValueScreen: View {
 
                 Text("TinyWins helps you focus on what matters most")
                     .font(.system(size: 16))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 32)
@@ -233,6 +235,7 @@ struct OnboardingValueScreen: View {
 
 /// Individual benefit row
 struct BenefitRow: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let text: String
     let color: Color
@@ -252,7 +255,7 @@ struct BenefitRow: View {
 
             Text(text)
                 .font(.system(size: 18, weight: .medium))
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
 
             Spacer()
 
@@ -264,7 +267,7 @@ struct BenefitRow: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
                 .shadow(color: .black.opacity(0.06), radius: 12, y: 6)
         )
         .opacity(isVisible ? 1 : 0)
@@ -276,6 +279,7 @@ struct BenefitRow: View {
 
 /// Try-it-now screen for first moment
 struct OnboardingDemoScreen: View {
+    @Environment(\.theme) private var theme
     let onComplete: () -> Void
 
     @State private var hasLogged = false
@@ -315,7 +319,7 @@ struct OnboardingDemoScreen: View {
 
                             Text("Think of one small positive moment from today. It can be anything.")
                                 .font(.system(size: 18))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 40)
                         }
@@ -351,7 +355,7 @@ struct OnboardingDemoScreen: View {
 
                             Text("You just changed your brain chemistry. Noticing the positive literally rewires how you see your child.")
                                 .font(.system(size: 18))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 40)
                         }
@@ -415,6 +419,7 @@ struct OnboardingDemoScreen: View {
 
 /// Quick moment selection button
 struct QuickMomentButton: View {
+    @Environment(\.theme) private var theme
     let text: String
     let emoji: String
     let onTap: () -> Void
@@ -429,7 +434,7 @@ struct QuickMomentButton: View {
 
                 Text(text)
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
 
                 Spacer()
 
@@ -440,7 +445,7 @@ struct QuickMomentButton: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 14)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
                     .shadow(color: .black.opacity(isPressed ? 0.12 : 0.06), radius: isPressed ? 6 : 10, y: isPressed ? 3 : 5)
             )
             .scaleEffect(isPressed ? 0.98 : 1.0)
@@ -459,6 +464,7 @@ struct QuickMomentButton: View {
 
 /// Screen for adding first child
 struct OnboardingAddChildScreen: View {
+    @Environment(\.theme) private var theme
     @Binding var childName: String
     @Binding var selectedColor: ChildColorTag
     @Binding var selectedEmoji: String
@@ -491,7 +497,7 @@ struct OnboardingAddChildScreen: View {
 
                     Text("Let's set up their profile")
                         .font(.system(size: 16))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding(.top, 24)
 
@@ -522,7 +528,7 @@ struct OnboardingAddChildScreen: View {
                         .padding(18)
                         .background(
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(Color(.systemGray6))
+                                .fill(theme.surface2)
                         )
                 }
                 .padding(.horizontal, 32)
@@ -601,7 +607,7 @@ struct OnboardingAddChildScreen: View {
                         .padding(.vertical, 18)
                         .background(
                             childName.isEmpty ?
-                                LinearGradient(colors: [Color(.systemGray4)], startPoint: .leading, endPoint: .trailing) :
+                                LinearGradient(colors: [theme.borderStrong], startPoint: .leading, endPoint: .trailing) :
                                 LinearGradient(colors: [selectedColor.color, selectedColor.color.opacity(0.8)], startPoint: .leading, endPoint: .trailing)
                         )
                         .cornerRadius(16)
@@ -619,6 +625,7 @@ struct OnboardingAddChildScreen: View {
 
 /// Onboarding progress dots
 struct OnboardingPageIndicator: View {
+    @Environment(\.theme) private var theme
     let totalPages: Int
     let currentPage: Int
     let accentColor: Color
@@ -627,7 +634,7 @@ struct OnboardingPageIndicator: View {
         HStack(spacing: 8) {
             ForEach(0..<totalPages, id: \.self) { index in
                 Circle()
-                    .fill(index == currentPage ? accentColor : Color(.systemGray4))
+                    .fill(index == currentPage ? accentColor : theme.borderStrong)
                     .frame(width: index == currentPage ? 10 : 8, height: index == currentPage ? 10 : 8)
                     .animation(.spring(response: 0.3), value: currentPage)
             }
@@ -639,6 +646,7 @@ struct OnboardingPageIndicator: View {
 
 /// Full onboarding experience
 struct EnhancedOnboardingFlow: View {
+    @Environment(\.theme) private var theme
     @State private var currentPage = 0
     @State private var childName = ""
     @State private var selectedColor: OnboardingAddChildScreen.ChildColorTag = .purple
@@ -649,7 +657,7 @@ struct EnhancedOnboardingFlow: View {
     var body: some View {
         ZStack {
             // Background
-            Color(.systemBackground)
+            theme.bg1
                 .ignoresSafeArea()
 
             // Content
@@ -689,7 +697,7 @@ struct EnhancedOnboardingFlow: View {
                         }) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .padding()
                         }
                     }

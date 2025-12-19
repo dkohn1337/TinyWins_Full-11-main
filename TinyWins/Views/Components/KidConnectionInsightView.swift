@@ -3,6 +3,7 @@ import SwiftUI
 /// View showing correlation between parent reflection and kid's positive moments (Plus feature)
 /// Uses soft, celebratory language - NO causation claims
 struct KidConnectionInsightView: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var childrenStore: ChildrenStore
@@ -56,14 +57,14 @@ struct KidConnectionInsightView: View {
                 // Main message
                 Text(insight.message)
                     .font(.subheadline)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 // Supporting detail
                 if let detail = insight.detail {
                     Text(detail)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 // Visual representation
@@ -76,7 +77,7 @@ struct KidConnectionInsightView: View {
                                 .foregroundColor(.purple)
                             Text("You")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .frame(width: 50)
 
@@ -104,7 +105,7 @@ struct KidConnectionInsightView: View {
                                 .foregroundColor(.pink)
                             Text(childName)
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .frame(width: 50)
                     }

@@ -87,6 +87,7 @@ enum PaywallContext {
 /// The main TinyWins Plus paywall screen - Enhanced with game psychology
 struct PlusPaywallView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
 
     // Optional context for what triggered the paywall
@@ -141,14 +142,14 @@ struct PlusPaywallView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 40)
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 28))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }
@@ -183,7 +184,7 @@ struct PlusPaywallView: View {
 
             Text(message)
                 .font(.subheadline.weight(.medium))
-                .foregroundColor(.primary)
+                .foregroundColor(theme.textPrimary)
 
             Spacer()
         }
@@ -221,7 +222,7 @@ struct PlusPaywallView: View {
                     .foregroundColor(.pink)
                 Text("TinyWins Plus")
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -249,7 +250,7 @@ struct PlusPaywallView: View {
             // Warm subtitle without generic social proof
             Text("More features for families who want to celebrate every small win")
                 .font(.system(size: 16))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
 
             // Social proof section
@@ -320,7 +321,7 @@ struct PlusPaywallView: View {
         .padding(24)
         .background(
             RoundedRectangle(cornerRadius: 24)
-                .fill(Color(.systemGray6))
+                .fill(theme.surface2)
         )
     }
 
@@ -347,7 +348,7 @@ struct PlusPaywallView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .background(Color(.systemGray5))
+                .background(theme.borderSoft)
 
                 // Comparison rows
                 ComparisonRow(feature: "Children", free: "1", plus: "5")
@@ -358,11 +359,11 @@ struct PlusPaywallView: View {
                 ComparisonRow(feature: "Co-parent sync", free: false, plus: true)
                 ComparisonRow(feature: "Premium themes", free: false, plus: true)
             }
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color(.systemGray4), lineWidth: 1)
+                    .stroke(theme.borderStrong, lineWidth: 1)
             )
         }
     }
@@ -382,7 +383,7 @@ struct PlusPaywallView: View {
                     ProgressView()
                     Text("Loading plans...")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding()
             } else if subscriptionManager.products.isEmpty {
@@ -390,14 +391,14 @@ struct PlusPaywallView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "wifi.exclamationmark")
                         .font(.system(size: 32))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
 
                     Text("Unable to load plans")
                         .font(.headline)
 
                     Text("Please check your internet connection and try again.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
 
                     Button(action: {
@@ -513,7 +514,7 @@ struct PlusPaywallView: View {
 
                 Text("Try everything free for 7 days. Cancel anytime.")
                     .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -580,7 +581,7 @@ struct PlusPaywallView: View {
                     .padding(.vertical, 22)
                     .background(
                         selectedProduct == nil ?
-                            LinearGradient(colors: [Color(.systemGray4)], startPoint: .leading, endPoint: .trailing) :
+                            LinearGradient(colors: [theme.borderStrong], startPoint: .leading, endPoint: .trailing) :
                             LinearGradient(colors: [.purple, .pink], startPoint: .leading, endPoint: .trailing)
                     )
                     .cornerRadius(20)
@@ -611,12 +612,12 @@ struct PlusPaywallView: View {
                 if isDemoMode {
                     Text("After your 7-day free trial, \(selectedDemoPlan.displayPrice) will be charged to your Apple ID account. Subscription automatically renews \(selectedDemoPlan == .yearly ? "yearly" : "monthly") unless canceled at least 24 hours before the end of the current period.")
                         .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                 } else if let product = selectedProduct {
                     Text("After your free trial, \(product.displayPrice) will be charged to your Apple ID. Subscription renews \(product.renewalPeriodText) unless you cancel at least 24 hours before the current period ends.")
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .lineSpacing(2)
                 }
@@ -702,6 +703,7 @@ struct PlusPaywallView: View {
 // MARK: - Feature Row
 
 private struct FeatureRow: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let title: String
     let description: String
@@ -754,7 +756,7 @@ private struct FeatureRow: View {
                 }
                 Text(description)
                     .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .opacity(hasAppeared ? 1 : 0)
@@ -772,7 +774,7 @@ private struct FeatureRow: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Color(.systemBackground))
+                .fill(theme.surface1)
         )
         .onAppear {
             let delay = Double(index) * 0.1
@@ -786,6 +788,7 @@ private struct FeatureRow: View {
 // MARK: - Social Proof Section
 
 private struct SocialProofSection: View {
+    @Environment(\.theme) private var theme
     @State private var hasAppeared = false
 
     var body: some View {
@@ -804,15 +807,15 @@ private struct SocialProofSection: View {
                 Text("\"Tiny Wins helped us notice the good moments we were missing. Now bedtime feels like a celebration, not a battle.\"")
                     .font(.system(size: 14, weight: .medium))
                     .italic()
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
 
                 Text("— Sarah, mom of 2")
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary.opacity(0.7))
+                    .foregroundColor(theme.textSecondary.opacity(0.7))
             }
             .padding(16)
-            .background(Color(.systemGray6))
+            .background(theme.surface2)
             .cornerRadius(12)
             .opacity(hasAppeared ? 1 : 0)
             .offset(y: hasAppeared ? 0 : 10)
@@ -826,6 +829,7 @@ private struct SocialProofSection: View {
 }
 
 private struct StatBadge: View {
+    @Environment(\.theme) private var theme
     let value: String
     let label: String
     let icon: String
@@ -841,7 +845,7 @@ private struct StatBadge: View {
             }
             Text(label)
                 .font(.system(size: 11))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -850,6 +854,7 @@ private struct StatBadge: View {
 // MARK: - Pricing Card
 
 private struct PricingCard: View {
+    @Environment(\.theme) private var theme
     let product: Product
     let isSelected: Bool
     let isPopular: Bool
@@ -884,7 +889,7 @@ private struct PricingCard: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(isYearly ? "Yearly" : "Monthly")
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
 
                         // Only show savings if calculated from actual prices
                         if let savings = savings, savings > 0 {
@@ -896,7 +901,7 @@ private struct PricingCard: View {
                         if isYearly {
                             Text("\(product.localizedPricePerMonth)/month")
                                 .font(.system(size: 14))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
 
@@ -905,10 +910,10 @@ private struct PricingCard: View {
                     VStack(alignment: .trailing, spacing: 4) {
                         Text(product.displayPrice)
                             .font(.system(size: 28, weight: .black))
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
                         Text(isYearly ? "/year" : "/month")
                             .font(.system(size: 14))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(20)
@@ -927,13 +932,13 @@ private struct PricingCard: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: isPopular && isYearly ? 0 : 20)
-                    .fill(isSelected ? Color.purple.opacity(0.1) : Color(.systemBackground))
+                    .fill(isSelected ? Color.purple.opacity(0.1) : theme.surface1)
                     .overlay(
                         RoundedRectangle(cornerRadius: isPopular && isYearly ? 0 : 20)
                             .strokeBorder(
                                 isSelected ?
                                     LinearGradient(colors: [.purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                                    LinearGradient(colors: [Color(.systemGray4)], startPoint: .top, endPoint: .bottom),
+                                    LinearGradient(colors: [theme.borderStrong], startPoint: .top, endPoint: .bottom),
                                 lineWidth: isSelected ? 3 : 1
                             )
                     )
@@ -952,6 +957,7 @@ private struct PricingCard: View {
 // MARK: - Demo Pricing Card (for developer testing)
 
 private struct DemoPricingCard: View {
+    @Environment(\.theme) private var theme
     let plan: DemoPlan
     let isSelected: Bool
     let isPopular: Bool
@@ -985,7 +991,7 @@ private struct DemoPricingCard: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(isYearly ? "Yearly" : "Monthly")
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
 
                         // Show savings for yearly
                         if let savings = plan.savings, savings > 0 {
@@ -997,7 +1003,7 @@ private struct DemoPricingCard: View {
                         if isYearly {
                             Text("\(plan.monthlyEquivalent)/month")
                                 .font(.system(size: 14))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
 
@@ -1006,10 +1012,10 @@ private struct DemoPricingCard: View {
                     VStack(alignment: .trailing, spacing: 4) {
                         Text(plan.displayPrice)
                             .font(.system(size: 28, weight: .black))
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
                         Text(isYearly ? "/year" : "/month")
                             .font(.system(size: 14))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(20)
@@ -1028,13 +1034,13 @@ private struct DemoPricingCard: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: isPopular && isYearly ? 0 : 20)
-                    .fill(isSelected ? Color.purple.opacity(0.1) : Color(.systemBackground))
+                    .fill(isSelected ? Color.purple.opacity(0.1) : theme.surface1)
                     .overlay(
                         RoundedRectangle(cornerRadius: isPopular && isYearly ? 0 : 20)
                             .strokeBorder(
                                 isSelected ?
                                     LinearGradient(colors: [.purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                                    LinearGradient(colors: [Color(.systemGray4)], startPoint: .top, endPoint: .bottom),
+                                    LinearGradient(colors: [theme.borderStrong], startPoint: .top, endPoint: .bottom),
                                 lineWidth: isSelected ? 3 : 1
                             )
                     )
@@ -1053,6 +1059,7 @@ private struct DemoPricingCard: View {
 // MARK: - Comparison Row
 
 private struct ComparisonRow: View {
+    @Environment(\.theme) private var theme
     let feature: String
     var freeText: String? = nil
     var plusText: String? = nil
@@ -1082,10 +1089,10 @@ private struct ComparisonRow: View {
                 if let text = freeText {
                     Text(text)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 } else if let check = freeCheck {
                     Image(systemName: check ? "checkmark.circle.fill" : "minus.circle")
-                        .foregroundColor(check ? .green : .secondary)
+                        .foregroundColor(check ? .green : theme.textSecondary)
                         .font(.system(size: 14))
                 }
             }
@@ -1099,7 +1106,7 @@ private struct ComparisonRow: View {
                         .foregroundColor(.purple)
                 } else if let check = plusCheck {
                     Image(systemName: check ? "checkmark.circle.fill" : "minus.circle")
-                        .foregroundColor(check ? .purple : .secondary)
+                        .foregroundColor(check ? .purple : theme.textSecondary)
                         .font(.system(size: 14))
                 }
             }
@@ -1107,7 +1114,7 @@ private struct ComparisonRow: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
     }
 }
 

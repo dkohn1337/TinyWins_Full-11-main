@@ -7,6 +7,7 @@ import FirebaseAuth
 // MARK: - Account Settings Section (for SettingsView)
 
 struct AccountSettingsSection: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
@@ -20,7 +21,7 @@ struct AccountSettingsSection: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Account")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
@@ -68,7 +69,7 @@ struct AccountSettingsSection: View {
 
                 Text("Sign in to keep your family's moments safe across devices.")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
@@ -98,7 +99,7 @@ struct AccountSettingsSection: View {
 
             Text("Your data stays on this device until you sign in.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .padding(.bottom, 16)
         }
     }
@@ -125,7 +126,7 @@ struct AccountSettingsSection: View {
                         Text(userEmail ?? "Signed In")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(.primary)
+                            .foregroundColor(theme.textPrimary)
 
                         HStack(spacing: 4) {
                             Image(systemName: "checkmark.circle.fill")
@@ -133,7 +134,7 @@ struct AccountSettingsSection: View {
                                 .foregroundColor(.green)
                             Text("Backed up")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
 
@@ -141,7 +142,7 @@ struct AccountSettingsSection: View {
 
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
                 .padding(16)
             }
@@ -188,6 +189,7 @@ struct AccountSettingsSection: View {
 
 struct AccountSignInView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
 
@@ -296,7 +298,7 @@ struct AccountSignInView: View {
 
                 Text("Sign in to keep your family's moments safe and sync across all your devices.")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
@@ -339,7 +341,7 @@ struct AccountSignInView: View {
             // Privacy note
             Text("We only use your email to back up your data.\nWe never share your information.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 24)
         }
@@ -497,6 +499,7 @@ struct SignInProviderButton: View {
 
 struct SettingsEmailSignInView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @State private var email = ""
     @State private var password = ""
     @State private var displayName = ""
@@ -551,7 +554,7 @@ struct SettingsEmailSignInView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("Your Name")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(theme.textSecondary)
 
                                 TextField("How should we greet you?", text: $displayName)
                                     .textFieldStyle(.roundedBorder)
@@ -565,7 +568,7 @@ struct SettingsEmailSignInView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Email")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
 
                             TextField("your@email.com", text: $email)
                                 .textFieldStyle(.roundedBorder)
@@ -579,7 +582,7 @@ struct SettingsEmailSignInView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Password")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
 
                             SecureField("Enter password", text: $password)
                                 .textFieldStyle(.roundedBorder)
@@ -634,7 +637,7 @@ struct SettingsEmailSignInView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(isFormValid ? Color.blue : Color.gray)
+                            .background(isFormValid ? Color.blue : theme.textDisabled)
                             .cornerRadius(12)
                     }
                     .disabled(!isFormValid || isLoading)
@@ -748,6 +751,7 @@ struct SettingsEmailSignInView: View {
 // MARK: - Settings Password Requirement Row
 
 private struct SettingsPasswordRequirementRow: View {
+    @Environment(\.theme) private var theme
     let text: String
     let isMet: Bool
 
@@ -755,10 +759,10 @@ private struct SettingsPasswordRequirementRow: View {
         HStack(spacing: 6) {
             Image(systemName: isMet ? "checkmark.circle.fill" : "circle")
                 .font(.caption)
-                .foregroundColor(isMet ? .green : .secondary)
+                .foregroundColor(isMet ? .green : theme.textSecondary)
             Text(text)
                 .font(.caption)
-                .foregroundColor(isMet ? .primary : .secondary)
+                .foregroundColor(isMet ? theme.textPrimary : theme.textSecondary)
         }
     }
 }
@@ -767,6 +771,7 @@ private struct SettingsPasswordRequirementRow: View {
 
 struct ForgotPasswordView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @State private var email = ""
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -817,7 +822,7 @@ struct ForgotPasswordView: View {
 
                 Text("Enter your email and we'll send you a link to reset your password.")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
 
@@ -825,7 +830,7 @@ struct ForgotPasswordView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Email")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 TextField("your@email.com", text: $email)
                     .textFieldStyle(.roundedBorder)
@@ -851,7 +856,7 @@ struct ForgotPasswordView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(isEmailValid ? Color.blue : Color.gray)
+                    .background(isEmailValid ? Color.blue : theme.textDisabled)
                     .cornerRadius(12)
             }
             .disabled(!isEmailValid || isLoading)
@@ -876,7 +881,7 @@ struct ForgotPasswordView: View {
 
                 Text("We sent a password reset link to")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
 
                 Text(email)
                     .font(.subheadline)
@@ -886,7 +891,7 @@ struct ForgotPasswordView: View {
             // Hint
             Text("Didn't get it? Check your spam folder or try again.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
@@ -947,6 +952,7 @@ struct ForgotPasswordView: View {
 
 struct AccountManagementView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     let userEmail: String
     let authProvider: String
     var onSignOut: () -> Void
@@ -977,7 +983,7 @@ struct AccountManagementView: View {
 
                             Text("Signed in with \(authProviderName)")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                     .padding(.vertical, 8)
@@ -1094,6 +1100,7 @@ struct AccountManagementView: View {
 
 struct DeleteAccountView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var repository: Repository
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
@@ -1158,7 +1165,7 @@ struct DeleteAccountView: View {
                     DeleteWarningRow(icon: "gift.fill", text: "All goals and progress")
                 }
                 .padding()
-                .background(Color(.systemGray6))
+                .background(theme.surface2)
                 .cornerRadius(12)
             }
             .padding(.horizontal)
@@ -1317,6 +1324,7 @@ struct DeleteAccountView: View {
 // MARK: - Delete Warning Row
 
 struct DeleteWarningRow: View {
+    @Environment(\.theme) private var theme
     let icon: String
     let text: String
 
@@ -1328,6 +1336,7 @@ struct DeleteWarningRow: View {
                 .frame(width: 24)
             Text(text)
                 .font(.subheadline)
+                .foregroundColor(theme.textPrimary)
         }
     }
 }
@@ -1335,6 +1344,7 @@ struct DeleteWarningRow: View {
 // MARK: - Loading Overlay
 
 struct LoadingOverlay: View {
+    @Environment(\.theme) private var theme
     let message: String
 
     var body: some View {
@@ -1352,7 +1362,7 @@ struct LoadingOverlay: View {
                     .foregroundColor(.white)
             }
             .padding(32)
-            .background(.ultraThinMaterial)
+            .background(theme.surface1.opacity(0.95))
             .cornerRadius(16)
         }
     }

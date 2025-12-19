@@ -3,38 +3,39 @@ import Combine
 
 /// Store responsible for managing children state and operations.
 /// Extracted from FamilyViewModel to provide focused, single-responsibility state management.
+///
+/// PERFORMANCE: Uses single Snapshot pattern to batch all state updates into one objectWillChange.
+/// Precomputes activeChildren and archivedChildren to avoid per-render filtering.
 @MainActor
 final class ChildrenStore: ObservableObject {
+
+    // MARK: - Snapshot (single publish for all state)
+
+    struct Snapshot: Equatable {
+        var children: [Child] = []
+        var activeChildren: [Child] = []
+        var archivedChildren: [Child] = []
+    }
 
     // MARK: - Dependencies
 
     private let repository: RepositoryProtocol
 
-    // MARK: - Published State
+    // MARK: - Published State (single snapshot = single objectWillChange)
 
-    @Published private(set) var children: [Child] = []
+    @Published private(set) var snapshot = Snapshot()
 
-    // MARK: - Computed Properties
+    // MARK: - Convenience Accessors (no additional publishes)
 
-    /// Children that are not archived (for Today, Rewards, etc.)
-    var activeChildren: [Child] {
-        children.filter { !$0.isArchived }
-    }
-
-    /// Children that are archived
-    var archivedChildren: [Child] {
-        children.filter { $0.isArchived }
-    }
+    var children: [Child] { snapshot.children }
+    var activeChildren: [Child] { snapshot.activeChildren }
+    var archivedChildren: [Child] { snapshot.archivedChildren }
 
     /// Whether there are any children (active or archived)
-    var hasChildren: Bool {
-        !children.isEmpty
-    }
+    var hasChildren: Bool { !snapshot.children.isEmpty }
 
     /// Whether there are any active (non-archived) children
-    var hasActiveChildren: Bool {
-        !activeChildren.isEmpty
-    }
+    var hasActiveChildren: Bool { !snapshot.activeChildren.isEmpty }
 
     // MARK: - Initialization
 
@@ -45,8 +46,19 @@ final class ChildrenStore: ObservableObject {
 
     // MARK: - Data Loading
 
+    /// PERFORMANCE: Single snapshot assignment = single objectWillChange notification
     func loadChildren() {
-        children = repository.getChildren()
+        #if DEBUG
+        FrameStallMonitor.shared.markBlockReason(.storeRecompute)
+        defer { FrameStallMonitor.shared.clearBlockReason() }
+        #endif
+
+        let allChildren = repository.getChildren()
+        snapshot = Snapshot(
+            children: allChildren,
+            activeChildren: allChildren.filter { !$0.isArchived },
+            archivedChildren: allChildren.filter { $0.isArchived }
+        )
     }
 
     // MARK: - Child Queries

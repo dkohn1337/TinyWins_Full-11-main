@@ -4,6 +4,7 @@ import SwiftUI
 
 /// Header showing child info in the log behavior sheet
 struct LogBehaviorChildHeader: View {
+    @Environment(\.theme) private var theme
     let child: Child
 
     var body: some View {
@@ -13,7 +14,7 @@ struct LogBehaviorChildHeader: View {
             VStack(alignment: .leading) {
                 Text("Add moment for")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                 Text(child.name)
                     .font(.headline)
             }
@@ -40,6 +41,7 @@ struct LogBehaviorChildHeader: View {
 
 /// Banner prompting user to create a goal for their child
 struct GoalPromptBanner: View {
+    @Environment(\.theme) private var theme
     let childName: String
     let onPickGoal: () -> Void
 
@@ -57,7 +59,7 @@ struct GoalPromptBanner: View {
 
                     Text("Pick a reward so \(childName) has something exciting to work toward.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -84,6 +86,7 @@ struct GoalPromptBanner: View {
 
 /// Banner showing age-appropriate behavior suggestions
 struct AgeSuggestionBanner: View {
+    @Environment(\.theme) private var theme
     let age: Int
 
     var body: some View {
@@ -92,14 +95,14 @@ struct AgeSuggestionBanner: View {
 
             Text("Showing behaviors suggested for \(age)-year-olds. You can add your own in Manage Behaviors.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer()
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Color(.systemGray6))
+        .background(theme.surface2)
         .cornerRadius(10)
     }
 }
@@ -108,6 +111,7 @@ struct AgeSuggestionBanner: View {
 
 /// Pill showing current star target with dropdown option
 struct StarTargetSelectorPill: View {
+    @Environment(\.theme) private var theme
     let selectedRewardId: UUID?
     let currentTargetName: String
     let childColor: Color
@@ -123,23 +127,23 @@ struct StarTargetSelectorPill: View {
                 if selectedRewardId != nil {
                     Text("Stars will count toward:")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     Text(currentTargetName)
                         .font(.caption.weight(.medium))
                         .foregroundColor(childColor)
                 } else {
                     Text("Stars will not count toward a reward")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
 
                 Image(systemName: "chevron.down")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(Color(.systemBackground))
+            .background(theme.surface1)
             .cornerRadius(20)
             .shadow(color: Color.black.opacity(0.05), radius: 2, y: 1)
         }
@@ -151,6 +155,7 @@ struct StarTargetSelectorPill: View {
 
 /// Chip for quick-adding recent behaviors
 struct RecentBehaviorChip: View {
+    @Environment(\.theme) private var theme
     let behavior: BehaviorType
     let onTap: () -> Void
     var onLongPress: (() -> Void)? = nil
@@ -170,7 +175,7 @@ struct RecentBehaviorChip: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(Color.purple.opacity(0.1))
-            .foregroundColor(.primary)
+            .foregroundColor(theme.textPrimary)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -196,7 +201,7 @@ struct BehaviorTile: View {
     var isPopular: Bool = false
     let onTap: () -> Void
     var onLongPress: (() -> Void)? = nil
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
 
     @State private var isPressed = false
 
@@ -274,22 +279,22 @@ struct BehaviorTile: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
 
                 // Enhanced points badge
                 HStack(spacing: 3) {
                     Text(behavior.defaultPoints >= 0 ? "+\(behavior.defaultPoints)" : "\(behavior.defaultPoints)")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(behavior.defaultPoints >= 0 ? themeProvider.positiveColor : themeProvider.challengeColor)
+                        .foregroundColor(behavior.defaultPoints >= 0 ? theme.success : theme.danger)
                     Image(systemName: "star.fill")
                         .font(.system(size: 9))
-                        .foregroundColor(themeProvider.starColor)
+                        .foregroundColor(theme.star)
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(
                     Capsule()
-                        .fill(behavior.defaultPoints >= 0 ? themeProvider.positiveColor.opacity(0.1) : themeProvider.challengeColor.opacity(0.1))
+                        .fill(behavior.defaultPoints >= 0 ? theme.success.opacity(0.1) : theme.danger.opacity(0.1))
                 )
             }
             .frame(maxWidth: .infinity)
@@ -297,7 +302,7 @@ struct BehaviorTile: View {
             .padding(.horizontal, 8)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
+                    .fill(theme.surface1)
                     .shadow(color: iconColor.opacity(isPressed ? 0.1 : 0.15), radius: isPressed ? 4 : 8, y: isPressed ? 2 : 4)
             )
             .overlay(
@@ -338,6 +343,7 @@ typealias BehaviorButton = BehaviorTile
 
 /// Option row in reward picker
 struct RewardPickerOption: View {
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     let reward: Reward
     let isSelected: Bool
@@ -352,7 +358,7 @@ struct RewardPickerOption: View {
             HStack(spacing: 12) {
                 // Checkmark
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(isSelected ? .purple : .secondary)
+                    .foregroundColor(isSelected ? .purple : theme.textSecondary)
                     .font(.title3)
 
                 // Reward icon
@@ -364,13 +370,13 @@ struct RewardPickerOption: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(reward.name)
                         .font(.subheadline.weight(.medium))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
 
                     // Progress bar
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 2)
-                                .fill(Color(.systemGray4))
+                                .fill(theme.borderStrong)
                                 .frame(height: 4)
 
                             RoundedRectangle(cornerRadius: 2)
@@ -386,15 +392,15 @@ struct RewardPickerOption: View {
                 // Progress percentage
                 Text("\(Int(progress * 100))%")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
-            .background(isSelected ? Color.purple.opacity(0.1) : Color(.systemBackground))
+            .background(isSelected ? Color.purple.opacity(0.1) : theme.surface1)
             .cornerRadius(10)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? Color.purple : Color(.systemGray4), lineWidth: 1)
+                    .stroke(isSelected ? Color.purple : theme.borderStrong, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -405,6 +411,7 @@ struct RewardPickerOption: View {
 
 /// Thumbnail for media attachments
 struct MediaThumbnail: View {
+    @Environment(\.theme) private var theme
     let attachment: MediaAttachment
     let onDelete: () -> Void
 
@@ -428,7 +435,7 @@ struct MediaThumbnail: View {
                             .foregroundColor(.white)
                     }
                 } else {
-                    Color.gray
+                    theme.textSecondary
                         .overlay {
                             Image(systemName: attachment.mediaType == .video ? "video.fill" : "photo.fill")
                                 .foregroundColor(.white)
@@ -454,6 +461,7 @@ struct MediaThumbnail: View {
 
 /// Chip button for selecting star amount
 struct StarChipButton: View {
+    @Environment(\.theme) private var theme
     let amount: Int
     let isSelected: Bool
     let onTap: () -> Void
@@ -471,10 +479,10 @@ struct StarChipButton: View {
                     .font(.caption)
                     .foregroundColor(isSelected ? .white : .yellow)
             }
-            .foregroundColor(isSelected ? .white : .primary)
+            .foregroundColor(isSelected ? .white : theme.textPrimary)
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
-            .background(isSelected ? (amount >= 0 ? AppColors.positive : AppColors.challenge) : Color(.systemGray6))
+            .background(isSelected ? (amount >= 0 ? AppColors.positive : AppColors.challenge) : theme.surface2)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -488,6 +496,7 @@ struct StarChipButton: View {
 
 /// Sheet shown to prompt goal creation before logging
 struct GoalInterceptionSheet: View {
+    @Environment(\.theme) private var theme
     let child: Child
     let onChooseGoal: () -> Void
     let onNotNow: () -> Void
@@ -507,7 +516,7 @@ struct GoalInterceptionSheet: View {
 
                 Text("Stars feel more exciting when they're building toward something special.")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal)
@@ -528,7 +537,7 @@ struct GoalInterceptionSheet: View {
                 Button(action: onNotNow) {
                     Text("Choose later")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
             .padding(.horizontal, 24)

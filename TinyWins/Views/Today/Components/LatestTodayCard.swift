@@ -5,7 +5,7 @@ import SwiftUI
 /// Compact card showing the most recent moment logged today.
 /// Tappable to expand into full activity view.
 struct LatestTodayCard: View {
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
     @EnvironmentObject private var childrenStore: ChildrenStore
 
@@ -30,14 +30,14 @@ struct LatestTodayCard: View {
                 HStack {
                     Text("Latest Today")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(themeProvider.secondaryText)
+                        .foregroundColor(theme.textSecondary)
 
                     Spacer()
 
                     if eventCount > 0 {
                         Text("\(eventCount)")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundColor(themeProvider.accentColor)
+                            .foregroundColor(theme.accentPrimary)
                     }
                 }
                 .padding(.bottom, 10)
@@ -52,12 +52,12 @@ struct LatestTodayCard: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(themeProvider.cardBackground)
-                    .shadow(color: themeProvider.cardShadow, radius: 4, y: 2)
+                    .fill(theme.surface1)
+                    .shadow(color: theme.shadowColor.opacity(theme.shadowStrength), radius: 4, y: 2)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(themeProvider.accentColor.opacity(0.1), lineWidth: 1)
+                    .stroke(theme.accentPrimary.opacity(0.1), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -88,7 +88,7 @@ struct LatestTodayCard: View {
                     if let behaviorType = behaviorsStore.behaviorType(id: event.behaviorTypeId) {
                         Text(behaviorType.name)
                             .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(themeProvider.primaryText)
+                            .foregroundColor(theme.textPrimary)
                             .lineLimit(1)
                     }
                 }
@@ -102,19 +102,19 @@ struct LatestTodayCard: View {
                 HStack(spacing: 2) {
                     Text(event.pointsApplied >= 0 ? "+\(event.pointsApplied)" : "\(event.pointsApplied)")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundColor(event.pointsApplied >= 0 ? themeProvider.positiveColor : themeProvider.challengeColor)
+                        .foregroundColor(event.pointsApplied >= 0 ? theme.success : theme.danger)
                 }
 
                 // Relative time
                 Text(relativeTime(from: event.timestamp))
                     .font(.system(size: 11))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             // Chevron
             Image(systemName: "chevron.right")
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(themeProvider.secondaryText.opacity(0.5))
+                .foregroundColor(theme.textSecondary.opacity(0.5))
         }
     }
 
@@ -124,23 +124,23 @@ struct LatestTodayCard: View {
         HStack(spacing: 12) {
             Image(systemName: "sun.max.fill")
                 .font(.system(size: 20))
-                .foregroundColor(themeProvider.starColor.opacity(0.6))
+                .foregroundColor(theme.star.opacity(0.6))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("No moments yet")
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(themeProvider.primaryText)
+                    .foregroundColor(theme.textPrimary)
 
                 Text("Your first one is just a tap away")
                     .font(.system(size: 13))
-                    .foregroundColor(themeProvider.secondaryText)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(themeProvider.secondaryText.opacity(0.5))
+                .foregroundColor(theme.textSecondary.opacity(0.5))
         }
     }
 

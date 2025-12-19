@@ -78,6 +78,7 @@ struct DailyCheckInView: View {
     @EnvironmentObject private var childrenStore: ChildrenStore
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     @State private var selectedWins: Set<String> = []
     @State private var customNote: String = ""
@@ -132,7 +133,7 @@ struct DailyCheckInView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.bg1)
             .navigationTitle("Reflect")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -195,7 +196,7 @@ struct DailyCheckInView: View {
 
                 Text("What went well?")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             // Reflection streak badge and history button
@@ -248,7 +249,7 @@ struct DailyCheckInView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity)
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(16)
     }
     
@@ -289,7 +290,7 @@ struct DailyCheckInView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Top moments today:")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                     
                     ForEach(todayStats.topBehaviors.prefix(3), id: \.0.id) { behavior, count in
                         HStack {
@@ -300,7 +301,7 @@ struct DailyCheckInView: View {
                             Spacer()
                             Text("\(count)x")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                 }
@@ -308,7 +309,7 @@ struct DailyCheckInView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(16)
     }
     
@@ -360,7 +361,7 @@ struct DailyCheckInView: View {
 
             Text("Celebrate what you did well today:")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
 
             // Category sections
             ForEach(WinCategory.allCases, id: \.self) { category in
@@ -380,7 +381,7 @@ struct DailyCheckInView: View {
             customWinsSection
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(16)
         .sheet(isPresented: $showingAddCustomWin) {
             addCustomWinSheet
@@ -415,7 +416,7 @@ struct DailyCheckInView: View {
             if savedCustomWins.isEmpty {
                 Text("Add your own wins that matter to you")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .italic()
             } else {
                 FlowLayout(spacing: 8) {
@@ -451,7 +452,7 @@ struct DailyCheckInView: View {
 
                     Text("What's something you did well that isn't listed?")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding(.top, 20)
@@ -476,7 +477,7 @@ struct DailyCheckInView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(newCustomWin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : Color.yellow)
+                        .background(newCustomWin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? theme.textDisabled : Color.yellow)
                         .foregroundColor(.black)
                         .cornerRadius(12)
                 }
@@ -538,7 +539,7 @@ struct DailyCheckInView: View {
                 .lineLimit(3...5)
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(16)
     }
     
@@ -560,7 +561,7 @@ struct DailyCheckInView: View {
                 
                 Text("It has been a week with some challenges, and that is part of the journey. Tomorrow, try noticing just one small moment that feels good, like a calm morning or a kind word.")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                 
                 HStack(alignment: .top) {
@@ -593,7 +594,7 @@ struct DailyCheckInView: View {
                     .font(.subheadline.weight(.medium))
                 Text("Let your partner see this reflection")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
             Spacer()
@@ -603,7 +604,7 @@ struct DailyCheckInView: View {
                 .tint(.teal)
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(theme.surface1)
         .cornerRadius(16)
     }
 
@@ -761,7 +762,9 @@ struct StatBox: View {
     let label: String
     let color: Color
     let icon: String
-    
+
+    @Environment(\.theme) private var theme
+
     var body: some View {
         VStack(spacing: 4) {
             HStack(spacing: 4) {
@@ -774,7 +777,7 @@ struct StatBox: View {
             
             Text(label)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -793,6 +796,8 @@ private struct CategoryWinsSection: View {
     let isExpanded: Bool
     let onToggle: () -> Void
 
+    @Environment(\.theme) private var theme
+
     /// Count of selected wins in this category
     private var selectedCount: Int {
         category.wins.filter { selectedWins.contains($0) }.count
@@ -810,7 +815,7 @@ private struct CategoryWinsSection: View {
 
                     Text(category.rawValue)
                         .font(.subheadline.weight(.medium))
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
 
                     if selectedCount > 0 {
                         Text("\(selectedCount)")
@@ -826,7 +831,7 @@ private struct CategoryWinsSection: View {
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
             .buttonStyle(.plain)
@@ -846,7 +851,7 @@ private struct CategoryWinsSection: View {
                     if category.wins.count > 2 {
                         Text("+\(category.wins.count - 2)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
             }
@@ -889,14 +894,16 @@ struct ParentWinChip: View {
     var accentColor: Color = .pink
     let onTap: () -> Void
 
+    @Environment(\.theme) private var theme
+
     var body: some View {
         Button(action: onTap) {
             Text(text)
                 .font(.caption)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(isSelected ? accentColor.opacity(0.2) : Color(.systemGray6))
-                .foregroundColor(isSelected ? accentColor : .primary)
+                .background(isSelected ? accentColor.opacity(0.2) : theme.surface2)
+                .foregroundColor(isSelected ? accentColor : theme.textPrimary)
                 .cornerRadius(16)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)

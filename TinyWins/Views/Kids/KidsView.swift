@@ -2,19 +2,18 @@ import SwiftUI
 
 struct KidsView: View {
     @EnvironmentObject private var childrenStore: ChildrenStore
-    @EnvironmentObject private var rewardsStore: RewardsStore
-    @EnvironmentObject private var behaviorsStore: BehaviorsStore
+    @EnvironmentObject private var viewModel: KidsViewModel
     @EnvironmentObject private var userPreferences: UserPreferencesStore
     @EnvironmentObject private var coordinator: AppCoordinator
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @State private var showingAddChild = false
     @State private var showingArchivedChildren = false
     @State private var showingPaywall = false
     @State private var showingSecondChildCoachMark = false
 
     private var canAddChild: Bool {
-        subscriptionManager.canAddChild(currentCount: childrenStore.activeChildren.count)
+        viewModel.state.canAddChild
     }
     
     var body: some View {
@@ -56,9 +55,16 @@ struct KidsView: View {
                 Text("You can track wins separately for each child. Swipe to switch between them on the Today and Goals tabs. Each child has their own goals and progress.")
             }
             .onAppear {
+                // PHASE 3C: Visibility gate
+                viewModel.setVisible(true)
                 checkForSecondChildCoachMark()
             }
-            .themedNavigationBar(themeProvider)
+            .onDisappear {
+                // PHASE 3C: Visibility gate
+                viewModel.setVisible(false)
+            }
+            .themedNavigationBar(theme)
+            .trackScreen("KidsView")
         }
     }
     
@@ -136,7 +142,7 @@ struct KidsView: View {
 
                     Text("Add your first child to begin noticing the small moments that make a big difference.")
                         .font(.system(size: 15))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -168,19 +174,19 @@ struct KidsView: View {
             .padding(.top, 16)
             .tabBarBottomPadding()
         }
-        .background(themeProvider.backgroundColor)
+        .background(theme.bg0)
     }
 
     private var kidsList: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: 16) {
-                    // Active children
-                    ForEach(childrenStore.activeChildren) { child in
-                        NavigationLink(destination: ChildDetailView(child: child)) {
-                            EnhancedKidRowView(child: child) {
+                    // Active children - using precomputed row data
+                    ForEach(viewModel.state.activeChildrenData) { rowData in
+                        NavigationLink(destination: ChildDetailView(child: rowData.child)) {
+                            EnhancedKidRowView(rowData: rowData) {
                                 // Navigate to Goals tab with this child selected
-                                coordinator.selectChild(child.id)
+                                coordinator.selectChild(rowData.child.id)
                                 coordinator.selectedTab = .rewards
                             }
                         }
@@ -195,21 +201,22 @@ struct KidsView: View {
                         .padding(.horizontal, 16)
                     }
 
-                    // Archived children section
-                    if !childrenStore.archivedChildren.isEmpty {
+                    // Archived children section - using precomputed row data
+                    let archivedData = viewModel.state.archivedChildrenData
+                    if !archivedData.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
                             if showingArchivedChildren {
-                                ForEach(childrenStore.archivedChildren) { child in
-                                    NavigationLink(destination: ChildDetailView(child: child)) {
+                                ForEach(archivedData) { rowData in
+                                    NavigationLink(destination: ChildDetailView(child: rowData.child)) {
                                         HStack {
-                                            EnhancedKidRowView(child: child, isArchived: true) {
-                                                coordinator.selectChild(child.id)
+                                            EnhancedKidRowView(rowData: rowData) {
+                                                coordinator.selectChild(rowData.child.id)
                                                 coordinator.selectedTab = .rewards
                                             }
                                         }
                                     }
                                     .buttonStyle(.plain)
-                                    .id("archived-\(child.id)")
+                                    .id("archived-\(rowData.child.id)")
                                 }
                             }
 
@@ -219,10 +226,10 @@ struct KidsView: View {
                                     showingArchivedChildren.toggle()
                                 }
                                 // Scroll to first archived child when expanding
-                                if wasHidden, let firstArchived = childrenStore.archivedChildren.first {
+                                if wasHidden, let firstArchived = archivedData.first {
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                                         withAnimation(.easeInOut(duration: 0.3)) {
-                                            proxy.scrollTo("archived-\(firstArchived.id)", anchor: .top)
+                                            proxy.scrollTo("archived-\(firstArchived.child.id)", anchor: .top)
                                         }
                                     }
                                 }
@@ -230,13 +237,13 @@ struct KidsView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: showingArchivedChildren ? "chevron.up.circle.fill" : "chevron.down.circle.fill")
                                         .font(.system(size: 16))
-                                    Text(showingArchivedChildren ? "Hide archived children" : "Show \(childrenStore.archivedChildren.count) archived \(childrenStore.archivedChildren.count == 1 ? "child" : "children")")
+                                    Text(showingArchivedChildren ? "Hide archived children" : "Show \(archivedData.count) archived \(archivedData.count == 1 ? "child" : "children")")
                                         .font(.system(size: 14, weight: .medium))
                                 }
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                                 .padding(.vertical, 12)
                             }
-                            .accessibilityLabel(showingArchivedChildren ? "Hide archived children" : "Show \(childrenStore.archivedChildren.count) archived children")
+                            .accessibilityLabel(showingArchivedChildren ? "Hide archived children" : "Show \(archivedData.count) archived children")
                             .accessibilityHint("Double tap to \(showingArchivedChildren ? "collapse" : "expand") archived children section")
                         }
                         .id("archived-section")
@@ -246,7 +253,7 @@ struct KidsView: View {
                 .tabBarBottomPadding()
             }
         }
-        .background(themeProvider.backgroundColor)
+        .background(theme.bg0)
     }
 
     private func deleteActiveChildren(at offsets: IndexSet) {
@@ -259,28 +266,22 @@ struct KidsView: View {
 
 // MARK: - Enhanced Kid Row View
 
+/// PERFORMANCE: Uses precomputed KidRowData from KidsViewModel instead of accessing stores.
+/// All heavy computations (reward status, progress, queued rewards) are done via Combine,
+/// not during SwiftUI body evaluation.
 struct EnhancedKidRowView: View {
-    @EnvironmentObject private var rewardsStore: RewardsStore
-    @EnvironmentObject private var behaviorsStore: BehaviorsStore
-    @EnvironmentObject private var themeProvider: ThemeProvider
+    @Environment(\.theme) private var theme
     @EnvironmentObject private var coordinator: AppCoordinator
-    let child: Child
-    var isArchived: Bool = false
+
+    let rowData: KidRowData
     var onRewardBadgeTap: (() -> Void)? = nil
 
-    private var activeReward: Reward? {
-        rewardsStore.activeReward(forChild: child.id)
-    }
-
-    private var rewardStatus: Reward.RewardStatus? {
-        activeReward?.status(from: behaviorsStore.behaviorEvents, isPrimaryReward: true)
-    }
-
-    private var progress: Double {
-        guard let reward = activeReward else { return 0 }
-        let earned = reward.pointsEarnedInWindow(from: behaviorsStore.behaviorEvents, isPrimaryReward: true)
-        return min(Double(earned) / Double(reward.targetPoints), 1.0)
-    }
+    // Convenience accessors from rowData
+    private var child: Child { rowData.child }
+    private var isArchived: Bool { rowData.isArchived }
+    private var activeReward: Reward? { rowData.activeReward }
+    private var rewardStatus: Reward.RewardStatus? { rowData.rewardStatus }
+    private var progress: Double { rowData.progress }
 
     // MARK: - Extracted Subviews
 
@@ -288,7 +289,7 @@ struct EnhancedKidRowView: View {
     private var avatarSection: some View {
         ZStack {
             Circle()
-                .stroke(themeProvider.resolved.isDark ? Color.white.opacity(0.15) : Color(.systemGray5), lineWidth: 3)
+                .stroke(theme.isDark ? Color.white.opacity(0.15) : theme.borderSoft, lineWidth: 3)
                 .frame(width: 62, height: 62)
 
             if activeReward != nil {
@@ -310,7 +311,7 @@ struct EnhancedKidRowView: View {
 
             if isArchived {
                 Circle()
-                    .fill(Color(.systemGray4))
+                    .fill(theme.borderStrong)
                     .frame(width: 20, height: 20)
                     .overlay(
                         Image(systemName: "archivebox.fill")
@@ -361,31 +362,6 @@ struct EnhancedKidRowView: View {
         .accessibilityHint("Tap to celebrate this achievement")
     }
 
-    /// Get all queued (non-redeemed, non-expired) rewards for this child
-    private var queuedRewards: [Reward] {
-        rewardsStore.rewards(forChild: child.id)
-            .filter { !$0.isRedeemed && !$0.isExpired }
-            .sorted { $0.priority < $1.priority }
-    }
-
-    /// Calculate stars remaining to reach a specific goal
-    private func starsRemaining(for reward: Reward, isPrimary: Bool) -> Int {
-        let earned = reward.pointsEarnedInWindow(from: behaviorsStore.behaviorEvents, isPrimaryReward: isPrimary)
-        return max(0, reward.targetPoints - earned)
-    }
-
-    /// Get the next queued reward after the primary one
-    private var nextQueuedReward: Reward? {
-        let queued = queuedRewards
-        guard queued.count > 1 else { return nil }
-        return queued.dropFirst().first
-    }
-
-    /// Count of additional queued rewards (excluding primary and next)
-    private var additionalQueuedCount: Int {
-        max(0, queuedRewards.count - 1)
-    }
-
     @ViewBuilder
     private var starsAndGoalSection: some View {
         HStack(spacing: 6) {
@@ -395,44 +371,43 @@ struct EnhancedKidRowView: View {
                     .font(.system(size: 12))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [themeProvider.starColor, themeProvider.starColor.opacity(0.7)],
+                            colors: [theme.star, theme.star.opacity(0.7)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
                 Text("\(child.totalPoints)")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.textSecondary)
             }
 
-            // Goal status
+            // Goal status - using precomputed values from rowData
             if let reward = activeReward {
                 Text("•")
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary.opacity(0.5))
+                    .foregroundColor(theme.textDisabled)
 
                 if rewardStatus == Reward.RewardStatus.readyToRedeem {
                     // Goal reached - show next goal or prompt
-                    if let nextReward = nextQueuedReward {
+                    if let nextReward = rowData.nextQueuedReward {
                         // Has queued goals - show next one
-                        let remaining = starsRemaining(for: nextReward, isPrimary: false)
                         HStack(spacing: 4) {
                             Text("Next:")
                                 .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                            Text("\(remaining) to")
+                                .foregroundColor(theme.textSecondary)
+                            Text("\(rowData.starsRemainingForNext) to")
                                 .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                             Text(nextReward.name)
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(child.colorTag.color)
                                 .lineLimit(1)
                         }
                         // Show +N more if there are additional queued goals
-                        if additionalQueuedCount > 1 {
-                            Text("(+\(additionalQueuedCount - 1))")
+                        if rowData.additionalQueuedCount > 1 {
+                            Text("(+\(rowData.additionalQueuedCount - 1))")
                                 .font(.system(size: 11))
-                                .foregroundColor(.secondary.opacity(0.6))
+                                .foregroundColor(theme.textSecondary)
                         }
                     } else {
                         // No queued goals - prompt to set next
@@ -442,22 +417,22 @@ struct EnhancedKidRowView: View {
                     }
                 } else {
                     // In progress - show stars remaining to primary goal
-                    let remaining = starsRemaining(for: reward, isPrimary: true)
+                    let remaining = rowData.starsRemainingForPrimary
                     if remaining > 0 {
                         HStack(spacing: 4) {
                             Text("\(remaining) to")
                                 .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.textSecondary)
                             Text(reward.name)
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(child.colorTag.color)
                                 .lineLimit(1)
                         }
                         // Show +N more if there are additional queued goals
-                        if additionalQueuedCount > 0 {
-                            Text("(+\(additionalQueuedCount))")
+                        if rowData.additionalQueuedCount > 0 {
+                            Text("(+\(rowData.additionalQueuedCount))")
                                 .font(.system(size: 11))
-                                .foregroundColor(.secondary.opacity(0.6))
+                                .foregroundColor(theme.textSecondary)
                         }
                     }
                 }
@@ -465,10 +440,10 @@ struct EnhancedKidRowView: View {
                 // No active goal
                 Text("•")
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary.opacity(0.5))
+                    .foregroundColor(theme.textDisabled)
                 Text("No active goal")
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary.opacity(0.6))
+                    .foregroundColor(theme.textDisabled)
             }
         }
     }
@@ -494,7 +469,7 @@ struct EnhancedKidRowView: View {
                 HStack(spacing: 8) {
                     Text(child.name)
                         .font(AppTypography.button)
-                        .foregroundColor(.primary)
+                        .foregroundColor(theme.textPrimary)
 
                     if rewardStatus == Reward.RewardStatus.readyToRedeem {
                         rewardBadgeButton
@@ -510,17 +485,17 @@ struct EnhancedKidRowView: View {
         }
         .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: themeProvider.resolved.cornerRadius)
-                .fill(themeProvider.resolved.cardBackground)
+            RoundedRectangle(cornerRadius: theme.cornerRadius)
+                .fill(theme.surface1)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: themeProvider.resolved.cornerRadius)
+            RoundedRectangle(cornerRadius: theme.cornerRadius)
                 .strokeBorder(
-                    isArchived ? Color(.systemGray4) : themeProvider.resolved.cardBorderColor,
-                    lineWidth: isArchived ? 1 : themeProvider.resolved.cardBorderWidth
+                    isArchived ? theme.borderStrong : theme.borderSoft,
+                    lineWidth: isArchived ? 1 : 1
                 )
         )
-        .shadow(color: themeProvider.resolved.shadowColor.opacity(CardElevation.medium.shadowOpacity * (themeProvider.resolved.isDark ? 1.5 : 1.0)), radius: CardElevation.medium.shadowRadius, y: CardElevation.medium.shadowY)
+        .shadow(color: theme.shadowColor.opacity(CardElevation.medium.shadowOpacity * (theme.isDark ? 1.5 : 1.0)), radius: CardElevation.medium.shadowRadius, y: CardElevation.medium.shadowY)
     }
 }
 
@@ -529,6 +504,7 @@ struct EnhancedKidRowView: View {
 struct KidRowView: View {
     @EnvironmentObject private var rewardsStore: RewardsStore
     @EnvironmentObject private var behaviorsStore: BehaviorsStore
+    @Environment(\.theme) private var theme
     let child: Child
 
     var body: some View {
@@ -538,22 +514,22 @@ struct KidRowView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(child.name)
                     .font(.headline)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.textPrimary)
 
                 HStack(spacing: 8) {
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
                             .font(.caption2)
-                            .foregroundColor(.yellow)
+                            .foregroundColor(theme.star)
                         Text("\(child.totalPoints)")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     if let reward = rewardsStore.activeReward(forChild: child.id) {
                         let status = reward.status(from: behaviorsStore.behaviorEvents, isPrimaryReward: true)
                         Text("\u{00B7}")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(theme.textSecondary)
 
                         switch status {
                         case .readyToRedeem:
@@ -593,7 +569,7 @@ struct KidRowView: View {
 
             Image(systemName: "chevron.right")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(theme.textSecondary)
         }
     }
 }
